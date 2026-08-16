@@ -1,0 +1,323 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f7fb;
+  color: #1f2937;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 50px 20px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1000px;
+  background: white;
+  padding: 45px;
+  border-radius: 20px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 38px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #6b7280;
+  margin-bottom: 35px;
+}
+
+.upload-box {
+  border: 2px dashed #b8c4d3;
+  border-radius: 16px;
+  padding: 35px;
+  text-align: center;
+}
+
+input[type="file"] {
+  margin-bottom: 25px;
+}
+
+.preview {
+  margin-top: 20px;
+}
+
+.preview img {
+  max-width: 500px;
+  width: 100%;
+  border-radius: 14px;
+  margin-top: 12px;
+}
+
+button {
+  display: block;
+  margin: 25px auto 0;
+  padding: 14px 30px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  margin-top: 20px;
+  color: #dc2626;
+}
+
+.result {
+  margin-top: 45px;
+}
+
+.result h2 {
+  text-align: center;
+}
+
+.result-card {
+  margin: 25px auto;
+  max-width: 500px;
+  padding: 25px;
+  text-align: center;
+  border-radius: 15px;
+  background: #f0f7ff;
+}
+
+.result-card h3 {
+  font-size: 28px;
+  margin: 0 0 12px;
+}
+
+.images {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.images div {
+  text-align: center;
+}
+
+.images img {
+  width: 100%;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+@media (max-width: 800px) {
+  .images {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    padding: 25px;
+  }
+}
+.patient-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+  margin: 30px auto 0;
+}
+
+.patient-form input,
+.patient-form select {
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.patient-form button {
+  margin-top: 10px;
+}
+.back-button {
+  background: #64748b;
+  margin: 0 0 20px 0;
+}
+
+.patient-id {
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.error {
+  margin-top: 20px;
+  color: #dc2626;
+}
+.dashboard {
+  max-width: 1000px;
+}
+
+.patient-info {
+  background: #f0f7ff;
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 35px;
+}
+
+.patient-info h2 {
+  margin-top: 0;
+}
+
+.history {
+  margin-top: 20px;
+}
+
+.screening-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  padding: 22px;
+  margin-top: 15px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  background: white;
+}
+
+.screening-card h3 {
+  margin: 0 0 10px;
+  font-size: 24px;
+}
+
+.screening-card p {
+  margin: 5px 0;
+  color: #64748b;
+}
+.doctor-dashboard {
+  max-width: 1100px;
+}
+
+.doctor-section {
+  margin-top: 35px;
+}
+
+.doctor-section h2 {
+  margin-bottom: 20px;
+}
+
+.doctor-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  padding: 22px;
+  margin-bottom: 15px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  background: white;
+}
+
+.doctor-card h3 {
+  margin: 0 0 10px;
+}
+
+.doctor-card p {
+  margin: 6px 0;
+  color: #64748b;
+}
+
+.doctor-card.reviewed {
+  background: #f8fafc;
+}
+.doctor-review {
+  max-width: 1100px;
+}
+
+.review-summary {
+  margin: 25px 0;
+  padding: 25px;
+  background: #f0f7ff;
+  border-radius: 15px;
+}
+
+.review-summary h2 {
+  margin-top: 0;
+}
+
+.review-form {
+  margin-top: 40px;
+  padding: 30px;
+  border-radius: 15px;
+  background: #f8fafc;
+}
+
+.review-form select,
+.review-form input,
+.review-form textarea {
+  display: block;
+  width: 100%;
+  margin-top: 15px;
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.review-form button {
+  margin-top: 20px;
+}
+
+.success {
+  margin-top: 15px;
+  color: #16a34a;
+  font-weight: bold;
+}
+.role-selection {
+  text-align: center;
+  max-width: 700px;
+}
+
+.role-selection h1 {
+  line-height: 1.2;
+}
+
+.role-selection h2 {
+  margin-top: 35px;
+}
+
+.role-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.role-buttons button {
+  min-width: 180px;
+}
+
+.role-switch {
+  width: 100%;
+  max-width: 1100px;
+  margin-top: 20px;
+}
+
+.role-switch button {
+  background: #64748b;
+}

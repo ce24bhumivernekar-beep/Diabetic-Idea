@@ -1,0 +1,31 @@
+# Python
+ai-service/venv/
+ai-service/__pycache__/
+ai-service/*.pyc
+
+# AI dataset and generated files
+ai-service/data/
+ai-service/generated/
+
+# Trained AI models
+ai-service/models/*.keras
+ai-service/models/*.h5
+
+# React
+frontend/node_modules/
+frontend/dist/
+
+# Spring Boot
+backend/target/
+
+# Secrets
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
