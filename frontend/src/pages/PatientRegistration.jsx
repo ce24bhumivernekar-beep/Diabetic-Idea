@@ -7,10 +7,11 @@ function PatientRegistration({ onPatientCreated }) {
     gender: "",
     email: "",
     phone: "",
+    password: "",
   });
 
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (event) => {
     setForm({
@@ -26,7 +27,39 @@ function PatientRegistration({ onPatientCreated }) {
     setError("");
 
     try {
-      const response = await fetch(
+      // -----------------------------------------------------
+      // 1. Create authentication account
+      // -----------------------------------------------------
+
+      const authResponse = await fetch(
+        "http://localhost:8080/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: form.name.trim(),
+            email: form.email.trim(),
+            password: form.password,
+            role: "PATIENT",
+          }),
+        }
+      );
+
+      const authText = await authResponse.text();
+
+      if (!authResponse.ok) {
+        throw new Error(
+          authText || "Could not create patient account."
+        );
+      }
+
+      // -----------------------------------------------------
+      // 2. Create patient profile
+      // -----------------------------------------------------
+
+      const patientResponse = await fetch(
         "http://localhost:8080/api/patients",
         {
           method: "POST",
@@ -34,25 +67,41 @@ function PatientRegistration({ onPatientCreated }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name: form.name,
+            name: form.name.trim(),
             age: Number(form.age),
             gender: form.gender,
-            email: form.email,
-            phone: form.phone,
+            email: form.email.trim(),
+            phone: form.phone.trim(),
           }),
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Could not register patient");
+      const patientText = await patientResponse.text();
+
+      if (!patientResponse.ok) {
+        throw new Error(
+          patientText || "Could not create patient profile."
+        );
       }
 
-      const patient = await response.json();
+      const patient = JSON.parse(patientText);
+
+      // -----------------------------------------------------
+      // 3. Continue to patient dashboard
+      // -----------------------------------------------------
 
       onPatientCreated(patient);
+
     } catch (error) {
-      console.error(error);
-      setError("Could not register patient.");
+      console.error(
+        "Patient registration error:",
+        error
+      );
+
+      setError(
+        error.message ||
+        "Could not register patient."
+      );
     } finally {
       setLoading(false);
     }
@@ -60,13 +109,17 @@ function PatientRegistration({ onPatientCreated }) {
 
   return (
     <div className="container">
+
       <h1>Patient Registration</h1>
 
       <p className="subtitle">
-        Enter patient details before starting a screening.
+        Create an account before starting a screening.
       </p>
 
-      <form onSubmit={registerPatient} className="patient-form">
+      <form
+        onSubmit={registerPatient}
+        className="patient-form"
+      >
 
         <input
           type="text"
@@ -94,10 +147,21 @@ function PatientRegistration({ onPatientCreated }) {
           onChange={handleChange}
           required
         >
-          <option value="">Select Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
+          <option value="">
+            Select Gender
+          </option>
+
+          <option value="Male">
+            Male
+          </option>
+
+          <option value="Female">
+            Female
+          </option>
+
+          <option value="Other">
+            Other
+          </option>
         </select>
 
         <input
@@ -118,8 +182,23 @@ function PatientRegistration({ onPatientCreated }) {
           required
         />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Registering..." : "Register Patient"}
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          minLength={6}
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+        >
+          {loading
+            ? "Registering..."
+            : "Register Patient"}
         </button>
 
         {error && (
@@ -129,6 +208,7 @@ function PatientRegistration({ onPatientCreated }) {
         )}
 
       </form>
+
     </div>
   );
 }
