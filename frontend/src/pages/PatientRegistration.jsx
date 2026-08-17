@@ -51,12 +51,45 @@ function PatientRegistration({ onPatientCreated }) {
 
       if (!authResponse.ok) {
         throw new Error(
-          authText || "Could not create patient account."
+          authText ||
+            "Could not create patient account."
+        );
+      }
+
+      const user = JSON.parse(authText);
+
+      if (!user.token) {
+        throw new Error(
+          "Registration succeeded but no authentication token was received."
         );
       }
 
       // -----------------------------------------------------
-      // 2. Create patient profile
+      // 2. Save authentication information
+      // -----------------------------------------------------
+
+      localStorage.setItem(
+        "authToken",
+        user.token
+      );
+
+      localStorage.setItem(
+        "userRole",
+        user.role
+      );
+
+      localStorage.setItem(
+        "userId",
+        user.id
+      );
+
+      localStorage.setItem(
+        "userEmail",
+        user.email
+      );
+
+      // -----------------------------------------------------
+      // 3. Create patient profile
       // -----------------------------------------------------
 
       const patientResponse = await fetch(
@@ -65,8 +98,10 @@ function PatientRegistration({ onPatientCreated }) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${user.token}`,
           },
           body: JSON.stringify({
+            userId: user.id,
             name: form.name.trim(),
             age: Number(form.age),
             gender: form.gender,
@@ -76,18 +111,21 @@ function PatientRegistration({ onPatientCreated }) {
         }
       );
 
-      const patientText = await patientResponse.text();
+      const patientText =
+        await patientResponse.text();
 
       if (!patientResponse.ok) {
         throw new Error(
-          patientText || "Could not create patient profile."
+          patientText ||
+            "Could not create patient profile."
         );
       }
 
-      const patient = JSON.parse(patientText);
+      const patient =
+        JSON.parse(patientText);
 
       // -----------------------------------------------------
-      // 3. Continue to patient dashboard
+      // 4. Continue to patient dashboard
       // -----------------------------------------------------
 
       onPatientCreated(patient);
@@ -100,7 +138,7 @@ function PatientRegistration({ onPatientCreated }) {
 
       setError(
         error.message ||
-        "Could not register patient."
+          "Could not register patient."
       );
     } finally {
       setLoading(false);

@@ -8,20 +8,50 @@ function DoctorDashboard({ onReview }) {
   useEffect(() => {
     const loadScreenings = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:8080/api/doctor/screenings"
-        );
+        const token =
+          localStorage.getItem("authToken");
 
-        if (!response.ok) {
-          throw new Error("Could not load screenings");
+        if (!token) {
+          throw new Error(
+            "Authentication token not found."
+          );
         }
 
-        const data = await response.json();
+        const response = await fetch(
+          "http://localhost:8080/api/doctor/screenings",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const responseText =
+          await response.text();
+
+        if (!response.ok) {
+          throw new Error(
+            responseText ||
+            "Could not load screenings."
+          );
+        }
+
+        const data =
+          JSON.parse(responseText);
 
         setScreenings(data);
+
       } catch (error) {
-        console.error(error);
-        setError("Could not load screenings.");
+        console.error(
+          "Doctor dashboard error:",
+          error
+        );
+
+        setError(
+          error.message ||
+          "Could not load screenings."
+        );
       } finally {
         setLoading(false);
       }
@@ -30,15 +60,17 @@ function DoctorDashboard({ onReview }) {
     loadScreenings();
   }, []);
 
-  const pendingScreenings = screenings.filter(
-    (screening) =>
-      screening.status !== "REVIEWED"
-  );
+  const pendingScreenings =
+    screenings.filter(
+      (screening) =>
+        screening.status !== "REVIEWED"
+    );
 
-  const reviewedScreenings = screenings.filter(
-    (screening) =>
-      screening.status === "REVIEWED"
-  );
+  const reviewedScreenings =
+    screenings.filter(
+      (screening) =>
+        screening.status === "REVIEWED"
+    );
 
   return (
     <div className="container doctor-dashboard">
@@ -54,7 +86,9 @@ function DoctorDashboard({ onReview }) {
       )}
 
       {error && (
-        <p className="error">{error}</p>
+        <p className="error">
+          {error}
+        </p>
       )}
 
       {!loading && !error && (
@@ -64,116 +98,132 @@ function DoctorDashboard({ onReview }) {
             <h2>Pending Reviews</h2>
 
             {pendingScreenings.length === 0 ? (
-              <p>No pending screenings.</p>
+              <p>
+                No pending screenings.
+              </p>
             ) : (
-              pendingScreenings.map((screening) => (
-                <div
-                  className="doctor-card"
-                  key={screening.id}
-                >
-
-                  <div>
-                    <h3>
-                      {screening.prediction}
-                    </h3>
-
-                    <p>
-                      Patient ID:{" "}
-                      {screening.patientId}
-                    </p>
-
-                    <p>
-                      Model confidence:{" "}
-                      {(
-                        screening.confidence * 100
-                      ).toFixed(2)}
-                      %
-                    </p>
-
-                    <p>
-                      Date:{" "}
-                      {new Date(
-                        screening.createdAt
-                      ).toLocaleString()}
-                    </p>
-
-                    <p>
-                      Status:{" "}
-                      <strong>
-                        {screening.status}
-                      </strong>
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() =>
-                      onReview(screening)
-                    }
+              pendingScreenings.map(
+                (screening) => (
+                  <div
+                    className="doctor-card"
+                    key={screening.id}
                   >
-                    Review
-                  </button>
 
-                </div>
-              ))
+                    <div>
+
+                      <h3>
+                        {screening.prediction}
+                      </h3>
+
+                      <p>
+                        Patient ID:{" "}
+                        {screening.patientId}
+                      </p>
+
+                      <p>
+                        Model confidence:{" "}
+                        {(
+                          screening.confidence *
+                          100
+                        ).toFixed(2)}
+                        %
+                      </p>
+
+                      <p>
+                        Date:{" "}
+                        {new Date(
+                          screening.createdAt
+                        ).toLocaleString()}
+                      </p>
+
+                      <p>
+                        Status:{" "}
+                        <strong>
+                          {screening.status}
+                        </strong>
+                      </p>
+
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        onReview(screening)
+                      }
+                    >
+                      Review
+                    </button>
+
+                  </div>
+                )
+              )
             )}
 
           </section>
 
           <section className="doctor-section">
 
-            <h2>Reviewed Screenings</h2>
+            <h2>
+              Reviewed Screenings
+            </h2>
 
             {reviewedScreenings.length === 0 ? (
-              <p>No reviewed screenings yet.</p>
+              <p>
+                No reviewed screenings yet.
+              </p>
             ) : (
-              reviewedScreenings.map((screening) => (
-                <div
-                  className="doctor-card reviewed"
-                  key={screening.id}
-                >
-
-                  <div>
-                    <h3>
-                      {screening.prediction}
-                    </h3>
-
-                    <p>
-                      Patient ID:{" "}
-                      {screening.patientId}
-                    </p>
-
-                    <p>
-                      Decision:{" "}
-                      <strong>
-                        {screening.doctorDecision}
-                      </strong>
-                    </p>
-
-                    <p>
-                      Reviewed by:{" "}
-                      {screening.reviewedBy}
-                    </p>
-
-                    <p>
-                      Remarks:{" "}
-                      {screening.doctorRemarks}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() =>
-                      onReview(screening)
-                    }
+              reviewedScreenings.map(
+                (screening) => (
+                  <div
+                    className="doctor-card reviewed"
+                    key={screening.id}
                   >
-                    View
-                  </button>
 
-                </div>
-              ))
+                    <div>
+
+                      <h3>
+                        {screening.prediction}
+                      </h3>
+
+                      <p>
+                        Patient ID:{" "}
+                        {screening.patientId}
+                      </p>
+
+                      <p>
+                        Decision:{" "}
+                        <strong>
+                          {
+                            screening.doctorDecision
+                          }
+                        </strong>
+                      </p>
+
+                      <p>
+                        Reviewed by:{" "}
+                        {screening.reviewedBy}
+                      </p>
+
+                      <p>
+                        Remarks:{" "}
+                        {screening.doctorRemarks}
+                      </p>
+
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        onReview(screening)
+                      }
+                    >
+                      View
+                    </button>
+
+                  </div>
+                )
+              )
             )}
 
           </section>
-
         </>
       )}
 

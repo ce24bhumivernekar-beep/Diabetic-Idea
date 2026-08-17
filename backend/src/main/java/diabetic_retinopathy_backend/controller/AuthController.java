@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import diabetic_retinopathy_backend.dto.AuthResponse;
 import diabetic_retinopathy_backend.model.User;
+import diabetic_retinopathy_backend.security.JwtService;
 import diabetic_retinopathy_backend.service.AuthService;
 
 @CrossOrigin(origins = "http://localhost:5173")
@@ -20,9 +21,14 @@ import diabetic_retinopathy_backend.service.AuthService;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(
+            AuthService authService,
+            JwtService jwtService) {
+
         this.authService = authService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
@@ -33,11 +39,19 @@ public class AuthController {
         User registeredUser =
                 authService.registerUser(user);
 
+        String token =
+                jwtService.generateToken(
+                        registeredUser.getId(),
+                        registeredUser.getEmail(),
+                        registeredUser.getRole()
+                );
+
         return new AuthResponse(
                 registeredUser.getId(),
                 registeredUser.getName(),
                 registeredUser.getEmail(),
-                registeredUser.getRole()
+                registeredUser.getRole(),
+                token
         );
     }
 
@@ -53,11 +67,19 @@ public class AuthController {
                                 )
                         );
 
+        String token =
+                jwtService.generateToken(
+                        user.getId(),
+                        user.getEmail(),
+                        user.getRole()
+                );
+
         return new AuthResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole(),
+                token
         );
     }
 
@@ -71,11 +93,19 @@ public class AuthController {
                         loginRequest.getPassword()
                 );
 
+        String token =
+                jwtService.generateToken(
+                        user.getId(),
+                        user.getEmail(),
+                        user.getRole()
+                );
+
         return new AuthResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole(),
+                token
         );
     }
 }

@@ -1,28 +1,35 @@
 import { useState } from "react";
 
-function ScreeningPage({ patient, onBack }) {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
+function ScreeningPage({
+  patient,
+  onBack,
+}) {
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
 
-    if (!file) {
+    if (!selectedFile) {
       return;
     }
 
-    setSelectedFile(file);
-    setSelectedImage(URL.createObjectURL(file));
-    setResult(null);
+    setFile(selectedFile);
     setError("");
+    setResult(null);
+
+    const imageUrl =
+      URL.createObjectURL(selectedFile);
+
+    setPreview(imageUrl);
   };
 
   const analyzeImage = async () => {
-    if (!selectedFile) {
-      setError("Please select a retinal image first.");
+    if (!file) {
+      setError("Please select an image first.");
       return;
     }
 
@@ -30,41 +37,86 @@ function ScreeningPage({ patient, onBack }) {
     setError("");
     setResult(null);
 
-    const formData = new FormData();
-
-    // IMPORTANT:
-    // Use the actual MongoDB patient ID
-    // instead of our old test ID.
-    formData.append("patientId", patient.id);
-    formData.append("file", selectedFile);
-
     try {
+      const token =
+        localStorage.getItem("authToken");
+
+      if (!token) {
+        throw new Error(
+          "Authentication token not found. Please login again."
+        );
+      }
+
+      const formData = new FormData();
+
+      formData.append(
+        "patientId",
+        patient.id
+      );
+
+      formData.append(
+        "file",
+        file
+      );
+
       const response = await fetch(
         "http://localhost:8080/api/screenings/analyze",
         {
           method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           body: formData,
         }
       );
 
+      const responseText =
+        await response.text();
+
       if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message);
+        throw new Error(
+          responseText ||
+          "Could not analyze the image."
+        );
       }
 
-      const data = await response.json();
+      const screening =
+        JSON.parse(responseText);
 
-      setResult(data);
+      setResult(screening);
 
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Screening error:",
+        error
+      );
 
       setError(
-        "Could not analyze the image. Please make sure the Java backend and Python AI service are running."
+        error.message ||
+        "Could not analyze the image."
       );
     } finally {
       setLoading(false);
     }
+  };
+
+  const getFileName = (path) => {
+    if (!path) {
+      return "";
+    }
+
+    return path.split("\\").pop();
+  };
+
+  const getGeneratedImageUrl = (path) => {
+    if (!path) {
+      return "";
+    }
+
+    return (
+      "http://localhost:8000/generated/" +
+      getFileName(path)
+    );
   };
 
   return (
@@ -74,45 +126,44 @@ function ScreeningPage({ patient, onBack }) {
         className="back-button"
         onClick={onBack}
       >
-        ← Back
+        ← Back to Dashboard
       </button>
 
-      <h1>Retinal Screening</h1>
+      <h1>
+        Diabetic Retinopathy Screening
+      </h1>
 
       <p className="subtitle">
-        Patient: <strong>{patient.name}</strong>
+        Upload a retinal fundus image for AI-assisted screening
       </p>
 
-      <p className="patient-id">
-        Patient ID: {patient.id}
-      </p>
-
-      <div className="upload-box">
+      <div className="upload-area">
 
         <input
           type="file"
-          accept="image/png,image/jpeg"
-          onChange={handleImageChange}
+          accept="image/*"
+          onChange={handleFileChange}
         />
 
-        {selectedImage && (
-          <div className="preview">
-
+        {preview && (
+          <div>
             <h2>Image Preview</h2>
 
             <img
-              src={selectedImage}
-              alt="Retinal preview"
+              src={preview}
+              alt="Selected retinal image"
+              className="preview-image"
             />
-
           </div>
         )}
 
         <button
           onClick={analyzeImage}
-          disabled={loading}
+          disabled={loading || !file}
         >
-          {loading ? "Analyzing..." : "Analyze Image"}
+          {loading
+            ? "Analyzing..."
+            : "Analyze Image"}
         </button>
 
         {error && (
@@ -124,17 +175,22 @@ function ScreeningPage({ patient, onBack }) {
       </div>
 
       {result && (
-        <div className="result">
+        <div className="screening-result">
 
           <h2>Screening Result</h2>
 
           <div className="result-card">
 
-            <h3>{result.prediction}</h3>
+            <h3>
+              {result.prediction}
+            </h3>
 
             <p>
               Confidence:{" "}
-              {(result.confidence * 100).toFixed(2)}%
+              {(
+                result.confidence * 100
+              ).toFixed(2)}
+              %
             </p>
 
             <p>
@@ -149,7 +205,9 @@ function ScreeningPage({ patient, onBack }) {
               <h3>Original Image</h3>
 
               <img
-                src={`http://localhost:8000/generated/${result.originalImagePath.split("\\").pop()}`}
+                src={getGeneratedImageUrl(
+                  result.originalImagePath
+                )}
                 alt="Original retinal image"
               />
             </div>
@@ -158,7 +216,9 @@ function ScreeningPage({ patient, onBack }) {
               <h3>AI Heatmap</h3>
 
               <img
-                src={`http://localhost:8000/generated/${result.heatmapPath.split("\\").pop()}`}
+                src={getGeneratedImageUrl(
+                  result.heatmapPath
+                )}
                 alt="AI heatmap"
               />
             </div>
@@ -167,7 +227,9 @@ function ScreeningPage({ patient, onBack }) {
               <h3>Heatmap Overlay</h3>
 
               <img
-                src={`http://localhost:8000/generated/${result.overlayPath.split("\\").pop()}`}
+                src={getGeneratedImageUrl(
+                  result.overlayPath
+                )}
                 alt="Heatmap overlay"
               />
             </div>
@@ -176,6 +238,7 @@ function ScreeningPage({ patient, onBack }) {
 
         </div>
       )}
+
     </div>
   );
 }

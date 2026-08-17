@@ -49,6 +49,15 @@ function DoctorReview({
     setMessage("");
 
     try {
+      const token =
+        localStorage.getItem("authToken");
+
+      if (!token) {
+        throw new Error(
+          "Authentication token not found. Please login again."
+        );
+      }
+
       const url =
         `http://localhost:8080/api/doctor/screening/` +
         `${screening.id}/review` +
@@ -58,22 +67,49 @@ function DoctorReview({
 
       const response = await fetch(url, {
         method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      const responseText =
+        await response.text();
 
       if (!response.ok) {
         throw new Error(
-          "Could not submit doctor review"
+          responseText ||
+          "Could not submit the doctor review."
         );
       }
+
+      const updatedScreening =
+        JSON.parse(responseText);
 
       setMessage(
         "Doctor review submitted successfully."
       );
 
+      // Keep the page showing the updated review.
+      setDecision(
+        updatedScreening.doctorDecision || decision
+      );
+
+      setRemarks(
+        updatedScreening.doctorRemarks || remarks
+      );
+
+      setDoctorName(
+        updatedScreening.reviewedBy || doctorName
+      );
+
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Doctor review error:",
+        error
+      );
 
       setError(
+        error.message ||
         "Could not submit the doctor review."
       );
     } finally {
@@ -83,15 +119,21 @@ function DoctorReview({
 
   const originalImage =
     `http://localhost:8000/generated/` +
-    getFileName(screening.originalImagePath);
+    getFileName(
+      screening.originalImagePath
+    );
 
   const heatmapImage =
     `http://localhost:8000/generated/` +
-    getFileName(screening.heatmapPath);
+    getFileName(
+      screening.heatmapPath
+    );
 
   const overlayImage =
     `http://localhost:8000/generated/` +
-    getFileName(screening.overlayPath);
+    getFileName(
+      screening.overlayPath
+    );
 
   return (
     <div className="container doctor-review">
@@ -108,7 +150,8 @@ function DoctorReview({
       <div className="review-summary">
 
         <h2>
-          AI Prediction: {screening.prediction}
+          AI Prediction:{" "}
+          {screening.prediction}
         </h2>
 
         <p>
@@ -121,7 +164,10 @@ function DoctorReview({
         <p>
           Model confidence:{" "}
           <strong>
-            {(screening.confidence * 100).toFixed(2)}%
+            {(
+              screening.confidence * 100
+            ).toFixed(2)}
+            %
           </strong>
         </p>
 
@@ -171,9 +217,11 @@ function DoctorReview({
 
         <select
           value={decision}
-          onChange={(event) =>
-            setDecision(event.target.value)
-          }
+          onChange={(event) => {
+            setDecision(event.target.value);
+            setError("");
+            setMessage("");
+          }}
         >
           <option value="">
             Select Decision
@@ -195,17 +243,21 @@ function DoctorReview({
         <input
           type="text"
           value={doctorName}
-          onChange={(event) =>
-            setDoctorName(event.target.value)
-          }
+          onChange={(event) => {
+            setDoctorName(event.target.value);
+            setError("");
+            setMessage("");
+          }}
           placeholder="Doctor Name"
         />
 
         <textarea
           value={remarks}
-          onChange={(event) =>
-            setRemarks(event.target.value)
-          }
+          onChange={(event) => {
+            setRemarks(event.target.value);
+            setError("");
+            setMessage("");
+          }}
           placeholder="Doctor remarks"
           rows="5"
         />

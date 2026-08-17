@@ -57,6 +57,32 @@ function DoctorLogin({
         );
       }
 
+      if (!doctor.token) {
+        throw new Error(
+          "Login succeeded but no authentication token was received."
+        );
+      }
+
+      localStorage.setItem(
+        "authToken",
+        doctor.token
+      );
+
+      localStorage.setItem(
+        "userRole",
+        doctor.role
+      );
+
+      localStorage.setItem(
+        "userId",
+        doctor.id
+      );
+
+      localStorage.setItem(
+        "userEmail",
+        doctor.email
+      );
+
       onLoginSuccess(doctor);
 
     } catch (error) {

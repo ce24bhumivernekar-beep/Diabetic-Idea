@@ -27,10 +27,6 @@ function PatientLogin({
     setError("");
 
     try {
-      // -----------------------------------------------------
-      // 1. Authenticate user
-      // -----------------------------------------------------
-
       const loginResponse = await fetch(
         "http://localhost:8080/api/auth/login",
         {
@@ -61,12 +57,43 @@ function PatientLogin({
         );
       }
 
-      // -----------------------------------------------------
-      // 2. Get patient profile using user ID
-      // -----------------------------------------------------
+      if (!user.token) {
+        throw new Error(
+          "Login succeeded but no authentication token was received."
+        );
+      }
+
+      localStorage.setItem(
+        "authToken",
+        user.token
+      );
+
+      localStorage.setItem(
+        "userRole",
+        user.role
+      );
+
+      localStorage.setItem(
+        "userId",
+        user.id
+      );
+
+      localStorage.setItem(
+        "userEmail",
+        user.email
+      );
+
+      const token =
+        localStorage.getItem("authToken");
 
       const patientResponse = await fetch(
-        `http://localhost:8080/api/patients/user/${user.id}`
+        `http://localhost:8080/api/patients/user/${user.id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       const patientText =
@@ -81,10 +108,6 @@ function PatientLogin({
 
       const patient =
         JSON.parse(patientText);
-
-      // -----------------------------------------------------
-      // 3. Open patient dashboard
-      // -----------------------------------------------------
 
       onLoginSuccess(patient);
 

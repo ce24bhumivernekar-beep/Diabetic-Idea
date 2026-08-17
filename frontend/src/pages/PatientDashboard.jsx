@@ -12,20 +12,50 @@ function PatientDashboard({
   useEffect(() => {
     const loadHistory = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:8080/api/screenings/patient/${patient.id}`
-        );
+        const token =
+          localStorage.getItem("authToken");
 
-        if (!response.ok) {
-          throw new Error("Could not load screening history");
+        if (!token) {
+          throw new Error(
+            "Authentication token not found. Please login again."
+          );
         }
 
-        const data = await response.json();
+        const response = await fetch(
+          `http://localhost:8080/api/screenings/patient/${patient.id}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const responseText =
+          await response.text();
+
+        if (!response.ok) {
+          throw new Error(
+            responseText ||
+            "Could not load screening history."
+          );
+        }
+
+        const data =
+          JSON.parse(responseText);
 
         setScreenings(data);
+
       } catch (error) {
-        console.error(error);
-        setError("Could not load screening history.");
+        console.error(
+          "Patient dashboard error:",
+          error
+        );
+
+        setError(
+          error.message ||
+          "Could not load screening history."
+        );
       } finally {
         setLoading(false);
       }
@@ -44,10 +74,15 @@ function PatientDashboard({
         <h2>Hello, {patient.name}</h2>
 
         <p>
-          Patient ID: <strong>{patient.id}</strong>
+          Patient ID:{" "}
+          <strong>
+            {patient.id}
+          </strong>
         </p>
 
-        <button onClick={onStartScreening}>
+        <button
+          onClick={onStartScreening}
+        >
           Start New Screening
         </button>
 
@@ -58,11 +93,15 @@ function PatientDashboard({
         <h2>Screening History</h2>
 
         {loading && (
-          <p>Loading screening history...</p>
+          <p>
+            Loading screening history...
+          </p>
         )}
 
         {error && (
-          <p className="error">{error}</p>
+          <p className="error">
+            {error}
+          </p>
         )}
 
         {!loading &&
@@ -82,17 +121,22 @@ function PatientDashboard({
             >
 
               <div>
+
                 <h3>
                   {screening.prediction}
                 </h3>
 
                 <p>
                   Model confidence:{" "}
-                  {(screening.confidence * 100).toFixed(2)}%
+                  {(
+                    screening.confidence * 100
+                  ).toFixed(2)}
+                  %
                 </p>
 
                 <p>
-                  Status: {screening.status}
+                  Status:{" "}
+                  {screening.status}
                 </p>
 
                 <p>
@@ -100,10 +144,13 @@ function PatientDashboard({
                     screening.createdAt
                   ).toLocaleString()}
                 </p>
+
               </div>
 
               <button
-                onClick={() => onViewResult(screening)}
+                onClick={() =>
+                  onViewResult(screening)
+                }
               >
                 View Result
               </button>
