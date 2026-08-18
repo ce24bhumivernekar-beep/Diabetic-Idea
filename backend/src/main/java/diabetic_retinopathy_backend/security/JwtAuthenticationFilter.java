@@ -5,12 +5,20 @@ import java.io.IOException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Reads the Bearer token, exposes userId / userRole as request attributes
+ * and enforces coarse role rules per URL prefix.
+ *
+ * Runs after the CORS filter (see CorsConfig) so the 401 / 403 bodies it
+ * writes are readable by the browser.
+ */
 @Component
 public class JwtAuthenticationFilter
         extends OncePerRequestFilter {
@@ -39,24 +47,18 @@ public class JwtAuthenticationFilter
         if ("OPTIONS".equalsIgnoreCase(
                 request.getMethod())) {
 
-            filterChain.doFilter(
-                    request,
-                    response
-            );
+            filterChain.doFilter(request, response);
 
             return;
         }
 
         // -----------------------------------------------------
-        // Authentication endpoints are public
+        // Public endpoints
         // -----------------------------------------------------
 
-        if (path.startsWith("/api/auth/")) {
+        if (isPublic(path)) {
 
-            filterChain.doFilter(
-                    request,
-                    response
-            );
+            filterChain.doFilter(request, response);
 
             return;
         }
@@ -65,52 +67,49 @@ public class JwtAuthenticationFilter
         // Get JWT
         // -----------------------------------------------------
 
-        String authHeader =
-                request.getHeader("Authorization");
+        String token = readToken(request);
 
-        if (authHeader == null ||
-                !authHeader.startsWith("Bearer ")) {
+        if (token == null) {
 
-            sendUnauthorized(
+            sendError(
                     response,
+                    HttpServletResponse.SC_UNAUTHORIZED,
                     "Authentication token required."
             );
 
             return;
         }
 
-        String token =
-                authHeader.substring(7);
-
         try {
 
-            String userId =
-                    jwtService.getUserId(token);
+            Claims claims = jwtService.parse(token);
 
-            String role =
-                    jwtService.getRole(token);
+            String userId = claims.getSubject();
+            String role = (String) claims.get("role");
 
             // -------------------------------------------------
             // Role protection
             // -------------------------------------------------
 
-            if (path.startsWith("/api/doctor/")
+            if (isPrefix(path, "/api/doctor")
                     && !"DOCTOR".equals(role)) {
 
-                sendForbidden(
+                sendError(
                         response,
+                        HttpServletResponse.SC_FORBIDDEN,
                         "Doctor access required."
                 );
 
                 return;
             }
 
-            if (path.startsWith("/api/patients/")
+            if (isPrefix(path, "/api/patients")
                     && !"PATIENT".equals(role)
                     && !"DOCTOR".equals(role)) {
 
-                sendForbidden(
+                sendError(
                         response,
+                        HttpServletResponse.SC_FORBIDDEN,
                         "Patient or doctor access required."
                 );
 
@@ -121,68 +120,87 @@ public class JwtAuthenticationFilter
             // Store authenticated user information
             // -------------------------------------------------
 
+            request.setAttribute("userId", userId);
+            request.setAttribute("userRole", role);
             request.setAttribute(
-                    "userId",
-                    userId
+                    "userEmail",
+                    claims.get("email")
             );
 
-            request.setAttribute(
-                    "userRole",
-                    role
-            );
-
-            filterChain.doFilter(
-                    request,
-                    response
-            );
+            filterChain.doFilter(request, response);
 
         } catch (JwtException |
                  IllegalArgumentException error) {
 
-            sendUnauthorized(
+            sendError(
                     response,
+                    HttpServletResponse.SC_UNAUTHORIZED,
                     "Invalid or expired authentication token."
             );
         }
     }
 
-    private void sendUnauthorized(
-            HttpServletResponse response,
-            String message)
-            throws IOException {
+    /**
+     * Normally the Bearer header. The browser EventSource API cannot set
+     * headers, so the SSE endpoint may also pass the token as a query
+     * parameter - nowhere else, to keep tokens out of access logs.
+     */
+    private String readToken(HttpServletRequest request) {
 
-        response.setStatus(
-                HttpServletResponse.SC_UNAUTHORIZED
-        );
+        String authHeader =
+                request.getHeader("Authorization");
 
-        response.setContentType(
-                "application/json"
-        );
+        if (authHeader != null
+                && authHeader.startsWith("Bearer ")) {
 
-        response.getWriter().write(
-                "{\"error\":\"" +
-                message +
-                "\"}"
-        );
+            return authHeader.substring(7);
+        }
+
+        if (isPrefix(request.getRequestURI(), "/api/events")) {
+
+            String queryToken =
+                    request.getParameter("token");
+
+            if (queryToken != null && !queryToken.isBlank()) {
+                return queryToken;
+            }
+        }
+
+        return null;
     }
 
-    private void sendForbidden(
+    private boolean isPublic(String path) {
+
+        return isPrefix(path, "/api/auth")
+                || path.equals("/api/health");
+    }
+
+    /**
+     * Matches "/api/doctor" itself as well as everything below it, so a
+     * collection endpoint without a trailing slash is not left unguarded.
+     */
+    private boolean isPrefix(
+            String path,
+            String prefix) {
+
+        return path.equals(prefix)
+                || path.startsWith(prefix + "/");
+    }
+
+    private void sendError(
             HttpServletResponse response,
+            int status,
             String message)
             throws IOException {
 
-        response.setStatus(
-                HttpServletResponse.SC_FORBIDDEN
-        );
+        response.setStatus(status);
 
-        response.setContentType(
-                "application/json"
-        );
+        response.setContentType("application/json");
+
+        response.setCharacterEncoding("UTF-8");
 
         response.getWriter().write(
-                "{\"error\":\"" +
-                message +
-                "\"}"
+                "{\"error\":\"" + message + "\",\"status\":" + status + "}"
         );
     }
 }

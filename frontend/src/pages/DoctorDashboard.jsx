@@ -1,11 +1,24 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { API_URL, apiError } from "../config";
+import useLiveEvents from "../hooks/useLiveEvents";
 
 function DoctorDashboard({ onReview }) {
   const [screenings, setScreenings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [flash, setFlash] = useState("");
+
+  // Bumping this token makes the effect below fetch again. Reloading through
+  // an effect keeps the fetch out of the render path.
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const reload = useCallback(() => {
+    setReloadToken((token) => token + 1);
+  }, []);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadScreenings = async () => {
       try {
         const token =
@@ -18,7 +31,7 @@ function DoctorDashboard({ onReview }) {
         }
 
         const response = await fetch(
-          "http://localhost:8080/api/doctor/screenings",
+          `${API_URL}/api/doctor/screenings`,
           {
             method: "GET",
             headers: {
@@ -31,34 +44,69 @@ function DoctorDashboard({ onReview }) {
           await response.text();
 
         if (!response.ok) {
-          throw new Error(
-            responseText ||
-            "Could not load screenings."
-          );
+          throw new Error(apiError(responseText, "Could not load screenings."));
         }
 
         const data =
           JSON.parse(responseText);
 
-        setScreenings(data);
+        if (!cancelled) {
+          setScreenings(data);
+          setError("");
+        }
 
-      } catch (error) {
+      } catch (loadError) {
         console.error(
           "Doctor dashboard error:",
-          error
+          loadError
         );
 
-        setError(
-          error.message ||
-          "Could not load screenings."
-        );
+        if (!cancelled) {
+          setError(
+            loadError.message ||
+            "Could not load screenings."
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     loadScreenings();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadToken]);
+
+  // A patient submitting a scan, or another doctor signing one off, refreshes
+  // this queue immediately over the event stream.
+  const { live, lastEventAt } = useLiveEvents(
+    ["screening-created", "screening-reviewed"],
+    (name, payload) => {
+      reload();
+
+      if (name === "screening-created") {
+        setFlash(
+          `New screening from ${
+            (payload && payload.patientName) || "a patient"
+          }`
+        );
+      }
+    }
+  );
+
+  useEffect(() => {
+    if (!flash) {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => setFlash(""), 6000);
+
+    return () => clearTimeout(timer);
+  }, [flash]);
 
   const pendingScreenings =
     screenings.filter(
@@ -80,6 +128,38 @@ function DoctorDashboard({ onReview }) {
       <p className="subtitle">
         Review AI-assisted diabetic retinopathy screenings
       </p>
+
+      <div className="live-bar">
+
+        <span
+          className={
+            live ? "live-badge is-live" : "live-badge"
+          }
+        >
+          {live ? "Live" : "Reconnecting"}
+        </span>
+
+        {lastEventAt && (
+          <span className="live-meta">
+            last update {lastEventAt.toLocaleTimeString()}
+          </span>
+        )}
+
+        <button
+          type="button"
+          className="back-button live-refresh"
+          onClick={reload}
+        >
+          Refresh
+        </button>
+
+      </div>
+
+      {flash && (
+        <p className="live-flash">
+          {flash}
+        </p>
+      )}
 
       {loading && (
         <p>Loading screenings...</p>
@@ -116,8 +196,18 @@ function DoctorDashboard({ onReview }) {
                       </h3>
 
                       <p>
-                        Patient ID:{" "}
-                        {screening.patientId}
+                        Patient:{" "}
+                        {screening.patientName ||
+                          "Unknown"}
+                        {screening.patientAge
+                          ? ` (${screening.patientAge}` +
+                            `${
+                              screening.patientGender
+                                ? ", " +
+                                  screening.patientGender
+                                : ""
+                            })`
+                          : ""}
                       </p>
 
                       <p>
@@ -185,8 +275,18 @@ function DoctorDashboard({ onReview }) {
                       </h3>
 
                       <p>
-                        Patient ID:{" "}
-                        {screening.patientId}
+                        Patient:{" "}
+                        {screening.patientName ||
+                          "Unknown"}
+                        {screening.patientAge
+                          ? ` (${screening.patientAge}` +
+                            `${
+                              screening.patientGender
+                                ? ", " +
+                                  screening.patientGender
+                                : ""
+                            })`
+                          : ""}
                       </p>
 
                       <p>

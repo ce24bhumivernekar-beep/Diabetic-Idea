@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { API_URL, apiError } from "../config";
+import CameraCapture from "../components/CameraCapture";
+import ScreeningReport from "../components/ScreeningReport";
 
 function ScreeningPage({
   patient,
@@ -10,9 +13,9 @@ function ScreeningPage({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-
+  // Accepts an image from the file picker, the live camera or the phone
+  // camera - all three end up here.
+  const acceptImage = (selectedFile) => {
     if (!selectedFile) {
       return;
     }
@@ -20,12 +23,21 @@ function ScreeningPage({
     setFile(selectedFile);
     setError("");
     setResult(null);
-
-    const imageUrl =
-      URL.createObjectURL(selectedFile);
-
-    setPreview(imageUrl);
+    setPreview(URL.createObjectURL(selectedFile));
   };
+
+  const handleFileChange = (event) => {
+    acceptImage(event.target.files[0]);
+  };
+
+  // Release the object URL when it is replaced or the page closes.
+  useEffect(() => {
+    return () => {
+      if (preview) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
 
   const analyzeImage = async () => {
     if (!file) {
@@ -60,7 +72,7 @@ function ScreeningPage({
       );
 
       const response = await fetch(
-        "http://localhost:8080/api/screenings/analyze",
+        `${API_URL}/api/screenings/analyze`,
         {
           method: "POST",
           headers: {
@@ -74,10 +86,7 @@ function ScreeningPage({
         await response.text();
 
       if (!response.ok) {
-        throw new Error(
-          responseText ||
-          "Could not analyze the image."
-        );
+        throw new Error(apiError(responseText, "Could not analyze the image."));
       }
 
       const screening =
@@ -100,25 +109,6 @@ function ScreeningPage({
     }
   };
 
-  const getFileName = (path) => {
-    if (!path) {
-      return "";
-    }
-
-    return path.split("\\").pop();
-  };
-
-  const getGeneratedImageUrl = (path) => {
-    if (!path) {
-      return "";
-    }
-
-    return (
-      "http://localhost:8000/generated/" +
-      getFileName(path)
-    );
-  };
-
   return (
     <div className="container">
 
@@ -139,6 +129,15 @@ function ScreeningPage({
 
       <div className="upload-area">
 
+        <CameraCapture
+          onCapture={acceptImage}
+          disabled={loading}
+        />
+
+        <div className="upload-divider">
+          <span>or choose an existing image</span>
+        </div>
+
         <input
           type="file"
           accept="image/*"
@@ -154,6 +153,10 @@ function ScreeningPage({
               alt="Selected retinal image"
               className="preview-image"
             />
+
+            <p className="capture-filename">
+              {file ? file.name : ""}
+            </p>
           </div>
         )}
 
@@ -179,62 +182,7 @@ function ScreeningPage({
 
           <h2>Screening Result</h2>
 
-          <div className="result-card">
-
-            <h3>
-              {result.prediction}
-            </h3>
-
-            <p>
-              Confidence:{" "}
-              {(
-                result.confidence * 100
-              ).toFixed(2)}
-              %
-            </p>
-
-            <p>
-              Status: {result.status}
-            </p>
-
-          </div>
-
-          <div className="images">
-
-            <div>
-              <h3>Original Image</h3>
-
-              <img
-                src={getGeneratedImageUrl(
-                  result.originalImagePath
-                )}
-                alt="Original retinal image"
-              />
-            </div>
-
-            <div>
-              <h3>AI Heatmap</h3>
-
-              <img
-                src={getGeneratedImageUrl(
-                  result.heatmapPath
-                )}
-                alt="AI heatmap"
-              />
-            </div>
-
-            <div>
-              <h3>Heatmap Overlay</h3>
-
-              <img
-                src={getGeneratedImageUrl(
-                  result.overlayPath
-                )}
-                alt="Heatmap overlay"
-              />
-            </div>
-
-          </div>
+          <ScreeningReport screening={result} />
 
         </div>
       )}

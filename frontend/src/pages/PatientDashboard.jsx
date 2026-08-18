@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { API_URL, apiError } from "../config";
+import useLiveEvents from "../hooks/useLiveEvents";
 
 function PatientDashboard({
   patient,
@@ -8,8 +10,17 @@ function PatientDashboard({
   const [screenings, setScreenings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [flash, setFlash] = useState("");
+
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const reload = useCallback(() => {
+    setReloadToken((token) => token + 1);
+  }, []);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadHistory = async () => {
       try {
         const token =
@@ -22,7 +33,7 @@ function PatientDashboard({
         }
 
         const response = await fetch(
-          `http://localhost:8080/api/screenings/patient/${patient.id}`,
+          `${API_URL}/api/screenings/patient/${patient.id}`,
           {
             method: "GET",
             headers: {
@@ -35,34 +46,70 @@ function PatientDashboard({
           await response.text();
 
         if (!response.ok) {
-          throw new Error(
-            responseText ||
-            "Could not load screening history."
-          );
+          throw new Error(apiError(responseText, "Could not load screening history."));
         }
 
         const data =
           JSON.parse(responseText);
 
-        setScreenings(data);
+        if (!cancelled) {
+          setScreenings(data);
+          setError("");
+        }
 
-      } catch (error) {
+      } catch (loadError) {
         console.error(
           "Patient dashboard error:",
-          error
+          loadError
         );
 
-        setError(
-          error.message ||
-          "Could not load screening history."
-        );
+        if (!cancelled) {
+          setError(
+            loadError.message ||
+            "Could not load screening history."
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     loadHistory();
-  }, [patient.id]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [patient.id, reloadToken]);
+
+  // The doctor signing off arrives here without a refresh.
+  const { live } = useLiveEvents(
+    ["screening-reviewed"],
+    (name, payload) => {
+      reload();
+
+      if (name === "screening-reviewed") {
+        setFlash(
+          `A doctor reviewed your screening${
+            payload && payload.decision
+              ? `: ${payload.decision}`
+              : ""
+          }`
+        );
+      }
+    }
+  );
+
+  useEffect(() => {
+    if (!flash) {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => setFlash(""), 8000);
+
+    return () => clearTimeout(timer);
+  }, [flash]);
 
   return (
     <div className="container dashboard">
@@ -88,9 +135,26 @@ function PatientDashboard({
 
       </div>
 
+      {flash && (
+        <p className="live-flash">
+          {flash}
+        </p>
+      )}
+
       <div className="history">
 
-        <h2>Screening History</h2>
+        <h2>
+          Screening History
+          <span
+            className={
+              live
+                ? "live-badge is-live live-inline"
+                : "live-badge live-inline"
+            }
+          >
+            {live ? "Live" : "Offline"}
+          </span>
+        </h2>
 
         {loading && (
           <p>
