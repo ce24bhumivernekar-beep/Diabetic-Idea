@@ -1,9 +1,9 @@
-# Render blueprint - free tier only, no card required.
+# Render blueprint - free tier throughout, no card required.
 #
-# Only the Spring Boot API lives here. The AI service does NOT: TensorFlow
-# needs roughly 1.5 GB and Render's free instance gives 512 MB, so it would
-# crashloop. It runs on a Hugging Face Space instead (free, 16 GB) - see
-# ai-service/README.md.
+# Two services here: the Spring Boot API and the React frontend as a static
+# site. The AI service is NOT here: TensorFlow needs roughly 1.5 GB and a free
+# Render instance gives 512 MB, so it runs on a Hugging Face Space instead
+# (free, 16 GB) - see ai-service/README.md.
 #
 # MongoDB is a free Atlas M0 cluster; Render has no free managed Mongo.
 services:
@@ -16,13 +16,31 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: MONGODB_URI
-        sync: false                 # paste the Atlas connection string
+        sync: false                 # Atlas connection string
       - key: AI_SERVICE_URL
         sync: false                 # https://<user>-<space>.hf.space
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ALLOWED_ORIGIN_PATTERNS
-        sync: false                 # e.g. https://*.vercel.app
+        value: "https://*.onrender.com,https://*.hf.space,http://localhost:[*]"
       # Free instances are memory capped; keep the JVM inside it.
       - key: JAVA_TOOL_OPTIONS
         value: -XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k
+
+  - type: web
+    name: dr-frontend
+    runtime: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      # Baked in at build time. The dev-server proxy does not exist in a
+      # static build, so the browser must be told where the services live.
+      - key: VITE_API_URL
+        sync: false                 # https://dr-backend.onrender.com
+      - key: VITE_AI_URL
+        sync: false                 # https://<user>-<space>.hf.space
+    routes:
+      # Single-page app: unknown paths are routes, not missing files.
+      - type: rewrite
+        source: /*
+        destination: /index.html
