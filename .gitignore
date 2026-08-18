@@ -10,6 +10,7 @@ ai-service/generated/
 # Trained AI models
 ai-service/models/*.keras
 ai-service/models/*.h5
+ai-service/models/model_info.json
 
 # React
 frontend/node_modules/
@@ -21,6 +22,7 @@ backend/target/
 # Secrets
 .env
 *.env
+!*.env.example
 
 # IDE
 .vscode/
