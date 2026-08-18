@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_URL, apiError } from "../config";
 
 function DoctorLogin({
   onLoginSuccess,
@@ -28,7 +29,7 @@ function DoctorLogin({
 
     try {
       const response = await fetch(
-        "http://localhost:8080/api/auth/login",
+        `${API_URL}/api/auth/login`,
         {
           method: "POST",
           headers: {
@@ -44,9 +45,7 @@ function DoctorLogin({
       const responseText = await response.text();
 
       if (!response.ok) {
-        throw new Error(
-          responseText || "Login failed."
-        );
+        throw new Error(apiError(responseText, "Login failed."));
       }
 
       const doctor = JSON.parse(responseText);

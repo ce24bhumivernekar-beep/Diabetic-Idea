@@ -1,0 +1,1063 @@
+.landing-page {
+  min-height: 100vh;
+  background: #101019;
+  color: #f5f5f7;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+}
+
+/* =========================================================
+   NAV
+   ========================================================= */
+
+.landing-nav {
+  height: 88px;
+
+  padding: 0 46px;
+
+  display: flex;
+  align-items: center;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+
+  background:
+    rgba(16, 16, 25, 0.96);
+
+  position: relative;
+  z-index: 20;
+}
+
+/* Empty space where the old DR.VISION branding was */
+
+.landing-brand-space {
+  min-width: 250px;
+}
+
+.landing-navigation {
+  flex: 1;
+
+  display: flex;
+  justify-content: center;
+
+  gap: 38px;
+}
+
+.landing-nav-item {
+  border: none;
+
+  background: transparent;
+
+  color: #7e7e87;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease;
+}
+
+.landing-nav-item:hover,
+.landing-nav-item.active {
+  color: #fff;
+}
+
+.landing-nav-right {
+  min-width: 250px;
+
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  gap: 20px;
+}
+
+.landing-nav-doctor {
+  height: 40px;
+
+  padding:
+    0 20px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.28);
+
+  border-radius: 22px;
+
+  background:
+    transparent;
+
+  color: #eee;
+
+  font-size: 10px;
+
+  cursor: pointer;
+
+  transition:
+    0.2s ease;
+}
+
+.landing-nav-doctor:hover {
+  background:
+    rgba(255,255,255,0.06);
+
+  border-color:
+    rgba(255,255,255,0.5);
+}
+
+.landing-menu {
+  border: none;
+
+  background: transparent;
+
+  color: #888;
+
+  font-size: 10px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  cursor: pointer;
+}
+
+.menu-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-lines i {
+  display: block;
+
+  width: 20px;
+  height: 1px;
+
+  background: #aaa;
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.landing-hero {
+  min-height:
+    calc(100vh - 160px);
+
+  display: grid;
+
+  grid-template-columns:
+    46% 54%;
+}
+
+/* =========================================================
+   LEFT
+   ========================================================= */
+
+.landing-left {
+  padding:
+    68px
+    60px
+    76px
+    90px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  position: relative;
+  z-index: 5;
+}
+
+.landing-small-heading {
+  margin-bottom: 16px;
+
+  color: #d5d5db;
+
+  font-size: 12px;
+
+  letter-spacing:
+    0.09em;
+}
+
+.landing-title {
+  margin: 0;
+
+  max-width: 600px;
+
+  font-family:
+    "Inter",
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+
+  font-size:
+    clamp(
+      60px,
+      5.7vw,
+      94px
+    );
+
+  line-height:
+    0.91;
+
+  font-weight:
+    500;
+
+  letter-spacing:
+    -0.055em;
+
+  color:
+    #f5f5f7;
+}
+
+.landing-title span {
+  color:
+    #ca4c68;
+
+  font-weight:
+    500;
+}
+
+.landing-title-detail {
+  margin:
+    12px 0
+    30px;
+
+  color:
+    #ca4c68;
+
+  font-size:
+    23px;
+}
+
+.landing-feature-grid {
+  max-width:
+    570px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:
+    27px
+    38px;
+
+  margin-bottom:
+    34px;
+}
+
+.landing-feature-card {
+  display:
+    flex;
+
+  gap:
+    14px;
+}
+
+.feature-icon {
+  width:
+    21px;
+
+  height:
+    21px;
+
+  flex-shrink:
+    0;
+
+  color:
+    #ca4c68;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  font-size:
+    16px;
+}
+
+.landing-feature-card h3 {
+  margin:
+    0 0 8px;
+
+  font-size:
+    16px;
+
+  font-weight:
+    600;
+
+  color:
+    #ededf0;
+}
+
+.landing-feature-card p {
+  margin:
+    0;
+
+  color:
+    #8a8a95;
+
+  font-size:
+    12.5px;
+
+  line-height:
+    1.65;
+}
+
+.landing-description {
+  max-width:
+    530px;
+
+  margin:
+    0 0 31px;
+
+  color:
+    #9c9ca6;
+
+  font-size:
+    14.5px;
+
+  line-height:
+    1.75;
+}
+
+.landing-actions {
+  display:
+    flex;
+
+  gap:
+    13px;
+}
+
+.landing-primary {
+  min-width:
+    192px;
+
+  height:
+    50px;
+
+  padding:
+    0 24px;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.18);
+
+  border-radius:
+    25px;
+
+  background:
+    rgba(255,255,255,0.05);
+
+  color:
+    #fff;
+
+  font-size:
+    11px;
+
+  letter-spacing:
+    0.04em;
+
+  cursor:
+    pointer;
+
+  transition:
+    0.2s ease;
+}
+
+.landing-primary:hover {
+  background:
+    #ca4c68;
+
+  border-color:
+    #ca4c68;
+}
+
+.landing-secondary {
+  min-width:
+    168px;
+
+  height:
+    50px;
+
+  padding:
+    0 24px;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.18);
+
+  border-radius:
+    25px;
+
+  background:
+    transparent;
+
+  color:
+    #b8b8c0;
+
+  font-size:
+    11px;
+
+  letter-spacing:
+    0.04em;
+
+  cursor:
+    pointer;
+
+  transition:
+    0.2s ease;
+}
+
+.landing-secondary:hover {
+  color:
+    #fff;
+
+  border-color:
+    rgba(255,255,255,0.4);
+}
+
+/* =========================================================
+   RIGHT VISUAL
+   ========================================================= */
+
+.landing-right {
+  position:
+    relative;
+
+  overflow:
+    hidden;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  background:
+    radial-gradient(
+      circle at 55% 45%,
+      rgba(202,76,104,0.10),
+      transparent 40%
+    );
+}
+
+.landing-right-heading {
+  position:
+    absolute;
+
+  top:
+    30px;
+
+  right:
+    42px;
+
+  color:
+    #7c7c84;
+
+  font-size:
+    10px;
+
+  letter-spacing:
+    0.13em;
+}
+
+/* Eye 10-15% smaller */
+
+.landing-eye-scene {
+  position:
+    relative;
+
+  width:
+    min(
+      680px,
+      82%
+    );
+
+  aspect-ratio:
+    1.45;
+
+  transition:
+    transform 0.1s linear;
+}
+
+.eye-aura {
+  position:
+    absolute;
+
+  left:
+    50%;
+
+  top:
+    50%;
+
+  width:
+    56%;
+
+  height:
+    46%;
+
+  transform:
+    translate(-50%, -50%);
+
+  border-radius:
+    50%;
+
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(202,76,104,0.22),
+      rgba(202,76,104,0.04) 55%,
+      transparent 75%
+    );
+
+  filter:
+    blur(30px);
+}
+
+.landing-eye {
+  position:
+    absolute;
+
+  width:
+    100%;
+
+  height:
+    100%;
+
+  overflow:
+    visible;
+}
+
+/* =========================================================
+   EYE DETAIL
+   ========================================================= */
+
+.iris-texture line {
+  stroke:
+    rgba(255,255,255,0.24);
+
+  stroke-width:
+    1.5;
+
+  stroke-linecap:
+    round;
+}
+
+.eye-orbit {
+  position:
+    absolute;
+
+  left:
+    50%;
+
+  top:
+    50%;
+
+  transform:
+    translate(-50%, -50%);
+
+  border:
+    1px solid
+    rgba(202,76,104,0.12);
+
+  border-radius:
+    50%;
+
+  pointer-events:
+    none;
+}
+
+.orbit-one {
+  width:
+    34%;
+
+  height:
+    45%;
+
+  animation:
+    orbitSlow 18s linear infinite;
+}
+
+.orbit-two {
+  width:
+    43%;
+
+  height:
+    57%;
+
+  border-style:
+    dashed;
+
+  animation:
+    orbitSlowReverse 26s linear infinite;
+}
+
+@keyframes orbitSlow {
+  from {
+    transform:
+      translate(-50%, -50%)
+      rotate(0);
+  }
+
+  to {
+    transform:
+      translate(-50%, -50%)
+      rotate(360deg);
+  }
+}
+
+@keyframes orbitSlowReverse {
+  from {
+    transform:
+      translate(-50%, -50%)
+      rotate(360deg);
+  }
+
+  to {
+    transform:
+      translate(-50%, -50%)
+      rotate(0);
+  }
+}
+
+/* =========================================================
+   INFO CARDS
+   ========================================================= */
+
+.eye-card {
+  position:
+    absolute;
+
+  min-width:
+    210px;
+
+  padding:
+    16px 17px;
+
+  display:
+    flex;
+
+  gap:
+    11px;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.08);
+
+  border-radius:
+    10px;
+
+  background:
+    rgba(34,34,47,0.72);
+
+  backdrop-filter:
+    blur(12px);
+
+  box-shadow:
+    0 12px 35px
+    rgba(0,0,0,0.18);
+}
+
+.eye-card strong {
+  display:
+    block;
+
+  margin-bottom:
+    5px;
+
+  color:
+    #f2f2f5;
+
+  font-size:
+    13px;
+
+  font-weight:
+    600;
+}
+
+.eye-card p {
+  margin:
+    0;
+
+  color:
+    #81818c;
+
+  font-size:
+    10.5px;
+
+  line-height:
+    1.55;
+}
+
+.eye-card-dot {
+  width:
+    7px;
+
+  height:
+    7px;
+
+  margin-top:
+    4px;
+
+  border-radius:
+    50%;
+
+  background:
+    #ca4c68;
+
+  box-shadow:
+    0 0 10px
+    rgba(202,76,104,0.65);
+}
+
+.eye-card-dot.green {
+  background:
+    #8fc9b0;
+
+  box-shadow:
+    0 0 10px
+    rgba(143,201,176,0.45);
+}
+
+.eye-card-top {
+  top:
+    16%;
+
+  right:
+    9%;
+}
+
+.eye-card-middle {
+  left:
+    6%;
+
+  bottom:
+    27%;
+}
+
+.eye-card-bottom {
+  right:
+    5%;
+
+  bottom:
+    14%;
+}
+
+.eye-cursor-note {
+  position:
+    absolute;
+
+  left:
+    50%;
+
+  bottom:
+    5%;
+
+  transform:
+    translateX(-50%);
+
+  color:
+    #666670;
+
+  font-size:
+    9px;
+
+  letter-spacing:
+    0.12em;
+}
+
+/* =========================================================
+   BOTTOM STRIP
+   ========================================================= */
+
+.landing-bottom-strip {
+  height:
+    84px;
+
+  margin:
+    0 40px;
+
+  padding:
+    0 24px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    55px 1fr 1.1fr auto;
+
+  align-items:
+    center;
+
+  gap:
+    20px;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.08);
+
+  border-radius:
+    16px 16px 0 0;
+
+  background:
+    rgba(25,25,37,0.88);
+}
+
+.strip-number {
+  color:
+    #a9a9b2;
+
+  font-size:
+    19px;
+}
+
+.strip-title {
+  font-size:
+    13px;
+
+  color:
+    #ececf1;
+}
+
+.strip-description {
+  color:
+    #7e7e87;
+
+  font-size:
+    10px;
+
+  line-height:
+    1.5;
+}
+
+.strip-button {
+  height:
+    38px;
+
+  padding:
+    0 19px;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.2);
+
+  border-radius:
+    19px;
+
+  background:
+    rgba(255,255,255,0.03);
+
+  color:
+    #eee;
+
+  font-size:
+    9px;
+
+  cursor:
+    pointer;
+}
+
+.strip-button:hover {
+  background:
+    rgba(202,76,104,0.16);
+
+  border-color:
+    rgba(202,76,104,0.5);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .landing-nav {
+    padding:
+      0 25px;
+  }
+
+  .landing-brand-space {
+    min-width:
+      180px;
+  }
+
+  .landing-navigation {
+    gap:
+      16px;
+  }
+
+  .landing-nav-right {
+    min-width:
+      190px;
+  }
+
+  .landing-left {
+    padding:
+      45px
+      35px
+      45px
+      50px;
+  }
+
+  .landing-title {
+    font-size:
+      clamp(
+        46px,
+        5vw,
+        72px
+      );
+  }
+
+  .landing-feature-grid {
+    gap:
+      15px;
+
+    grid-template-columns:
+      1fr;
+  }
+
+  .landing-feature-card h3 {
+    font-size:
+      15px;
+  }
+
+  .landing-feature-card p {
+    font-size:
+      11.5px;
+  }
+
+  .landing-description {
+    font-size:
+      13px;
+  }
+
+  .landing-eye-scene {
+    width:
+      min(
+        600px,
+        82%
+      );
+  }
+}
+
+@media (max-width: 850px) {
+  .landing-navigation {
+    display:
+      none;
+  }
+
+  .landing-nav-right {
+    min-width:
+      auto;
+  }
+
+  .landing-hero {
+    grid-template-columns:
+      1fr;
+  }
+
+  .landing-left {
+    min-height:
+      57vh;
+
+    padding:
+      50px
+      28px;
+  }
+
+  .landing-right {
+    min-height:
+      48vh;
+  }
+
+  .landing-eye-scene {
+    width:
+      92%;
+  }
+
+  .eye-card {
+    display:
+      none;
+  }
+
+  .landing-bottom-strip {
+    display:
+      none;
+  }
+}
+
+@media (max-width: 520px) {
+  .landing-nav {
+    height:
+      70px;
+
+    padding:
+      0 18px;
+  }
+
+  .landing-brand-space {
+    min-width:
+      0;
+  }
+
+  .landing-nav-doctor {
+    display:
+      none;
+  }
+
+  .landing-hero {
+    min-height:
+      calc(100vh - 70px);
+  }
+
+  .landing-left {
+    min-height:
+      57vh;
+  }
+
+  .landing-title {
+    font-size:
+      clamp(
+        40px,
+        11vw,
+        58px
+      );
+  }
+
+  .landing-feature-grid {
+    display:
+      none;
+  }
+
+  .landing-description {
+    margin-top:
+      12px;
+
+    font-size:
+      12px;
+  }
+
+  .landing-right {
+    min-height:
+      43vh;
+  }
+
+  .landing-right-heading,
+  .eye-cursor-note {
+    display:
+      none;
+  }
+}

@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { clearSession } from "./config";
 
+import LandingPage from "./pages/LandingPage";
 import DoctorRegistration from "./pages/DoctorRegistration";
 import DoctorLogin from "./pages/DoctorLogin";
 import PatientRegistration from "./pages/PatientRegistration";
@@ -11,24 +13,12 @@ import DoctorDashboard from "./pages/DoctorDashboard";
 import DoctorReview from "./pages/DoctorReview";
 
 function App() {
-  // =========================================================
-  // CURRENT SCREEN
-  // =========================================================
-
   const [screen, setScreen] = useState("role");
-
-  // =========================================================
-  // PATIENT
-  // =========================================================
 
   const [patient, setPatient] = useState(null);
 
   const [selectedPatientScreening, setSelectedPatientScreening] =
     useState(null);
-
-  // =========================================================
-  // DOCTOR
-  // =========================================================
 
   const [doctor, setDoctor] = useState(null);
 
@@ -93,55 +83,27 @@ function App() {
   };
 
   const logoutDoctor = () => {
+    clearSession();
+
     setDoctor(null);
     setSelectedDoctorScreening(null);
     setScreen("role");
   };
 
   // =========================================================
-  // ROLE SELECTION
+  // LANDING PAGE
   // =========================================================
 
   if (screen === "role") {
     return (
-      <div className="app">
-        <div className="container role-selection">
-
-          <h1>
-            Diabetic Retinopathy
-            <br />
-            Screening Platform
-          </h1>
-
-          <p className="subtitle">
-            AI-assisted retinal screening with
-            explainable heatmaps
-          </p>
-
-          <h2>Continue as</h2>
-
-          <div className="role-buttons">
-
-            <button
-              onClick={() => {
-                setScreen("patient-login");
-              }}
-            >
-              Patient
-            </button>
-
-            <button
-              onClick={() => {
-                setScreen("doctor-login");
-              }}
-            >
-              Doctor
-            </button>
-
-          </div>
-
-        </div>
-      </div>
+      <LandingPage
+        onPatient={() => {
+          setScreen("patient-login");
+        }}
+        onDoctor={() => {
+          setScreen("doctor-login");
+        }}
+      />
     );
   }
 
@@ -176,9 +138,7 @@ function App() {
       <div className="app">
 
         <PatientRegistration
-          onPatientCreated={
-            handlePatientCreated
-          }
+          onPatientCreated={handlePatientCreated}
         />
 
         <div className="role-switch">
@@ -211,12 +171,8 @@ function App() {
 
         <PatientDashboard
           patient={patient}
-          onStartScreening={
-            startScreening
-          }
-          onViewResult={
-            viewPatientResult
-          }
+          onStartScreening={startScreening}
+          onViewResult={viewPatientResult}
         />
 
         <div className="role-switch">
@@ -224,6 +180,8 @@ function App() {
           <button
             className="back-button"
             onClick={() => {
+              clearSession();
+
               setPatient(null);
               setSelectedPatientScreening(null);
               setScreen("role");
@@ -251,9 +209,7 @@ function App() {
 
         <ScreeningPage
           patient={patient}
-          onBack={
-            backToPatientDashboard
-          }
+          onBack={backToPatientDashboard}
         />
 
       </div>
@@ -274,9 +230,7 @@ function App() {
 
         <ScreeningResult
           screening={selectedPatientScreening}
-          onBack={
-            backToPatientDashboard
-          }
+          onBack={backToPatientDashboard}
         />
 
       </div>
@@ -348,9 +302,7 @@ function App() {
       <div className="app">
 
         <DoctorDashboard
-          onReview={
-            reviewDoctorScreening
-          }
+          onReview={reviewDoctorScreening}
         />
 
         <div className="role-switch">
@@ -381,12 +333,8 @@ function App() {
       <div className="app">
 
         <DoctorReview
-          screening={
-            selectedDoctorScreening
-          }
-          onBack={
-            backToDoctorDashboard
-          }
+          screening={selectedDoctorScreening}
+          onBack={backToDoctorDashboard}
         />
 
       </div>
@@ -398,27 +346,14 @@ function App() {
   // =========================================================
 
   return (
-    <div className="app">
-
-      <div className="container role-selection">
-
-        <h1>
-          Diabetic Retinopathy
-          <br />
-          Screening Platform
-        </h1>
-
-        <button
-          onClick={() => {
-            setScreen("role");
-          }}
-        >
-          Start
-        </button>
-
-      </div>
-
-    </div>
+    <LandingPage
+      onPatient={() => {
+        setScreen("patient-login");
+      }}
+      onDoctor={() => {
+        setScreen("doctor-login");
+      }}
+    />
   );
 }
 

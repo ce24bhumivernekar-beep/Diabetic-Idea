@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_URL, apiError } from "../config";
 
 function PatientRegistration({ onPatientCreated }) {
   const [form, setForm] = useState({
@@ -32,7 +33,7 @@ function PatientRegistration({ onPatientCreated }) {
       // -----------------------------------------------------
 
       const authResponse = await fetch(
-        "http://localhost:8080/api/auth/register",
+        `${API_URL}/api/auth/register`,
         {
           method: "POST",
           headers: {
@@ -50,10 +51,7 @@ function PatientRegistration({ onPatientCreated }) {
       const authText = await authResponse.text();
 
       if (!authResponse.ok) {
-        throw new Error(
-          authText ||
-            "Could not create patient account."
-        );
+        throw new Error(apiError(authText, "Could not create patient account."));
       }
 
       const user = JSON.parse(authText);
@@ -93,7 +91,7 @@ function PatientRegistration({ onPatientCreated }) {
       // -----------------------------------------------------
 
       const patientResponse = await fetch(
-        "http://localhost:8080/api/patients",
+        `${API_URL}/api/patients`,
         {
           method: "POST",
           headers: {
@@ -115,10 +113,7 @@ function PatientRegistration({ onPatientCreated }) {
         await patientResponse.text();
 
       if (!patientResponse.ok) {
-        throw new Error(
-          patientText ||
-            "Could not create patient profile."
-        );
+        throw new Error(apiError(patientText, "Could not create patient profile."));
       }
 
       const patient =

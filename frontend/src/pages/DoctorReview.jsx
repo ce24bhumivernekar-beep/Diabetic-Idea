@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { API_URL, apiError } from "../config";
+import ScreeningReport from "../components/ScreeningReport";
 
 function DoctorReview({
   screening,
@@ -16,17 +18,13 @@ function DoctorReview({
     screening.reviewedBy || "Dr. Sharma"
   );
 
+  // The saved screening. Replaced by the server copy after a review is
+  // submitted, so the summary and the report below never disagree.
+  const [current, setCurrent] = useState(screening);
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-
-  const getFileName = (path) => {
-    if (!path) {
-      return "";
-    }
-
-    return path.split("\\").pop();
-  };
 
   const submitReview = async () => {
     if (!decision) {
@@ -59,7 +57,7 @@ function DoctorReview({
       }
 
       const url =
-        `http://localhost:8080/api/doctor/screening/` +
+        `${API_URL}/api/doctor/screening/` +
         `${screening.id}/review` +
         `?decision=${encodeURIComponent(decision)}` +
         `&remarks=${encodeURIComponent(remarks)}` +
@@ -76,10 +74,7 @@ function DoctorReview({
         await response.text();
 
       if (!response.ok) {
-        throw new Error(
-          responseText ||
-          "Could not submit the doctor review."
-        );
+        throw new Error(apiError(responseText, "Could not submit the doctor review."));
       }
 
       const updatedScreening =
@@ -102,6 +97,8 @@ function DoctorReview({
         updatedScreening.reviewedBy || doctorName
       );
 
+      setCurrent(updatedScreening);
+
     } catch (error) {
       console.error(
         "Doctor review error:",
@@ -116,24 +113,6 @@ function DoctorReview({
       setLoading(false);
     }
   };
-
-  const originalImage =
-    `http://localhost:8000/generated/` +
-    getFileName(
-      screening.originalImagePath
-    );
-
-  const heatmapImage =
-    `http://localhost:8000/generated/` +
-    getFileName(
-      screening.heatmapPath
-    );
-
-  const overlayImage =
-    `http://localhost:8000/generated/` +
-    getFileName(
-      screening.overlayPath
-    );
 
   return (
     <div className="container doctor-review">
@@ -150,8 +129,13 @@ function DoctorReview({
       <div className="review-summary">
 
         <h2>
-          AI Prediction:{" "}
-          {screening.prediction}
+          {screening.patientName || "Patient"}
+          {screening.patientAge
+            ? ` · ${screening.patientAge}`
+            : ""}
+          {screening.patientGender
+            ? ` · ${screening.patientGender}`
+            : ""}
         </h2>
 
         <p>
@@ -162,54 +146,15 @@ function DoctorReview({
         </p>
 
         <p>
-          Model confidence:{" "}
-          <strong>
-            {(
-              screening.confidence * 100
-            ).toFixed(2)}
-            %
-          </strong>
-        </p>
-
-        <p>
           Screening status:{" "}
           <strong>
-            {screening.status}
+            {current.status}
           </strong>
         </p>
 
       </div>
 
-      <div className="images">
-
-        <div>
-          <h3>Original Image</h3>
-
-          <img
-            src={originalImage}
-            alt="Original retinal image"
-          />
-        </div>
-
-        <div>
-          <h3>AI Heatmap</h3>
-
-          <img
-            src={heatmapImage}
-            alt="AI heatmap"
-          />
-        </div>
-
-        <div>
-          <h3>Heatmap Overlay</h3>
-
-          <img
-            src={overlayImage}
-            alt="Heatmap overlay"
-          />
-        </div>
-
-      </div>
+      <ScreeningReport screening={current} />
 
       <div className="review-form">
 

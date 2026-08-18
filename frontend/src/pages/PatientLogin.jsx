@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_URL, apiError } from "../config";
 
 function PatientLogin({
   onLoginSuccess,
@@ -28,7 +29,7 @@ function PatientLogin({
 
     try {
       const loginResponse = await fetch(
-        "http://localhost:8080/api/auth/login",
+        `${API_URL}/api/auth/login`,
         {
           method: "POST",
           headers: {
@@ -44,9 +45,7 @@ function PatientLogin({
       const loginText = await loginResponse.text();
 
       if (!loginResponse.ok) {
-        throw new Error(
-          loginText || "Login failed."
-        );
+        throw new Error(apiError(loginText, "Login failed."));
       }
 
       const user = JSON.parse(loginText);
@@ -87,7 +86,7 @@ function PatientLogin({
         localStorage.getItem("authToken");
 
       const patientResponse = await fetch(
-        `http://localhost:8080/api/patients/user/${user.id}`,
+        `${API_URL}/api/patients/user/${user.id}`,
         {
           method: "GET",
           headers: {
@@ -100,10 +99,7 @@ function PatientLogin({
         await patientResponse.text();
 
       if (!patientResponse.ok) {
-        throw new Error(
-          patientText ||
-          "Patient profile not found."
-        );
+        throw new Error(apiError(patientText, "Patient profile not found."));
       }
 
       const patient =

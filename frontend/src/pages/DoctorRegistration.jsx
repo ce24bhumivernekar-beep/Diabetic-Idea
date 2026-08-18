@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_URL, apiError } from "../config";
 
 function DoctorRegistration({ onDoctorRegistered }) {
   const [form, setForm] = useState({
@@ -25,7 +26,7 @@ function DoctorRegistration({ onDoctorRegistered }) {
 
     try {
       const response = await fetch(
-        "http://localhost:8080/api/auth/register",
+        `${API_URL}/api/auth/register`,
         {
           method: "POST",
           headers: {
@@ -43,9 +44,7 @@ function DoctorRegistration({ onDoctorRegistered }) {
       const responseText = await response.text();
 
       if (!response.ok) {
-        throw new Error(
-          responseText || "Doctor registration failed."
-        );
+        throw new Error(apiError(responseText, "Doctor registration failed."));
       }
 
       const doctor = JSON.parse(responseText);
