@@ -24,8 +24,10 @@ services:
       - key: CORS_ALLOWED_ORIGIN_PATTERNS
         value: "https://*.onrender.com,https://*.hf.space,http://localhost:[*]"
       # Free instances are memory capped; keep the JVM inside it.
+      # No -Xss override: 512k stacks are too small for Spring's startup
+      # reflection and can abort the boot with a StackOverflowError.
       - key: JAVA_TOOL_OPTIONS
-        value: -XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k
+        value: -XX:MaxRAMPercentage=70 -XX:+UseSerialGC
 
   - type: web
     name: dr-frontend
