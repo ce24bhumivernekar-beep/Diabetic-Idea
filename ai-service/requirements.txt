@@ -1,8 +1,9 @@
-tensorflow
+tensorflow==2.21.0
 numpy
 pillow
 opencv-python
 matplotlib
+pandas
 scikit-learn
 fastapi
 uvicorn
