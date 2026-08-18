@@ -1111,3 +1111,9 @@ button:disabled {
   width: auto;
   margin: 0;
 }
+
+.report-warning.is-info {
+  border-left-color: #2563eb;
+  background: #eef4ff;
+  color: #1b3a6b;
+}

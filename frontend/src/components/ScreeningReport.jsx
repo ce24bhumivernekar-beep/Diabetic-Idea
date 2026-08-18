@@ -74,6 +74,14 @@ const IMAGE_PANELS = [
   },
 ];
 
+function formatNumber(value) {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return "-";
+  }
+
+  return value.toFixed(2);
+}
+
 function formatPercent(value) {
   if (typeof value !== "number" || Number.isNaN(value)) {
     return "-";
@@ -100,6 +108,8 @@ function ScreeningReport({ screening }) {
 
   const reviewed = screening.status === "REVIEWED";
 
+  const metrics = screening.modelMetrics || null;
+
   return (
     <div className="report">
 
@@ -109,6 +119,20 @@ function ScreeningReport({ screening }) {
           placeholder network whose classifier is untrained, so the grade
           below is not meaningful. The image handling, heatmap and review
           workflow are real.
+        </p>
+      )}
+
+      {screening.modelTrained !== false && metrics && (
+        <p className="report-warning is-info">
+          <strong>Research model.</strong> Measured on{" "}
+          {metrics.testImages
+            ? metrics.testImages.toLocaleString()
+            : "held-out"}{" "}
+          unseen images: agreement with graders (kappa){" "}
+          {formatNumber(metrics.quadraticWeightedKappa)}, and it catches{" "}
+          {formatPercent(metrics.referableSensitivity)} of referable disease
+          at {formatPercent(metrics.referableSpecificity)} specificity. Useful
+          for prioritising, not accurate enough to decide care on its own.
         </p>
       )}
 

@@ -1,0 +1,38 @@
+# Render blueprint: the API and the AI service.
+#
+# The frontend is not here - put it on Vercel (frontend/vercel.json) or serve
+# it from the compose stack. MongoDB is not here either; Render has no free
+# Mongo, so use a free MongoDB Atlas M0 cluster and paste its URI below.
+services:
+  - type: web
+    name: dr-ai-service
+    runtime: docker
+    dockerfilePath: ./ai-service/Dockerfile
+    dockerContext: ./ai-service
+    plan: starter          # free plan cannot hold TensorFlow in memory
+    healthCheckPath: /health
+    envVars:
+      - key: CORS_ALLOWED_ORIGINS
+        value: "*"
+      - key: AI_MODEL_URL
+        sync: false        # a public link to dr_model.keras, or leave unset
+
+  - type: web
+    name: dr-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: MONGODB_URI
+        sync: false        # from MongoDB Atlas
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AI_SERVICE_URL
+        fromService:
+          type: web
+          name: dr-ai-service
+          property: hostport
+      - key: CORS_ALLOWED_ORIGIN_PATTERNS
+        sync: false        # e.g. https://your-app.vercel.app

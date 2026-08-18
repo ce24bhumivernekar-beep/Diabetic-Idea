@@ -14,6 +14,8 @@ public class AiPredictionResponse {
 
     private boolean modelTrained;
 
+    private Map<String, Object> modelMetrics;
+
     private String originalImage;
 
     private String heatmap;
@@ -61,6 +63,14 @@ public class AiPredictionResponse {
 
     public void setModelTrained(boolean modelTrained) {
         this.modelTrained = modelTrained;
+    }
+
+    public Map<String, Object> getModelMetrics() {
+        return modelMetrics;
+    }
+
+    public void setModelMetrics(Map<String, Object> modelMetrics) {
+        this.modelMetrics = modelMetrics;
     }
 
     public String getOriginalImage() {

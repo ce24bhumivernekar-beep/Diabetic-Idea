@@ -42,6 +42,11 @@ MODEL_INFO_PATH = os.path.join(
     "model_info.json",
 )
 
+REPORT_PATH = os.path.join(
+    os.path.dirname(MODEL_PATH) or ".",
+    "training_report.json",
+)
+
 IMG_SIZE = 224
 
 CLASS_NAMES = [
@@ -107,6 +112,39 @@ def read_model_info():
 MODEL_INFO = read_model_info()
 
 MODEL_IS_TRAINED = bool(MODEL_INFO.get("trained", True))
+
+
+def read_training_report():
+    """
+    How the model actually scored on held-out data. Being trained is not the
+    same as being good, so the measured numbers travel with every prediction
+    and the UI can be honest about the model's limits.
+    """
+
+    if not os.path.exists(REPORT_PATH):
+        return None
+
+    try:
+
+        with open(REPORT_PATH, "r", encoding="utf-8") as handle:
+            report = json.load(handle)
+
+    except (OSError, ValueError):
+        return None
+
+    test = report.get("test", {})
+
+    return {
+        "dataset": report.get("dataset"),
+        "testImages": report.get("testImages"),
+        "accuracy": test.get("accuracy"),
+        "quadraticWeightedKappa": test.get("quadraticWeightedKappa"),
+        "referableSensitivity": test.get("referableSensitivity"),
+        "referableSpecificity": test.get("referableSpecificity"),
+    }
+
+
+MODEL_METRICS = read_training_report()
 
 if not MODEL_IS_TRAINED:
     print()
@@ -334,6 +372,7 @@ def summarise(predictions):
             for index in range(len(CLASS_NAMES))
         },
         "modelTrained": MODEL_IS_TRAINED,
+        "modelMetrics": MODEL_METRICS,
     }
 
 
@@ -384,6 +423,7 @@ def health():
     return {
         "status": "healthy",
         "modelTrained": MODEL_IS_TRAINED,
+        "modelMetrics": MODEL_METRICS,
     }
 
 # ============================================================

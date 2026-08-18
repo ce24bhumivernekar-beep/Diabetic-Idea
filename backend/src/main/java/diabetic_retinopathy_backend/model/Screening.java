@@ -31,6 +31,8 @@ public class Screening {
     /** False when the AI ran on placeholder weights. */
     private boolean modelTrained;
 
+    private Map<String, Object> modelMetrics;
+
     private String status;
 
     private LocalDateTime createdAt;
@@ -117,6 +119,14 @@ public class Screening {
 
     public void setProbabilities(Map<String, Double> probabilities) {
         this.probabilities = probabilities;
+    }
+
+    public Map<String, Object> getModelMetrics() {
+        return modelMetrics;
+    }
+
+    public void setModelMetrics(Map<String, Object> modelMetrics) {
+        this.modelMetrics = modelMetrics;
     }
 
     public boolean isModelTrained() {

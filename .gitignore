@@ -3,9 +3,12 @@ ai-service/venv/
 ai-service/__pycache__/
 ai-service/*.pyc
 
-# AI dataset and generated files
+# AI dataset, cached embeddings and generated files
 ai-service/data/
 ai-service/generated/
+
+# Measured metrics of the shipped model are useful; keep them
+!ai-service/models/training_report.json
 
 # Trained AI models
 ai-service/models/*.keras
