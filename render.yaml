@@ -29,7 +29,7 @@ services:
       - key: MONGODB_URI
         sync: false                 # Atlas connection string
       - key: AI_SERVICE_URL
-        sync: false                 # https://<user>-<space>.hf.space
+        value: https://dr-ai-service.onrender.com
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ALLOWED_ORIGIN_PATTERNS
@@ -49,9 +49,9 @@ services:
       # Baked in at build time. The dev-server proxy does not exist in a
       # static build, so the browser must be told where the services live.
       - key: VITE_API_URL
-        sync: false                 # https://dr-backend.onrender.com
+        value: https://dr-backend-j04g.onrender.com
       - key: VITE_AI_URL
-        sync: false                 # https://<user>-<space>.hf.space
+        value: https://dr-ai-service.onrender.com
     routes:
       # Single-page app: unknown paths are routes, not missing files.
       - type: rewrite
