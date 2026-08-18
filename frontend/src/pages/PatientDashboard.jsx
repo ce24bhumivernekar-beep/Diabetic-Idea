@@ -151,7 +151,7 @@ function PatientDashboard({
       <div className="history">
 
         <h2>
-          Screening History
+          Your screening history
           <span
             className={
               live
@@ -179,7 +179,7 @@ function PatientDashboard({
           !error &&
           screenings.length === 0 && (
             <p>
-              No previous screenings found.
+              No screenings yet. Start one above.
             </p>
           )}
 
@@ -223,7 +223,7 @@ function PatientDashboard({
                   onViewResult(screening)
                 }
               >
-                View Result
+                View full report
               </button>
 
             </div>

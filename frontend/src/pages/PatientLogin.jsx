@@ -125,10 +125,10 @@ function PatientLogin({
   return (
     <div className="container">
 
-      <h1>Patient Login</h1>
+      <h1>Patient sign in</h1>
 
       <p className="subtitle">
-        Login to access your screening dashboard.
+        Sign in to run a screening and see your results.
       </p>
 
       <form
@@ -159,8 +159,8 @@ function PatientLogin({
           disabled={loading}
         >
           {loading
-            ? "Logging in..."
-            : "Login"}
+            ? "Signing in..."
+            : "Sign in"}
         </button>
 
         {error && (
@@ -175,7 +175,7 @@ function PatientLogin({
         className="back-button"
         onClick={onRegister}
       >
-        Register as Patient
+        Create a patient account
       </button>
 
       <button

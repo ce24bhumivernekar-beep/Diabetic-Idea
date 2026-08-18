@@ -470,7 +470,7 @@ function TriagePage({ patient, onBack }) {
       <div className="container">
 
         <button className="back-button" onClick={onBack}>
-          ← Back to Dashboard
+          ← Dashboard
         </button>
 
         <h1>Screening priority</h1>
@@ -543,7 +543,7 @@ function TriagePage({ patient, onBack }) {
       {screenFlash && <div className="screen-flash" />}
 
       <button className="back-button" onClick={onBack}>
-        ← Back to Dashboard
+        ← Dashboard
       </button>
 
       <h1>Camera screening</h1>

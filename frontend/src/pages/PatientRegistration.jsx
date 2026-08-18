@@ -143,7 +143,7 @@ function PatientRegistration({ onPatientCreated }) {
   return (
     <div className="container">
 
-      <h1>Patient Registration</h1>
+      <h1>Create a patient account</h1>
 
       <p className="subtitle">
         Create an account before starting a screening.
@@ -231,7 +231,7 @@ function PatientRegistration({ onPatientCreated }) {
         >
           {loading
             ? "Registering..."
-            : "Register Patient"}
+            : "Create account"}
         </button>
 
         {error && (

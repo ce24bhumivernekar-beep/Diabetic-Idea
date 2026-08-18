@@ -66,7 +66,7 @@ function DoctorRegistration({ onDoctorRegistered }) {
   return (
     <div className="container">
 
-      <h1>Doctor Registration</h1>
+      <h1>Create a doctor account</h1>
 
       <p className="subtitle">
         Create a doctor account to access the screening dashboard.
@@ -111,7 +111,7 @@ function DoctorRegistration({ onDoctorRegistered }) {
         >
           {loading
             ? "Registering..."
-            : "Register Doctor"}
+            : "Create account"}
         </button>
 
         {error && (

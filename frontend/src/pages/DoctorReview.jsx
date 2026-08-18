@@ -121,7 +121,7 @@ function DoctorReview({
         className="back-button"
         onClick={onBack}
       >
-        ← Back to Dashboard
+        ← Dashboard
       </button>
 
       <h1>Doctor Review</h1>

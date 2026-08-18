@@ -1,6 +1,8 @@
-import { useState } from "react";
-import { clearSession } from "./config";
+import { useEffect, useState } from "react";
 
+import { API_URL, authHeaders, clearSession } from "./config";
+
+import AppHeader from "./components/AppHeader";
 import LandingPage from "./pages/LandingPage";
 import DoctorRegistration from "./pages/DoctorRegistration";
 import DoctorLogin from "./pages/DoctorLogin";
@@ -14,20 +16,120 @@ import DoctorDashboard from "./pages/DoctorDashboard";
 import DoctorReview from "./pages/DoctorReview";
 
 function App() {
-  const [screen, setScreen] = useState("role");
+  const [screen, setScreen] = useState("home");
 
   const [patient, setPatient] = useState(null);
+  const [doctor, setDoctor] = useState(null);
 
   const [selectedPatientScreening, setSelectedPatientScreening] =
     useState(null);
 
-  const [doctor, setDoctor] = useState(null);
-
   const [selectedDoctorScreening, setSelectedDoctorScreening] =
     useState(null);
 
+  // Session restore runs once; until it finishes the app must not decide
+  // that nobody is signed in.
+  const [restoring, setRestoring] = useState(true);
+
   // =========================================================
-  // PATIENT FUNCTIONS
+  // SESSION
+  //
+  // The token already lives in localStorage, but nothing read it back, so
+  // refreshing any page threw the user out to the landing screen mid-task.
+  // =========================================================
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const restore = async () => {
+      const token = localStorage.getItem("authToken");
+      const role = localStorage.getItem("userRole");
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !role) {
+        if (!cancelled) {
+          setRestoring(false);
+        }
+        return;
+      }
+
+      if (role === "DOCTOR") {
+        if (!cancelled) {
+          setDoctor({
+            id: userId,
+            email: localStorage.getItem("userEmail"),
+            role,
+          });
+          setScreen("doctor-dashboard");
+          setRestoring(false);
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${API_URL}/api/patients/user/${userId}`,
+          { headers: authHeaders() }
+        );
+
+        if (!response.ok) {
+          throw new Error("session expired");
+        }
+
+        const profile = await response.json();
+
+        if (!cancelled) {
+          setPatient(profile);
+          setScreen("patient-dashboard");
+        }
+      } catch {
+        // An expired or rejected token should not leave a half-signed-in app.
+        clearSession();
+      } finally {
+        if (!cancelled) {
+          setRestoring(false);
+        }
+      }
+    };
+
+    restore();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // =========================================================
+  // NAVIGATION
+  // =========================================================
+
+  const goHome = () => {
+    setSelectedPatientScreening(null);
+    setSelectedDoctorScreening(null);
+    setScreen("home");
+  };
+
+  const signOut = () => {
+    clearSession();
+    setPatient(null);
+    setDoctor(null);
+    setSelectedPatientScreening(null);
+    setSelectedDoctorScreening(null);
+    setScreen("home");
+  };
+
+  const backToPatientDashboard = () => {
+    setSelectedPatientScreening(null);
+    setScreen("patient-dashboard");
+  };
+
+  const backToDoctorDashboard = () => {
+    setSelectedDoctorScreening(null);
+    setScreen("doctor-dashboard");
+  };
+
+  // =========================================================
+  // PATIENT
   // =========================================================
 
   const handlePatientCreated = (createdPatient) => {
@@ -42,32 +144,17 @@ function App() {
     setScreen("patient-dashboard");
   };
 
-  const startScreening = () => {
-    setSelectedPatientScreening(null);
-    setScreen("patient-screening");
-  };
-
-  const startTriage = () => {
-    setScreen("patient-triage");
-  };
-
   const viewPatientResult = (screening) => {
     setSelectedPatientScreening(screening);
     setScreen("patient-result");
   };
 
-  const backToPatientDashboard = () => {
-    setSelectedPatientScreening(null);
-    setScreen("patient-dashboard");
-  };
-
   // =========================================================
-  // DOCTOR FUNCTIONS
+  // DOCTOR
   // =========================================================
 
   const handleDoctorRegistered = () => {
     setDoctor(null);
-    setSelectedDoctorScreening(null);
     setScreen("doctor-login");
   };
 
@@ -82,300 +169,174 @@ function App() {
     setScreen("doctor-review");
   };
 
-  const backToDoctorDashboard = () => {
-    setSelectedDoctorScreening(null);
-    setScreen("doctor-dashboard");
-  };
-
-  const logoutDoctor = () => {
-    clearSession();
-
-    setDoctor(null);
-    setSelectedDoctorScreening(null);
-    setScreen("role");
-  };
-
   // =========================================================
-  // LANDING PAGE
+  // SHELL
   // =========================================================
 
-  if (screen === "role") {
+  const signedInRole = doctor ? "DOCTOR" : patient ? "PATIENT" : null;
+
+  const dashboardFor = () => {
+    if (doctor) {
+      return backToDoctorDashboard;
+    }
+
+    if (patient) {
+      return backToPatientDashboard;
+    }
+
+    return null;
+  };
+
+  const page = (content) => (
+    <div className="app">
+
+      <AppHeader
+        role={signedInRole}
+        onHome={goHome}
+        onDashboard={dashboardFor()}
+        onLogout={signedInRole ? signOut : null}
+      />
+
+      {content}
+
+    </div>
+  );
+
+  if (restoring) {
+    return (
+      <div className="app">
+        <div className="container">
+          <p className="subtitle">Restoring your session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // =========================================================
+  // SCREENS
+  // =========================================================
+
+  if (screen === "home") {
     return (
       <LandingPage
-        onPatient={() => {
-          setScreen("patient-login");
-        }}
-        onDoctor={() => {
-          setScreen("doctor-login");
-        }}
+        onPatient={() => setScreen(patient ? "patient-dashboard" : "patient-login")}
+        onDoctor={() => setScreen(doctor ? "doctor-dashboard" : "doctor-login")}
       />
     );
   }
 
-  // =========================================================
-  // PATIENT LOGIN
-  // =========================================================
-
   if (screen === "patient-login") {
-    return (
-      <div className="app">
-
-        <PatientLogin
-          onLoginSuccess={handlePatientLogin}
-          onRegister={() => {
-            setScreen("patient-registration");
-          }}
-          onBack={() => {
-            setScreen("role");
-          }}
-        />
-
-      </div>
+    return page(
+      <PatientLogin
+        onLoginSuccess={handlePatientLogin}
+        onRegister={() => setScreen("patient-registration")}
+        onBack={goHome}
+      />
     );
   }
-
-  // =========================================================
-  // PATIENT REGISTRATION
-  // =========================================================
 
   if (screen === "patient-registration") {
-    return (
-      <div className="app">
-
-        <PatientRegistration
-          onPatientCreated={handlePatientCreated}
-        />
+    return page(
+      <>
+        <PatientRegistration onPatientCreated={handlePatientCreated} />
 
         <div className="role-switch">
-
           <button
             className="back-button"
-            onClick={() => {
-              setScreen("patient-login");
-            }}
+            onClick={() => setScreen("patient-login")}
           >
-            ← Back to Login
+            ← Back to patient sign in
           </button>
-
         </div>
-
-      </div>
+      </>
     );
   }
 
-  // =========================================================
-  // PATIENT DASHBOARD
-  // =========================================================
-
-  if (
-    screen === "patient-dashboard" &&
-    patient
-  ) {
-    return (
-      <div className="app">
-
-        <PatientDashboard
-          patient={patient}
-          onStartScreening={startScreening}
-          onStartTriage={startTriage}
-          onViewResult={viewPatientResult}
-        />
-
-        <div className="role-switch">
-
-          <button
-            className="back-button"
-            onClick={() => {
-              clearSession();
-
-              setPatient(null);
-              setSelectedPatientScreening(null);
-              setScreen("role");
-            }}
-          >
-            Logout
-          </button>
-
-        </div>
-
-      </div>
+  if (screen === "patient-dashboard" && patient) {
+    return page(
+      <PatientDashboard
+        patient={patient}
+        onStartScreening={() => setScreen("patient-screening")}
+        onStartTriage={() => setScreen("patient-triage")}
+        onViewResult={viewPatientResult}
+      />
     );
   }
 
-  // =========================================================
-  // PATIENT SCREENING
-  // =========================================================
-
-  if (
-    screen === "patient-screening" &&
-    patient
-  ) {
-    return (
-      <div className="app">
-
-        <ScreeningPage
-          patient={patient}
-          onBack={backToPatientDashboard}
-        />
-
-      </div>
+  if (screen === "patient-screening" && patient) {
+    return page(
+      <ScreeningPage
+        patient={patient}
+        onBack={backToPatientDashboard}
+      />
     );
   }
-
-  // =========================================================
-  // CAMERA-ONLY TRIAGE
-  // =========================================================
 
   if (screen === "patient-triage" && patient) {
-    return (
-      <div className="app">
-
-        <TriagePage
-          patient={patient}
-          onBack={backToPatientDashboard}
-        />
-
-      </div>
+    return page(
+      <TriagePage
+        patient={patient}
+        onBack={backToPatientDashboard}
+      />
     );
   }
 
-  // =========================================================
-  // PATIENT RESULT
-  // =========================================================
-
-  if (
-    screen === "patient-result" &&
-    patient &&
-    selectedPatientScreening
-  ) {
-    return (
-      <div className="app">
-
-        <ScreeningResult
-          screening={selectedPatientScreening}
-          onBack={backToPatientDashboard}
-        />
-
-      </div>
+  if (screen === "patient-result" && patient && selectedPatientScreening) {
+    return page(
+      <ScreeningResult
+        screening={selectedPatientScreening}
+        onBack={backToPatientDashboard}
+      />
     );
   }
-
-  // =========================================================
-  // DOCTOR LOGIN
-  // =========================================================
 
   if (screen === "doctor-login") {
-    return (
-      <div className="app">
-
-        <DoctorLogin
-          onLoginSuccess={handleDoctorLogin}
-          onRegister={() => {
-            setScreen("doctor-registration");
-          }}
-          onBack={() => {
-            setScreen("role");
-          }}
-        />
-
-      </div>
+    return page(
+      <DoctorLogin
+        onLoginSuccess={handleDoctorLogin}
+        onRegister={() => setScreen("doctor-registration")}
+        onBack={goHome}
+      />
     );
   }
-
-  // =========================================================
-  // DOCTOR REGISTRATION
-  // =========================================================
 
   if (screen === "doctor-registration") {
-    return (
-      <div className="app">
-
-        <DoctorRegistration
-          onDoctorRegistered={
-            handleDoctorRegistered
-          }
-        />
+    return page(
+      <>
+        <DoctorRegistration onDoctorRegistered={handleDoctorRegistered} />
 
         <div className="role-switch">
-
           <button
             className="back-button"
-            onClick={() => {
-              setScreen("doctor-login");
-            }}
+            onClick={() => setScreen("doctor-login")}
           >
-            ← Back to Login
+            ← Back to doctor sign in
           </button>
-
         </div>
-
-      </div>
+      </>
     );
   }
 
-  // =========================================================
-  // DOCTOR DASHBOARD
-  // =========================================================
-
-  if (
-    screen === "doctor-dashboard" &&
-    doctor
-  ) {
-    return (
-      <div className="app">
-
-        <DoctorDashboard
-          onReview={reviewDoctorScreening}
-        />
-
-        <div className="role-switch">
-
-          <button
-            className="back-button"
-            onClick={logoutDoctor}
-          >
-            Logout
-          </button>
-
-        </div>
-
-      </div>
+  if (screen === "doctor-dashboard" && doctor) {
+    return page(
+      <DoctorDashboard onReview={reviewDoctorScreening} />
     );
   }
 
-  // =========================================================
-  // DOCTOR REVIEW
-  // =========================================================
-
-  if (
-    screen === "doctor-review" &&
-    doctor &&
-    selectedDoctorScreening
-  ) {
-    return (
-      <div className="app">
-
-        <DoctorReview
-          screening={selectedDoctorScreening}
-          onBack={backToDoctorDashboard}
-        />
-
-      </div>
+  if (screen === "doctor-review" && doctor && selectedDoctorScreening) {
+    return page(
+      <DoctorReview
+        screening={selectedDoctorScreening}
+        onBack={backToDoctorDashboard}
+      />
     );
   }
 
-  // =========================================================
-  // FALLBACK
-  // =========================================================
-
+  // A screen that needs a sign-in the user no longer has.
   return (
     <LandingPage
-      onPatient={() => {
-        setScreen("patient-login");
-      }}
-      onDoctor={() => {
-        setScreen("doctor-login");
-      }}
+      onPatient={() => setScreen("patient-login")}
+      onDoctor={() => setScreen("doctor-login")}
     />
   );
 }

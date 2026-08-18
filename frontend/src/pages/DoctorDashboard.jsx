@@ -126,7 +126,7 @@ function DoctorDashboard({ onReview }) {
       <h1>Doctor Dashboard</h1>
 
       <p className="subtitle">
-        Review AI-assisted diabetic retinopathy screenings
+        Screenings arrive here the moment a patient submits one
       </p>
 
       <div className="live-bar">
@@ -175,11 +175,11 @@ function DoctorDashboard({ onReview }) {
         <>
           <section className="doctor-section">
 
-            <h2>Pending Reviews</h2>
+            <h2>Waiting for your review</h2>
 
             {pendingScreenings.length === 0 ? (
               <p>
-                No pending screenings.
+                Nothing waiting - the queue is clear.
               </p>
             ) : (
               pendingScreenings.map(
@@ -253,7 +253,7 @@ function DoctorDashboard({ onReview }) {
           <section className="doctor-section">
 
             <h2>
-              Reviewed Screenings
+              Already reviewed
             </h2>
 
             {reviewedScreenings.length === 0 ? (

@@ -8,7 +8,7 @@ function ScreeningResult({ screening, onBack }) {
         className="back-button"
         onClick={onBack}
       >
-        ← Back to Dashboard
+        ← Dashboard
       </button>
 
       <h1>Screening Result</h1>

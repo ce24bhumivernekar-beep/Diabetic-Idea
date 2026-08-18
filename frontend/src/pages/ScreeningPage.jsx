@@ -116,7 +116,7 @@ function ScreeningPage({
         className="back-button"
         onClick={onBack}
       >
-        ← Back to Dashboard
+        ← Dashboard
       </button>
 
       <h1>
@@ -166,7 +166,7 @@ function ScreeningPage({
         >
           {loading
             ? "Analyzing..."
-            : "Analyze Image"}
+            : "Analyse this image"}
         </button>
 
         {error && (
