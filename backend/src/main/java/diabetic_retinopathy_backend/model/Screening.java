@@ -1,6 +1,7 @@
 package diabetic_retinopathy_backend.model;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -24,6 +25,11 @@ public class Screening {
     private int classId;
 
     private double confidence;
+
+    private Map<String, Double> probabilities;
+
+    /** False when the AI ran on placeholder weights. */
+    private boolean modelTrained;
 
     private String status;
 
@@ -103,6 +109,22 @@ public class Screening {
 
     public void setConfidence(double confidence) {
         this.confidence = confidence;
+    }
+
+    public Map<String, Double> getProbabilities() {
+        return probabilities;
+    }
+
+    public void setProbabilities(Map<String, Double> probabilities) {
+        this.probabilities = probabilities;
+    }
+
+    public boolean isModelTrained() {
+        return modelTrained;
+    }
+
+    public void setModelTrained(boolean modelTrained) {
+        this.modelTrained = modelTrained;
     }
 
     public String getStatus() {

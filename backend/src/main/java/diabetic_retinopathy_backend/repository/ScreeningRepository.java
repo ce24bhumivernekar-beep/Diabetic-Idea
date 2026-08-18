@@ -9,5 +9,7 @@ import diabetic_retinopathy_backend.model.Screening;
 public interface ScreeningRepository
         extends MongoRepository<Screening, String> {
 
-    List<Screening> findByPatientId(String patientId);
+    List<Screening> findByPatientIdOrderByCreatedAtDesc(String patientId);
+
+    List<Screening> findAllByOrderByCreatedAtDesc();
 }

@@ -12,6 +12,8 @@ public class AiPredictionResponse {
 
     private Map<String, Double> probabilities;
 
+    private boolean modelTrained;
+
     private String originalImage;
 
     private String heatmap;
@@ -51,6 +53,14 @@ public class AiPredictionResponse {
 
     public void setProbabilities(Map<String, Double> probabilities) {
         this.probabilities = probabilities;
+    }
+
+    public boolean isModelTrained() {
+        return modelTrained;
+    }
+
+    public void setModelTrained(boolean modelTrained) {
+        this.modelTrained = modelTrained;
     }
 
     public String getOriginalImage() {

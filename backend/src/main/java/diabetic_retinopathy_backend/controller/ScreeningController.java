@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,12 +15,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import diabetic_retinopathy_backend.client.AiServiceClient;
 import diabetic_retinopathy_backend.dto.AiPredictionResponse;
+import diabetic_retinopathy_backend.exception.ApiException;
 import diabetic_retinopathy_backend.model.Patient;
 import diabetic_retinopathy_backend.model.Screening;
 import diabetic_retinopathy_backend.repository.PatientRepository;
 import diabetic_retinopathy_backend.repository.ScreeningRepository;
+import diabetic_retinopathy_backend.service.ScreeningEventService;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/screenings")
 public class ScreeningController {
@@ -29,15 +29,18 @@ public class ScreeningController {
     private final AiServiceClient aiServiceClient;
     private final ScreeningRepository screeningRepository;
     private final PatientRepository patientRepository;
+    private final ScreeningEventService events;
 
     public ScreeningController(
             AiServiceClient aiServiceClient,
             ScreeningRepository screeningRepository,
-            PatientRepository patientRepository) {
+            PatientRepository patientRepository,
+            ScreeningEventService events) {
 
         this.aiServiceClient = aiServiceClient;
         this.screeningRepository = screeningRepository;
         this.patientRepository = patientRepository;
+        this.events = events;
     }
 
     @PostMapping(
@@ -48,13 +51,18 @@ public class ScreeningController {
             @RequestParam("patientId") String patientId,
             @RequestParam("file") MultipartFile file,
             @RequestAttribute("userId") String userId,
-            @RequestAttribute("userRole") String userRole
-    ) throws Exception {
+            @RequestAttribute("userRole") String userRole) {
 
         // Only patients can start their own screening.
         if (!"PATIENT".equals(userRole)) {
-            throw new RuntimeException(
+            throw ApiException.forbidden(
                     "Only patients can start a screening."
+            );
+        }
+
+        if (file == null || file.isEmpty()) {
+            throw ApiException.badRequest(
+                    "Please choose a retinal image to upload."
             );
         }
 
@@ -62,7 +70,7 @@ public class ScreeningController {
         Patient patient = patientRepository
                 .findById(patientId)
                 .orElseThrow(
-                        () -> new RuntimeException(
+                        () -> ApiException.notFound(
                                 "Patient not found."
                         )
                 );
@@ -70,14 +78,20 @@ public class ScreeningController {
         // Make sure this patient belongs to
         // the currently logged-in account.
         if (!userId.equals(patient.getUserId())) {
-            throw new RuntimeException(
+            throw ApiException.forbidden(
                     "You are not authorized to screen this patient."
             );
         }
 
-        // Send image to Python AI service.
+        // Send image to the Python AI service.
         AiPredictionResponse aiResponse =
                 aiServiceClient.predict(file);
+
+        if (aiResponse == null) {
+            throw ApiException.badRequest(
+                    "AI service returned an empty response."
+            );
+        }
 
         Screening screening = new Screening();
 
@@ -107,13 +121,32 @@ public class ScreeningController {
                 aiResponse.getConfidence()
         );
 
-        screening.setStatus("COMPLETED");
+        screening.setProbabilities(
+                aiResponse.getProbabilities()
+        );
+
+        // Carry the honesty flag: placeholder weights must be visible in the UI.
+        screening.setModelTrained(aiResponse.isModelTrained());
+
+        // AI result is only a suggestion until a doctor signs it off.
+        screening.setStatus("PENDING_REVIEW");
 
         screening.setCreatedAt(
                 LocalDateTime.now()
         );
 
-        return screeningRepository.save(screening);
+        Screening saved =
+                screeningRepository.save(screening);
+
+        // Push it to every doctor watching the queue.
+        events.screeningCreated(
+                saved.getId(),
+                patient.getId(),
+                patient.getName(),
+                saved.getPrediction()
+        );
+
+        return saved;
     }
 
     @GetMapping("/patient/{patientId}")
@@ -125,25 +158,21 @@ public class ScreeningController {
         Patient patient = patientRepository
                 .findById(patientId)
                 .orElseThrow(
-                        () -> new RuntimeException(
+                        () -> ApiException.notFound(
                                 "Patient not found."
                         )
                 );
 
-        // Doctors can view patient screening history.
-        if ("DOCTOR".equals(userRole)) {
-            return screeningRepository
-                    .findByPatientId(patientId);
-        }
+        // Doctors may view any history; patients only their own.
+        if (!"DOCTOR".equals(userRole)
+                && !userId.equals(patient.getUserId())) {
 
-        // Patients can only view their own history.
-        if (!userId.equals(patient.getUserId())) {
-            throw new RuntimeException(
-                    "You are not authorized to view this patient's history."
+            throw ApiException.forbidden(
+                    "You are not authorized to view this screening history."
             );
         }
 
         return screeningRepository
-                .findByPatientId(patientId);
+                .findByPatientIdOrderByCreatedAtDesc(patientId);
     }
 }
