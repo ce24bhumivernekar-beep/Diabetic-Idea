@@ -169,6 +169,78 @@ pub/sub, or Mongo change streams).
 
 ---
 
+## Stage 1: camera-only triage (no fundus lens)
+
+A bare phone camera cannot photograph the retina. Light has to enter the pupil,
+reflect off the fundus and come back out, which needs a condensing lens and
+coaxial illumination. So the phone-only part of this project does not try to
+grade retinopathy - it measures what a camera *can* see and decides **who needs
+a retinal exam first**, which is the real bottleneck when there are far more
+diabetic patients than fundus cameras.
+
+| Measurement | How | Why it matters | Accuracy on synthetic signals |
+|---|---|---|---|
+| Heart rate + HRV | fingertip over the lens and flash, 30 s | low HRV is a marker of cardiac autonomic neuropathy | **0.05 bpm** mean error, 48-132 bpm |
+| Pupil light reflex | eye close-up while the torch fires | a blunted, slow reflex is an early autonomic sign | **0.33 mm** mean error on pupil diameter |
+| Conjunctival pallor | photo of the lower lid | anaemia accelerates retinopathy | **0** drift between warm and neutral lighting |
+
+Two tricks remove the need for any extra hardware:
+
+* the **iris is the ruler** - horizontal visible iris diameter is 11.7 mm in
+  adults, so pixels convert to millimetres in any photo, at any distance;
+* the **sclera is the white card** - dividing the lid colour by the sclera
+  colour cancels the phone's white balance and the room's lighting.
+
+Run the accuracy checks yourself:
+
+```powershell
+cd ai-service
+.env\Scripts\python test_signals.py     # 19 checks, each with a known answer
+```
+
+### The score
+
+`TriageScoringService` adds points from the questionnaire (duration of
+diabetes, HbA1c, blood pressure, age, smoking, vision symptoms) and from any
+measurement that came back reliable, then bands the total:
+
+| Score | Priority | Retinal exam within |
+|---|---|---|
+| 60+ | URGENT | 1 week |
+| 40-59 | HIGH | 4 weeks |
+| 20-39 | MODERATE | 6 months |
+| under 20 | ROUTINE | 12 months |
+
+Every point comes back with the sentence that explains it, so a doctor can
+argue with one line instead of with a black box. **A measurement that fails its
+own quality check is excluded and listed as "not counted" - it never becomes a
+confident-looking number.** The weights follow the direction of established
+risk factors but have not been fitted to outcome data; the output orders a
+queue, it does not estimate a probability.
+
+### Endpoints
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/triage/ppg` | frame samples in, heart rate + HRV out |
+| POST | `/api/triage/plr` | eye frames in, pupil response in mm out |
+| POST | `/api/triage/pallor` | lid photo + two boxes in, pallor index out |
+| POST | `/api/triage` | store an assessment, score it, notify doctors |
+| GET | `/api/triage/patient/{id}` | a patient's assessments |
+| GET | `/api/doctor/triage` | the whole queue, newest first |
+
+The three measurement endpoints store nothing, so a bad recording can be
+retaken freely. Only `POST /api/triage` writes a record and raises a
+`triage-recorded` event to the doctors.
+
+### Stage 2 stays as it is
+
+Retinal grading still runs on a real retinal image, from a clinic fundus camera
+or a **clip-on 20D condensing lens** (roughly Rs 400-900), which is the cheapest
+honest way to put a retina in front of a phone.
+
+---
+
 ## The model
 
 `ai-service/models/dr_model.keras` is **not** in git (see `.gitignore`).

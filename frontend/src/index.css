@@ -842,3 +842,272 @@ button:disabled {
     animation: none;
   }
 }
+
+/* ============================================================
+   LIVE READOUT (camera viewfinder)
+   ============================================================ */
+
+.live-readout {
+  max-width: 480px;
+  margin: 16px auto 0;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border-left: 5px solid #4a6fa5;
+  background: #f4f7fb;
+  text-align: left;
+}
+
+.live-readout.grade-0 { border-left-color: #2e8b57; background: #eefaf1; }
+.live-readout.grade-1 { border-left-color: #86a512; background: #f6faea; }
+.live-readout.grade-2 { border-left-color: #d9a324; background: #fff8e8; }
+.live-readout.grade-3 { border-left-color: #d9741f; background: #fff2e5; }
+.live-readout.grade-4 { border-left-color: #c0392b; background: #fdeeec; }
+
+.live-readout.is-waiting,
+.live-readout.is-error {
+  border-left-color: #b3bdc9;
+  background: #f4f7fb;
+  color: #6a7788;
+  font-size: 14px;
+  text-align: center;
+}
+
+.live-readout.is-waiting p,
+.live-readout.is-error p {
+  margin: 0;
+}
+
+.live-readout-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.live-readout-head h3 {
+  margin: 3px 0 0;
+  font-size: 23px;
+  line-height: 1.15;
+}
+
+.live-readout-sub {
+  margin: 4px 0 0;
+  color: #6a7788;
+  font-size: 12.5px;
+}
+
+.live-readout-confidence {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.live-readout-confidence span:first-child {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.live-prob-list {
+  margin-top: 14px;
+}
+
+.live-prob-list .prob-row {
+  grid-template-columns: 108px 1fr 60px;
+  padding: 4px 0;
+  font-size: 12.5px;
+}
+
+.live-prob-list .prob-track {
+  height: 8px;
+}
+
+.live-stats {
+  margin: 12px 0 0;
+  color: #6a7788;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.capture-live-note {
+  margin-top: 14px;
+}
+
+@media (max-width: 620px) {
+  .live-prob-list .prob-row {
+    grid-template-columns: 92px 1fr 54px;
+  }
+}
+
+/* ============================================================
+   CAMERA-ONLY TRIAGE
+   ============================================================ */
+
+.dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.dashboard-actions button {
+  margin: 0;
+}
+
+.triage-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 18px 0 22px;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.triage-steps li {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #6a7788;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.triage-steps li.is-active {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.triage-steps li.is-done {
+  background: #eafaf0;
+  color: #1f6b43;
+}
+
+.triage-progress {
+  margin: 16px auto 0;
+  max-width: 380px;
+}
+
+.triage-progress p {
+  margin: 0 0 8px;
+  color: #46566b;
+  font-size: 14px;
+}
+
+.triage-bar {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: #e6ebf2;
+  overflow: hidden;
+}
+
+.triage-bar span {
+  display: block;
+  height: 100%;
+  background: #2563eb;
+  transition: width 0.2s linear;
+}
+
+.guide {
+  position: absolute;
+  border: 2px dashed rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.guide-conjunctiva {
+  border-color: #ff8a8a;
+}
+
+.guide-sclera {
+  border-color: #ffffff;
+}
+
+/* A white overlay is the light source when the device has no torch. */
+.screen-flash {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.triage-measured {
+  margin-top: 22px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: #f7f9fc;
+  font-size: 14px;
+}
+
+.triage-measured p {
+  margin: 0 0 6px;
+  color: #46566b;
+}
+
+.triage-result {
+  margin-top: 22px;
+  padding: 22px 26px;
+  border-radius: 16px;
+  border-left: 6px solid #4a6fa5;
+  background: #f4f7fb;
+}
+
+.triage-result h2 {
+  margin: 4px 0 8px;
+  font-size: 30px;
+}
+
+.triage-result.priority-routine { border-left-color: #2e8b57; background: #eefaf1; }
+.triage-result.priority-moderate { border-left-color: #d9a324; background: #fff8e8; }
+.triage-result.priority-high { border-left-color: #d9741f; background: #fff2e5; }
+.triage-result.priority-urgent { border-left-color: #c0392b; background: #fdeeec; }
+
+.triage-within {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.triage-score {
+  margin: 0;
+  color: #6a7788;
+  font-size: 14px;
+}
+
+.triage-reasons {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.triage-reasons.is-muted {
+  color: #8d97a5;
+}
+
+.field {
+  display: block;
+  text-align: left;
+  font-size: 13.5px;
+  color: #46566b;
+}
+
+.field input {
+  margin-top: 6px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  font-size: 14px;
+  color: #46566b;
+}
+
+.checkbox input {
+  width: auto;
+  margin: 0;
+}

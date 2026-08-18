@@ -5,6 +5,7 @@ import useLiveEvents from "../hooks/useLiveEvents";
 function PatientDashboard({
   patient,
   onStartScreening,
+  onStartTriage,
   onViewResult,
 }) {
   const [screenings, setScreenings] = useState([]);
@@ -127,11 +128,17 @@ function PatientDashboard({
           </strong>
         </p>
 
-        <button
-          onClick={onStartScreening}
-        >
-          Start New Screening
-        </button>
+        <div className="dashboard-actions">
+
+          <button onClick={onStartTriage}>
+            Camera screening (no lens needed)
+          </button>
+
+          <button onClick={onStartScreening}>
+            Upload a retinal image
+          </button>
+
+        </div>
 
       </div>
 

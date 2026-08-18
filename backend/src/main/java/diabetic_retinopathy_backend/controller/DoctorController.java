@@ -16,7 +16,9 @@ import diabetic_retinopathy_backend.exception.ApiException;
 import diabetic_retinopathy_backend.model.Patient;
 import diabetic_retinopathy_backend.model.Screening;
 import diabetic_retinopathy_backend.repository.PatientRepository;
+import diabetic_retinopathy_backend.model.TriageAssessment;
 import diabetic_retinopathy_backend.repository.ScreeningRepository;
+import diabetic_retinopathy_backend.repository.TriageAssessmentRepository;
 import diabetic_retinopathy_backend.service.ScreeningEventService;
 
 /**
@@ -30,16 +32,31 @@ public class DoctorController {
 
     private final ScreeningRepository screeningRepository;
     private final PatientRepository patientRepository;
+    private final TriageAssessmentRepository triageRepository;
     private final ScreeningEventService events;
 
     public DoctorController(
             ScreeningRepository screeningRepository,
             PatientRepository patientRepository,
+            TriageAssessmentRepository triageRepository,
             ScreeningEventService events) {
 
         this.screeningRepository = screeningRepository;
         this.patientRepository = patientRepository;
+        this.triageRepository = triageRepository;
         this.events = events;
+    }
+
+    /**
+     * The camera-only queue: who to call in for a retinal exam first.
+     */
+    @GetMapping("/triage")
+    public List<TriageAssessment> triageQueue(
+            @RequestAttribute("userRole") String userRole) {
+
+        requireDoctor(userRole);
+
+        return triageRepository.findAllByOrderByCreatedAtDesc();
     }
 
     // ---------------------------------------------------------

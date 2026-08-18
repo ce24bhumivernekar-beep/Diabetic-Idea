@@ -7,6 +7,7 @@ import DoctorLogin from "./pages/DoctorLogin";
 import PatientRegistration from "./pages/PatientRegistration";
 import PatientLogin from "./pages/PatientLogin";
 import ScreeningPage from "./pages/ScreeningPage";
+import TriagePage from "./pages/TriagePage";
 import PatientDashboard from "./pages/PatientDashboard";
 import ScreeningResult from "./pages/ScreeningResult";
 import DoctorDashboard from "./pages/DoctorDashboard";
@@ -44,6 +45,10 @@ function App() {
   const startScreening = () => {
     setSelectedPatientScreening(null);
     setScreen("patient-screening");
+  };
+
+  const startTriage = () => {
+    setScreen("patient-triage");
   };
 
   const viewPatientResult = (screening) => {
@@ -172,6 +177,7 @@ function App() {
         <PatientDashboard
           patient={patient}
           onStartScreening={startScreening}
+          onStartTriage={startTriage}
           onViewResult={viewPatientResult}
         />
 
@@ -208,6 +214,23 @@ function App() {
       <div className="app">
 
         <ScreeningPage
+          patient={patient}
+          onBack={backToPatientDashboard}
+        />
+
+      </div>
+    );
+  }
+
+  // =========================================================
+  // CAMERA-ONLY TRIAGE
+  // =========================================================
+
+  if (screen === "patient-triage" && patient) {
+    return (
+      <div className="app">
+
+        <TriagePage
           patient={patient}
           onBack={backToPatientDashboard}
         />

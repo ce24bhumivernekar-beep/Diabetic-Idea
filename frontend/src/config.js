@@ -6,30 +6,22 @@
  * The AI service is contacted directly only for the generated images
  * (original / heatmap / overlay); every data call goes through the API.
  *
- * Hosts are derived from whatever host the page itself was opened on, so a
- * phone hitting http://192.168.1.20:5173 talks to http://192.168.1.20:8080
- * instead of its own localhost. Override per environment with frontend/.env:
- *   VITE_API_URL=http://localhost:8080
- *   VITE_AI_URL=http://localhost:8000
+ * Both are same-origin by default and reach their service through the dev
+ * server proxy (see vite.config.js), so a phone needs no configuration at all.
+ * Point them elsewhere only when the services are not behind this origin:
+ *   VITE_API_URL=http://192.168.0.101:8080
+ *   VITE_AI_URL=http://192.168.0.101:8000
  */
 
-function serviceUrl(envValue, port) {
-  if (envValue) {
-    return envValue;
-  }
+/**
+ * Empty string means "same origin": the dev server proxies /api to the Spring
+ * Boot API and /generated to the AI service. Keeping every request on one
+ * origin is what lets a phone use the app over a single HTTPS tunnel without
+ * mixed-content errors.
+ */
+export const API_URL = import.meta.env.VITE_API_URL || "";
 
-  if (typeof window !== "undefined" && window.location) {
-    const { protocol, hostname } = window.location;
-
-    return `${protocol}//${hostname}:${port}`;
-  }
-
-  return `http://localhost:${port}`;
-}
-
-export const API_URL = serviceUrl(import.meta.env.VITE_API_URL, 8080);
-
-export const AI_URL = serviceUrl(import.meta.env.VITE_AI_URL, 8000);
+export const AI_URL = import.meta.env.VITE_AI_URL || "";
 
 /**
  * The AI service returns a path such as "generated/<id>_overlay.png".

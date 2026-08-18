@@ -149,6 +149,36 @@ public class ScreeningController {
         return saved;
     }
 
+    /**
+     * Live viewfinder frame. Runs the model and returns the grade, but writes
+     * nothing to the database and raises no doctor event - only an explicit
+     * /analyze becomes a screening on the record.
+     */
+    @PostMapping(
+            value = "/live",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public AiPredictionResponse live(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "heatmap", defaultValue = "false")
+            boolean heatmap,
+            @RequestAttribute("userRole") String userRole) {
+
+        if (!"PATIENT".equals(userRole)) {
+            throw ApiException.forbidden(
+                    "Only patients can run a live screening."
+            );
+        }
+
+        if (file == null || file.isEmpty()) {
+            throw ApiException.badRequest(
+                    "Empty frame."
+            );
+        }
+
+        return aiServiceClient.predictLive(file, heatmap);
+    }
+
     @GetMapping("/patient/{patientId}")
     public List<Screening> getPatientScreenings(
             @PathVariable String patientId,

@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import useLiveAnalysis from "../hooks/useLiveAnalysis";
+import LiveReadout from "./LiveReadout";
+
 /**
  * Camera capture for the screening page.
  *
@@ -40,11 +43,24 @@ function CameraCapture({ onCapture, disabled }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
 
+  // Continuous inference on the frames coming out of the preview.
+  const live = useLiveAnalysis(videoRef);
+
+  // stopCamera is created before `live` exists, so it reaches the stopper
+  // through a ref instead of a stale closure.
+  const stopLiveRef = useRef(() => {});
+
+  useEffect(() => {
+    stopLiveRef.current = live.stop;
+  }, [live.stop]);
+
   // ---------------------------------------------------------
   // CAMERA LIFECYCLE
   // ---------------------------------------------------------
 
   const stopCamera = useCallback(() => {
+    stopLiveRef.current();
+
     const stream = streamRef.current;
 
     if (stream) {
@@ -85,6 +101,10 @@ function CameraCapture({ onCapture, disabled }) {
       }
 
       setStreaming(true);
+
+      // Real-time is the point: begin analysing immediately.
+      live.reset();
+      live.start();
     } catch (cameraError) {
       console.error("Camera error:", cameraError);
 
@@ -108,7 +128,7 @@ function CameraCapture({ onCapture, disabled }) {
     } finally {
       setBusy(false);
     }
-  }, [facing, stopCamera]);
+  }, [facing, stopCamera, live]);
 
   // Switching cameras and switching modes are user actions, so they are
   // handled here rather than in an effect that reacts to state.
@@ -256,6 +276,16 @@ function CameraCapture({ onCapture, disabled }) {
                 )}
               </div>
 
+              {streaming && (
+                <LiveReadout
+                  reading={live.reading}
+                  fps={live.fps}
+                  latencyMs={live.latencyMs}
+                  frames={live.frames}
+                  error={live.error}
+                />
+              )}
+
               <div className="capture-actions">
 
                 {!streaming ? (
@@ -273,7 +303,20 @@ function CameraCapture({ onCapture, disabled }) {
                       onClick={captureFrame}
                       disabled={disabled}
                     >
-                      Capture photo
+                      Save this scan
+                    </button>
+
+                    <button
+                      type="button"
+                      className="back-button"
+                      onClick={
+                        live.running ? live.stop : live.start
+                      }
+                      disabled={disabled}
+                    >
+                      {live.running
+                        ? "Pause analysis"
+                        : "Resume analysis"}
                     </button>
 
                     <button
@@ -331,6 +374,14 @@ function CameraCapture({ onCapture, disabled }) {
       {error && (
         <p className="error">
           {error}
+        </p>
+      )}
+
+      {mode === "live" && streaming && (
+        <p className="capture-note capture-live-note">
+          The reading above updates continuously and is not stored.
+          <strong> Save this scan</strong> records the current frame for a
+          doctor to review.
         </p>
       )}
 

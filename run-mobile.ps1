@@ -36,7 +36,9 @@ Write-Host ""
 # 2. Firewall - the phone cannot reach the ports without these
 # ---------------------------------------------------------------
 
-$ports = @(5173, 8080, 8000)
+# Only the dev server needs to be reachable: it proxies /api to the backend
+# and /generated to the AI service, so 8080 and 8000 stay local.
+$ports = @(5173)
 
 foreach ($port in $ports) {
 
@@ -73,9 +75,8 @@ Write-Host "  'Phone camera' works over this plain http address." -ForegroundCol
 Write-Host "  'Live camera' needs HTTPS - browsers block getUserMedia otherwise." -ForegroundColor Gray
 
 if (Get-Command tailscale -ErrorAction SilentlyContinue) {
-    Write-Host "  Tailscale found. For a real certificate:" -ForegroundColor Gray
-    Write-Host "      tailscale serve --bg 5173" -ForegroundColor White
-    Write-Host "  then open the https://<machine>.<tailnet>.ts.net address on the phone." -ForegroundColor Gray
+    Write-Host "  Tailscale found - run .\serve-https.ps1 for a real certificate," -ForegroundColor Gray
+    Write-Host "  then open the printed https://...ts.net address on the phone." -ForegroundColor Gray
 }
 
 # ---------------------------------------------------------------

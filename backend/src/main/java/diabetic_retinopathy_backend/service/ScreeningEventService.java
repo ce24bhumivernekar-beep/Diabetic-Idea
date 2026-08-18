@@ -119,6 +119,28 @@ public class ScreeningEventService {
     }
 
     /**
+     * A camera-only screening was recorded - tell the doctors, with the
+     * priority it came out at.
+     */
+    public void triageRecorded(
+            String assessmentId,
+            String patientId,
+            String patientName,
+            String priority,
+            int score) {
+
+        Map<String, Object> payload = Map.of(
+                "assessmentId", assessmentId,
+                "patientId", patientId,
+                "patientName", patientName == null ? "" : patientName,
+                "priority", priority == null ? "" : priority,
+                "score", score
+        );
+
+        send("DOCTOR", null, "triage-recorded", payload);
+    }
+
+    /**
      * Proxies and mobile networks drop idle connections; a comment every
      * 20 seconds keeps them open.
      */
