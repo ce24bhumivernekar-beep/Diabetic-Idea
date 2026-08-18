@@ -1,10 +1,8 @@
-tensorflow==2.21.0
-numpy
-pillow
-opencv-python
-matplotlib
-pandas
-scikit-learn
+# Serving only - deliberately no TensorFlow. See requirements-train.txt for the
+# training and export dependencies.
 fastapi
 uvicorn
 python-multipart
+onnxruntime
+numpy
+opencv-python-headless

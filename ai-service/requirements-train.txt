@@ -1,0 +1,9 @@
+# Training and ONNX export. Not installed in the deployed image.
+tensorflow==2.21.0
+tf2onnx
+onnx
+pandas
+scikit-learn
+matplotlib
+pyarrow
+pillow

@@ -1,38 +1,27 @@
-# Diabetic Retinopathy AI service.
+# AI service image - ONNX Runtime, no TensorFlow.
 #
-# The model file is NOT in git, so it is created at build time: the trained
-# weights are downloaded if AI_MODEL_URL is set, otherwise a placeholder is
-# built so the image still boots and says so.
+# The exported model ships in the repo (16 MB), so nothing is downloaded at
+# build time and the service always starts with the real trained weights.
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# opencv needs these; the slim image has neither.
+# opencv-python-headless still needs libglib.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libglib2.0-0 libgl1 curl \
+    && apt-get install -y --no-install-recommends libglib2.0-0 curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY *.py ./
+COPY app.py signals.py ./
+COPY models/dr_model.onnx models/cam_weights.npz models/training_report.json ./models/
 
-ARG AI_MODEL_URL=""
-
-RUN mkdir -p models generated \
-    && if [ -n "$AI_MODEL_URL" ]; then \
-         echo "Fetching trained model..." && \
-         curl -fsSL -o models/dr_model.keras "$AI_MODEL_URL"; \
-       else \
-         echo "No AI_MODEL_URL given - building a placeholder model" && \
-         python bootstrap_model.py; \
-       fi
+RUN mkdir -p generated
 
 ENV PORT=8000
 
 EXPOSE 8000
 
-# One worker: the model is ~200 MB in memory and inference is CPU bound, so a
-# second worker would double the memory for no throughput.
 CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port ${PORT} --workers 1"]

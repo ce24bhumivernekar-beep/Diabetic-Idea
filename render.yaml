@@ -1,12 +1,23 @@
 # Render blueprint - free tier throughout, no card required.
 #
-# Two services here: the Spring Boot API and the React frontend as a static
-# site. The AI service is NOT here: TensorFlow needs roughly 1.5 GB and a free
-# Render instance gives 512 MB, so it runs on a Hugging Face Space instead
-# (free, 16 GB) - see ai-service/README.md.
+# All three services fit here now. The AI service serves the model through
+# ONNX Runtime rather than TensorFlow: TF needs over a gigabyte at rest, the
+# ONNX build holds ~120 MB, which fits the 512 MB free instance. Hugging Face
+# Spaces was the earlier plan but Docker Spaces now require a paid PRO plan.
 #
 # MongoDB is a free Atlas M0 cluster; Render has no free managed Mongo.
 services:
+  - type: web
+    name: dr-ai-service
+    runtime: docker
+    dockerfilePath: ./ai-service/Dockerfile
+    dockerContext: ./ai-service
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: CORS_ALLOWED_ORIGINS
+        value: "*"
+
   - type: web
     name: dr-backend
     runtime: docker

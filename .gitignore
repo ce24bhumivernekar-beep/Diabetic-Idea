@@ -36,3 +36,6 @@ backend/target/
 Thumbs.db
 # Local deployment secrets - never commit
 PASTE_THIS_INTO_RENDER.txt
+
+# serving venv
+ai-service/venv-serve/
