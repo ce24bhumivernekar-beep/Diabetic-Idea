@@ -130,12 +130,12 @@ function PatientDashboard({
 
         <div className="dashboard-actions">
 
-          <button onClick={onStartTriage}>
-            Camera screening (no lens needed)
+          <button onClick={onStartScreening}>
+            Live retinal screening (camera)
           </button>
 
-          <button onClick={onStartScreening}>
-            Upload a retinal image
+          <button onClick={onStartTriage}>
+            Camera health check (pulse, pupil, eyelid)
           </button>
 
         </div>

@@ -1117,3 +1117,10 @@ button:disabled {
   background: #eef4ff;
   color: #1b3a6b;
 }
+
+.triage-level {
+  margin: 8px 0 0;
+  color: #6a7788;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}

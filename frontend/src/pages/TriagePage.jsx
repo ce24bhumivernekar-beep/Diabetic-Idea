@@ -61,6 +61,7 @@ function TriagePage({ patient, onBack }) {
 
   const [progress, setProgress] = useState(0);
   const [torchOn, setTorchOn] = useState(false);
+  const [level, setLevel] = useState(0);
   const [screenFlash, setScreenFlash] = useState(false);
 
   const [form, setForm] = useState({
@@ -213,8 +214,15 @@ function TriagePage({ patient, onBack }) {
             red += data[index];
           }
 
-          samples.push(red / (data.length / 4));
+          const mean = red / (data.length / 4);
+
+          samples.push(mean);
           timestamps.push(performance.now() - started);
+
+          // Show the level live: a covered lens with the light on sits high.
+          // Without this the user has no idea whether the finger is placed
+          // correctly until 30 seconds have already been wasted.
+          setLevel(Math.round(mean));
         }
 
         setProgress(
@@ -229,6 +237,21 @@ function TriagePage({ patient, onBack }) {
 
       await setLight(false);
       stopCamera();
+
+      // A fingertip lit by the torch is bright red. Anything dark means the
+      // lens was not covered, or the device has no usable light.
+      const average =
+        samples.reduce((total, value) => total + value, 0) /
+        Math.max(samples.length, 1);
+
+      if (average < 40) {
+        throw new Error(
+          "The camera saw almost no light (level " +
+            Math.round(average) +
+            "). Use a phone's rear camera, cover both the lens and the " +
+            "flash with your fingertip, and try again."
+        );
+      }
 
       setBusy("Analysing");
 
@@ -585,6 +608,15 @@ function TriagePage({ patient, onBack }) {
               <span className="triage-bar">
                 <span style={{ width: `${progress}%` }} />
               </span>
+            )}
+
+            {level > 0 && (
+              <p className="triage-level">
+                signal level {level} / 255{" "}
+                {level < 40
+                  ? "- too dark, cover the lens and the flash"
+                  : "- good, hold still"}
+              </p>
             )}
           </div>
         )}
