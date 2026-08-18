@@ -1,38 +1,28 @@
-# Render blueprint: the API and the AI service.
+# Render blueprint - free tier only, no card required.
 #
-# The frontend is not here - put it on Vercel (frontend/vercel.json) or serve
-# it from the compose stack. MongoDB is not here either; Render has no free
-# Mongo, so use a free MongoDB Atlas M0 cluster and paste its URI below.
+# Only the Spring Boot API lives here. The AI service does NOT: TensorFlow
+# needs roughly 1.5 GB and Render's free instance gives 512 MB, so it would
+# crashloop. It runs on a Hugging Face Space instead (free, 16 GB) - see
+# ai-service/README.md.
+#
+# MongoDB is a free Atlas M0 cluster; Render has no free managed Mongo.
 services:
-  - type: web
-    name: dr-ai-service
-    runtime: docker
-    dockerfilePath: ./ai-service/Dockerfile
-    dockerContext: ./ai-service
-    plan: starter          # free plan cannot hold TensorFlow in memory
-    healthCheckPath: /health
-    envVars:
-      - key: CORS_ALLOWED_ORIGINS
-        value: "*"
-      - key: AI_MODEL_URL
-        sync: false        # a public link to dr_model.keras, or leave unset
-
   - type: web
     name: dr-backend
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    plan: starter
+    plan: free
     healthCheckPath: /api/health
     envVars:
       - key: MONGODB_URI
-        sync: false        # from MongoDB Atlas
+        sync: false                 # paste the Atlas connection string
+      - key: AI_SERVICE_URL
+        sync: false                 # https://<user>-<space>.hf.space
       - key: JWT_SECRET
         generateValue: true
-      - key: AI_SERVICE_URL
-        fromService:
-          type: web
-          name: dr-ai-service
-          property: hostport
       - key: CORS_ALLOWED_ORIGIN_PATTERNS
-        sync: false        # e.g. https://your-app.vercel.app
+        sync: false                 # e.g. https://*.vercel.app
+      # Free instances are memory capped; keep the JVM inside it.
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k
