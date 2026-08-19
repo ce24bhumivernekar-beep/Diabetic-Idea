@@ -4,503 +4,709 @@
 <meta charset="utf-8" />
 <title>RetiNova — Judge Brief</title>
 <style>
-  @page { size: A4; margin: 15mm 14mm 16mm; }
+  @page { size: A4; margin: 20mm 18mm; }
   * { box-sizing: border-box; }
 
-  body { font-family: "Segoe UI", Calibri, system-ui, sans-serif;
-         font-size: 9.9pt; line-height: 1.5; color: #16181d; margin: 0; }
+  body {
+    font-family: "Segoe UI", Calibri, system-ui, sans-serif;
+    color: #16181d;
+    margin: 0;
+    font-size: 12pt;
+    line-height: 1.6;
+  }
 
-  h1 { font-size: 24pt; line-height: 1.1; margin: 0 0 5px; letter-spacing: -0.6px; }
+  .page {
+    break-after: page;
+    min-height: 245mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4mm 0;
+  }
 
-  h2 { font-size: 13pt; margin: 20px 0 8px; padding: 6px 0 5px;
-       border-top: 2.5px solid #1a4d7a; color: #1a4d7a; break-after: avoid; }
+  .page:last-child { break-after: auto; }
 
-  h3 { font-size: 10.6pt; margin: 13px 0 4px; color: #22262e; break-after: avoid; }
+  .num {
+    font-size: 9.5pt;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #8a97a5;
+    margin-bottom: 10px;
+  }
 
-  p { margin: 0 0 7px; }
-  ul, ol { margin: 0 0 8px; padding-left: 18px; }
-  li { margin-bottom: 3px; }
+  h1 { font-size: 34pt; line-height: 1.08; margin: 0 0 14px; letter-spacing: -1px; }
+  h2 { font-size: 25pt; line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.6px; color: #12253a; }
+  h3 { font-size: 15pt; margin: 22px 0 8px; color: #1a4d7a; }
 
-  table { width: 100%; border-collapse: collapse; margin: 7px 0 12px;
-          font-size: 9pt; break-inside: avoid; }
-  th { background: #eef3f8; text-align: left; padding: 5px 7px;
-       border: 1px solid #c3d2e0; font-weight: 600; }
-  td { padding: 5px 7px; border: 1px solid #d7dee6; vertical-align: top; }
+  .lead {
+    font-size: 16pt;
+    line-height: 1.5;
+    color: #22303f;
+    margin: 0 0 18px;
+    max-width: 92%;
+  }
 
-  .cover { border-left: 6px solid #1a4d7a; padding-left: 14px; margin-bottom: 16px; }
-  .sub { font-size: 11.5pt; color: #4b5563; margin: 3px 0 8px; }
-  .meta { font-size: 8.6pt; color: #6b7280; }
+  p { margin: 0 0 12px; max-width: 92%; }
 
-  .q { margin-top: 12px; font-weight: 700; font-size: 10.2pt; color: #10131a;
-       break-after: avoid; }
+  .note { font-size: 11pt; color: #5b6472; }
 
-  .short { background: #f2f7fb; border-left: 4px solid #1a4d7a;
-           padding: 7px 11px; margin: 4px 0 6px; break-inside: avoid; }
-  .short p { margin: 0; }
+  ul { margin: 0 0 14px; padding-left: 22px; }
+  li { margin-bottom: 10px; }
 
-  .detail { font-size: 9.2pt; color: #333941; margin: 0 0 4px; padding-left: 2px; }
-  .detail b { color: #16181d; }
+  .big {
+    font-size: 46pt;
+    font-weight: 700;
+    line-height: 1;
+    color: #1a4d7a;
+    letter-spacing: -2px;
+    margin: 6px 0 4px;
+  }
 
-  .warn { background: #fdf6f4; border-left-color: #b4441f; }
-  .good { background: #f3faf5; border-left-color: #2f7d4f; }
+  .biglabel { font-size: 12pt; color: #5b6472; margin-bottom: 26px; }
 
-  .flow { font-family: Consolas, monospace; font-size: 8pt; line-height: 1.4;
-          white-space: pre; background: #f7f9fb; border: 1px solid #d7dee6;
-          padding: 9px 11px; margin: 8px 0 11px; break-inside: avoid; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 12pt; }
+  th { text-align: left; padding: 9px 10px; border-bottom: 2px solid #1a4d7a;
+       font-size: 10.5pt; text-transform: uppercase; letter-spacing: 1px; color: #1a4d7a; }
+  td { padding: 9px 10px; border-bottom: 1px solid #dde3ea; vertical-align: top; }
 
-  .num { font-variant-numeric: tabular-nums; }
-  .pagebreak { break-before: page; }
-  .tight td, .tight th { padding: 4px 6px; font-size: 8.7pt; }
-  strong { color: #10131a; }
-  code { font-family: Consolas, monospace; font-size: 8.6pt;
-         background: #f1f3f6; padding: 0 3px; border-radius: 2px; }
+  .rule { height: 5px; width: 70px; background: #1a4d7a; margin-bottom: 22px; }
 
-  .footnote { font-size: 8.5pt; color: #5b6472; border-top: 1px solid #d7dee6;
-              padding-top: 6px; margin-top: 14px; }
+  .box {
+    border-left: 5px solid #1a4d7a;
+    background: #f3f7fb;
+    padding: 16px 20px;
+    margin: 10px 0 16px;
+  }
+  .box p { margin: 0; }
+
+  .box.warn { border-left-color: #b4441f; background: #fdf5f2; }
+  .box.good { border-left-color: #2f7d4f; background: #f2faf5; }
+
+  .flow {
+    font-family: Consolas, monospace;
+    font-size: 10pt;
+    line-height: 1.7;
+    white-space: pre;
+  }
+
+  .kicker { font-size: 13pt; color: #5b6472; margin-bottom: 26px; }
+
+  .two { display: flex; gap: 34px; }
+  .two > div { flex: 1; }
+
+  .tag { font-size: 10.5pt; color: #8a97a5; letter-spacing: 1.5px; text-transform: uppercase; }
 </style>
 </head>
 <body>
 
-<div class="cover">
-  <h1>Judge Brief</h1>
-  <p class="sub">RetiNova — AI-assisted diabetic retinopathy screening · SIH25131</p>
-  <p class="meta">
-    Everything the panel is likely to ask, with a two-line answer for the room and the
-    detail behind it.<br />
-    Every measured figure was produced by the running system and can be reproduced from
-    the repository.
+<!-- 1 -->
+<div class="page">
+  <div class="rule"></div>
+  <h1>RetiNova</h1>
+  <p class="lead">Finding diabetic eye disease earlier, for people who cannot reach an eye doctor.</p>
+  <p class="note">Smart India Hackathon 2026 · Problem SIH25131<br />Judge brief</p>
+</div>
+
+<!-- 2 -->
+<div class="page">
+  <div class="num">01 · The problem</div>
+  <h2>Diabetes quietly blinds people.</h2>
+  <p class="lead">It damages the tiny blood vessels at the back of the eye. There is no pain and no warning.</p>
+  <p>By the time sight blurs, the damage is already done.</p>
+</div>
+
+<!-- 3 -->
+<div class="page">
+  <div class="num">02 · The scale</div>
+  <div class="big">101 million</div>
+  <div class="biglabel">people in India live with diabetes</div>
+
+  <div class="big">1 in 3</div>
+  <div class="biglabel">of them will develop eye disease</div>
+
+  <div class="big">1 : 100,000</div>
+  <div class="biglabel">eye doctors to people</div>
+</div>
+
+<!-- 4 -->
+<div class="page">
+  <div class="num">03 · The real bottleneck</div>
+  <h2>The knowledge exists. The queue is the problem.</h2>
+  <p class="lead">Everyone with diabetes should have their eyes checked every year.</p>
+  <p>There are not enough specialists to do it, and most of them are in cities.</p>
+</div>
+
+<!-- 5 -->
+<div class="page">
+  <div class="num">04 · What we built</div>
+  <h2>A screening tool that decides who a doctor should see first.</h2>
+  <p class="lead">It reads a retinal photograph, gives a severity grade, and says whether a specialist is needed.</p>
+  <p>A doctor confirms every single one. It never decides alone.</p>
+</div>
+
+<!-- 6 -->
+<div class="page">
+  <div class="num">05 · Who uses it</div>
+
+  <h3>The patient or health worker</h3>
+  <p>Opens a website on a phone. Takes a photo. Gets a written report.</p>
+
+  <h3>The doctor</h3>
+  <p>Sees a queue sorted by risk, checks the AI's reasoning, signs the decision.</p>
+</div>
+
+<!-- 7 -->
+<div class="page">
+  <div class="num">06 · The data</div>
+  <h2>Where the model learned.</h2>
+  <p class="lead">35,126 retinal photographs, already graded by human doctors.</p>
+  <p class="note">huggingface.co/datasets/youssefedweqd/Diabetic_Retinopathy_Detection<br />
+    MIT licence — free to use.</p>
+</div>
+
+<!-- 8 -->
+<div class="page">
+  <div class="num">07 · The data, split up</div>
+
+  <table>
+    <tr><th>Purpose</th><th>Images</th></tr>
+    <tr><td>Learning from</td><td>25,290</td></tr>
+    <tr><td>Tuning with</td><td>2,810</td></tr>
+    <tr><td>Locked away for testing</td><td>7,026</td></tr>
+  </table>
+
+  <p>The test images were never seen during training. Every number we quote comes from them.</p>
+</div>
+
+<!-- 9 -->
+<div class="page">
+  <div class="num">08 · Where it originally came from</div>
+  <h2>EyePACS, through Kaggle.</h2>
+  <p class="lead">A US retinal screening network. The images were used in a Kaggle competition in 2015.</p>
+  <p class="note">kaggle.com/competitions/diabetic-retinopathy-detection</p>
+
+  <div class="box">
+    <p>Said honestly: the copy we used does not name its source. We matched it — same image count,
+      same grading scale. It is a strong inference, not a documented fact.</p>
+  </div>
+</div>
+
+<!-- 10 -->
+<div class="page">
+  <div class="num">09 · The catch in the data</div>
+  <h2>Most eyes are healthy.</h2>
+
+  <table>
+    <tr><th>Grade</th><th>Training images</th></tr>
+    <tr><td>0 — no disease</td><td>18,583</td></tr>
+    <tr><td>1 — mild</td><td>1,759</td></tr>
+    <tr><td>2 — moderate</td><td>3,811</td></tr>
+    <tr><td>3 — severe</td><td>628</td></tr>
+    <tr><td>4 — proliferative</td><td>509</td></tr>
+  </table>
+
+  <p>Real screening data looks exactly like this. It is why we never judge the model on accuracy.</p>
+</div>
+
+<!-- 11 -->
+<div class="page">
+  <div class="num">10 · The honesty test</div>
+  <h2>Testing on your own data flatters you.</h2>
+  <p class="lead">So we ran the finished model on photographs from two other countries and two other cameras.</p>
+  <p>Nothing was retrained. Nothing was adjusted to make the numbers look better.</p>
+</div>
+
+<!-- 12 -->
+<div class="page">
+  <div class="num">11 · Test one</div>
+  <h2>IDRiD — Indian patients.</h2>
+  <p class="lead">516 photographs taken on a Kowa camera in Nanded, Maharashtra.</p>
+  <p class="note">The closest public data to the people this project is built for.</p>
+</div>
+
+<!-- 13 -->
+<div class="page">
+  <div class="num">12 · Test two</div>
+  <h2>Messidor-2 — French patients.</h2>
+  <p class="lead">1,744 photographs on a Topcon camera.</p>
+  <p class="note">The dataset most published research is measured against.</p>
+</div>
+
+<!-- 14 -->
+<div class="page">
+  <div class="num">13 · The results</div>
+
+  <table>
+    <tr><th>Tested on</th><th>Disease caught</th><th>Healthy cleared</th></tr>
+    <tr><td>Its own test set</td><td>80.9%</td><td>60.3%</td></tr>
+    <tr><td>Indian patients</td><td>95.4%</td><td>65.3%</td></tr>
+    <tr><td>French patients</td><td>82.9%</td><td>51.4%</td></tr>
+  </table>
+
+  <p>Same model. Same settings. Three different populations.</p>
+</div>
+
+<!-- 15 -->
+<div class="page">
+  <div class="num">14 · What that proves</div>
+  <h2>It learned the disease, not the camera.</h2>
+  <p class="lead">On Indian eyes it found 308 of the 323 cases that needed a specialist.</p>
+  <p>A model that had merely memorised its training images would have collapsed here.</p>
+</div>
+
+<!-- 16 -->
+<div class="page">
+  <div class="num">15 · Where it is weak</div>
+  <h2>The middle grade.</h2>
+  <p class="lead">It tells obviously healthy from obviously diseased well. Grade 2 — moderate — it often
+    misplaces.</p>
+  <p>We know it. We measure it. It is why a doctor checks every case.</p>
+</div>
+
+<!-- 17 -->
+<div class="page">
+  <div class="num">16 · The honest number</div>
+  <div class="big">1 in 5</div>
+  <div class="biglabel">cases needing a specialist are still missed</div>
+
+  <p>It is printed on every report we produce. A low grade never means "you are fine".</p>
+</div>
+
+<!-- 18 -->
+<div class="page">
+  <div class="num">17 · The build</div>
+  <h2>Three pieces.</h2>
+
+  <table>
+    <tr><th>Piece</th><th>Job</th></tr>
+    <tr><td>Website</td><td>Camera, upload, results, reports</td></tr>
+    <tr><td>Main server</td><td>Accounts, records, doctor workflow</td></tr>
+    <tr><td>AI server</td><td>Image checks and grading</td></tr>
+  </table>
+</div>
+
+<!-- 19 -->
+<div class="page">
+  <div class="num">18 · The website</div>
+  <h2>React, running in the browser.</h2>
+  <p class="lead">No app to install. The camera works from the web page itself.</p>
+  <p class="note">React 19 · Vite · React Router</p>
+</div>
+
+<!-- 20 -->
+<div class="page">
+  <div class="num">19 · The main server</div>
+  <h2>Spring Boot, in Java.</h2>
+  <p class="lead">Logins, patient records, the doctor's queue, the review and the sign-off.</p>
+  <p class="note">Spring Boot 4.1 · Java 17</p>
+</div>
+
+<!-- 21 -->
+<div class="page">
+  <div class="num">20 · The AI server</div>
+  <h2>Python, kept separate.</h2>
+  <p class="lead">So the model can be retrained and replaced without touching patient records.</p>
+  <p class="note">FastAPI · ONNX Runtime · OpenCV</p>
+</div>
+
+<!-- 22 -->
+<div class="page">
+  <div class="num">21 · The database</div>
+  <h2>MongoDB.</h2>
+  <p class="lead">One screening is one record: the image, the grade, the quality score, the doctor's decision.</p>
+  <p>The images live inside the record, so they cannot go missing when a server restarts.</p>
+</div>
+
+<!-- 23 -->
+<div class="page">
+  <div class="num">22 · Security</div>
+
+  <ul>
+    <li>Passwords are scrambled, never stored.</li>
+    <li>Signed tokens prove who you are on every request.</li>
+    <li>Patients and doctors see different screens and different data.</li>
+    <li>No one can open another patient's images.</li>
+  </ul>
+</div>
+
+<!-- 24 -->
+<div class="page">
+  <div class="num">23 · Live updates</div>
+  <h2>The doctor's queue updates by itself.</h2>
+  <p class="lead">A new screening appears in under a second. Nobody presses refresh.</p>
+</div>
+
+<!-- 25 -->
+<div class="page">
+  <div class="num">24 · The model</div>
+  <h2>EfficientNetB0.</h2>
+  <p class="lead">A neural network small enough to run on an ordinary computer, with no graphics card.</p>
+  <p>5.3 million settings, against 25 million or more for the usual alternatives.</p>
+</div>
+
+<!-- 26 -->
+<div class="page">
+  <div class="num">25 · Making it small</div>
+  <h2>16 megabytes. 13 milliseconds.</h2>
+  <p class="lead">We convert the trained model into ONNX, a portable format.</p>
+  <p>The original needed 600 MB of software to run. This fits in a free server.</p>
+</div>
+
+<!-- 27 -->
+<div class="page">
+  <div class="num">26 · Showing its reasoning</div>
+  <h2>A heat map over the retina.</h2>
+  <p class="lead">Red marks the parts of the image that pushed the grade.</p>
+  <p>The doctor checks a region instead of guessing what the machine was looking at.</p>
+</div>
+
+<!-- 28 -->
+<div class="page">
+  <div class="num">27 · The most important safety feature</div>
+  <h2>It refuses bad photographs.</h2>
+  <p class="lead">Show any AI a blurred picture and it will still give you a grade with a confident number
+    next to it.</p>
+
+  <div class="box warn">
+    <p>A confident "no disease" on a photograph nobody could read is the most dangerous thing a screening
+      tool can do. The person goes home reassured.</p>
+  </div>
+</div>
+
+<!-- 29 -->
+<div class="page">
+  <div class="num">28 · How the check works</div>
+  <h2>Nine quick tests before the AI runs.</h2>
+
+  <div class="two">
+    <div>
+      <p class="tag">Is there an eye?</p>
+      <ul>
+        <li>Is anything lit up</li>
+        <li>Does it fill the frame</li>
+        <li>Is it red, like a retina</li>
+        <li>Does it have real texture</li>
+      </ul>
+    </div>
+    <div>
+      <p class="tag">Is it good enough?</p>
+      <ul>
+        <li>Sharp enough</li>
+        <li>Bright enough</li>
+        <li>Not washed out</li>
+        <li>Not glaring</li>
+        <li>Roughly centred</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 30 -->
+<div class="page">
+  <div class="num">29 · What it refuses</div>
+
+  <table>
+    <tr><th>Pointed at</th><th>Answer</th></tr>
+    <tr><td>A healthy retina</td><td>Graded — quality 97 / 100</td></tr>
+    <tr><td>A diseased retina</td><td>Graded — referred</td></tr>
+    <tr><td>A wall</td><td>Nothing. Refused.</td></tr>
+    <tr><td>A hand over the lens</td><td>Nothing. Refused.</td></tr>
+    <tr><td>Random noise</td><td>Nothing. Refused.</td></tr>
+  </table>
+
+  <p>Refusing takes 15 milliseconds. No score is shown at all.</p>
+</div>
+
+<!-- 31 -->
+<div class="page">
+  <div class="num">30 · Why the camera runs live</div>
+  <h2>To fix the photo while the eye is still there.</h2>
+  <p class="lead">The screen says <em>move closer</em>, <em>too bright</em>, <em>hold still</em> — one
+    instruction at a time.</p>
+  <p>The save button stays locked until the picture is actually usable.</p>
+</div>
+
+<!-- 32 -->
+<div class="page">
+  <div class="num">31 · A second path</div>
+  <h2>What if there is no lens at all?</h2>
+  <p class="lead">A phone camera cannot see the back of the eye. That needs a special lens.</p>
+  <p>So the plain camera measures the person instead — and still produces something useful.</p>
+</div>
+
+<!-- 33 -->
+<div class="page">
+  <div class="num">32 · Measurement one</div>
+  <h2>Pulse, from the skin.</h2>
+  <p class="lead">Every heartbeat changes how much light the skin absorbs, by an amount too small to see.</p>
+  <p>Twenty seconds of video makes it clear.</p>
+</div>
+
+<!-- 34 -->
+<div class="page">
+  <div class="num">33 · Measurement two</div>
+  <h2>The pupil's reaction to light.</h2>
+  <p class="lead">Shine a light, watch how fast it shrinks.</p>
+  <p>A slow or lopsided reaction is a recognised nerve warning sign in long-standing diabetes.</p>
+</div>
+
+<!-- 35 -->
+<div class="page">
+  <div class="num">34 · Measurement three</div>
+  <h2>Paleness of the inner eyelid.</h2>
+  <p class="lead">A screening signal for anaemia, which is common in diabetic kidney disease.</p>
+  <p>The coloured part of the eye is used as a ruler, so distance and room light do not skew it.</p>
+</div>
+
+<!-- 36 -->
+<div class="page">
+  <div class="num">35 · What that path gives</div>
+  <h2>An order, not a diagnosis.</h2>
+  <p class="lead">Out of forty people waiting in a camp, who should be seen first.</p>
+  <p>No hardware. No lens. Works today on any phone.</p>
+</div>
+
+<!-- 37 -->
+<div class="page">
+  <div class="num">36 · The decision</div>
+  <h2>We do not report the most likely grade.</h2>
+  <p class="lead">We ask one question: is a specialist needed?</p>
+  <p>That is a single line drawn across the probability of grade 2 or worse.</p>
+</div>
+
+<!-- 38 -->
+<div class="page">
+  <div class="num">37 · Why that matters</div>
+
+  <table>
+    <tr><th>Method</th><th>Disease caught</th><th>Healthy cleared</th></tr>
+    <tr><td>Most likely grade</td><td>49.7%</td><td>89.1%</td></tr>
+    <tr><td>A chosen line</td><td>80.9%</td><td>60.3%</td></tr>
+  </table>
+
+  <p>The first looks better. It also sends half the sick people home.</p>
+</div>
+
+<!-- 39 -->
+<div class="page">
+  <div class="num">38 · The trade, stated</div>
+  <h2>We refer some healthy people on purpose.</h2>
+  <p class="lead">An unnecessary appointment costs an hour. A missed case costs eyesight.</p>
+  <p>The report says this in plain words, every time.</p>
+</div>
+
+<!-- 40 -->
+<div class="page">
+  <div class="num">39 · The doctor</div>
+  <h2>Nothing is final without a human.</h2>
+  <p class="lead">Every screening waits, marked "awaiting review", until a doctor signs it.</p>
+  <p>They see the image, the heat map, the grade and the quality score together.</p>
+</div>
+
+<!-- 41 -->
+<div class="page">
+  <div class="num">40 · The report</div>
+  <h2>Something the patient can keep.</h2>
+
+  <ul>
+    <li>Their name, the date, which eye</li>
+    <li>The grade, and what it means</li>
+    <li>The images and the heat map</li>
+    <li>What usually happens next</li>
+    <li>What this test cannot tell them</li>
+    <li>The doctor who signed it</li>
+  </ul>
+</div>
+
+<!-- 42 -->
+<div class="page">
+  <div class="num">41 · Start to finish</div>
+
+  <div class="flow">  photo taken or uploaded
+           │
+           ▼
+    is there an eye?  ──── no ──► say so, show nothing
+           │ yes
+           ▼
+    is it good enough? ─── no ──► one instruction, try again
+           │ yes
+           ▼
+    grade it, draw the heat map
+           │
+           ▼
+    specialist needed?  yes / no
+           │
+           ▼
+    doctor's queue  ──►  reviewed and signed
+           │
+           ▼
+    patient downloads the report</div>
+</div>
+
+<!-- 43 -->
+<div class="page">
+  <div class="num">42 · Question</div>
+  <h2>"Your accuracy is only 44%."</h2>
+  <p class="lead">Accuracy is the wrong measure, and we do not use it.</p>
+  <p>Three quarters of these images are healthy eyes. A model that answered "healthy" every time would
+    score 73% and be worthless.</p>
+</div>
+
+<!-- 44 -->
+<div class="page">
+  <div class="num">43 · Question</div>
+  <h2>"Why is your specificity low?"</h2>
+  <p class="lead">Because we chose it. Catching more disease always means more false alarms.</p>
+  <p>Moving that line is a single setting, and it is a decision for a health programme, not for us.</p>
+</div>
+
+<!-- 45 -->
+<div class="page">
+  <div class="num">44 · Question</div>
+  <h2>"Does it work anywhere else?"</h2>
+  <p class="lead">Yes — measured, not claimed.</p>
+  <p>Two other countries, two other cameras, nothing retrained. It caught between 81% and 95% of cases.</p>
+</div>
+
+<!-- 46 -->
+<div class="page">
+  <div class="num">45 · Question</div>
+  <h2>"Can it run offline?"</h2>
+  <p class="lead">Not today, and we will not claim it.</p>
+  <p>Nothing in the design prevents it — the model is 16 MB and needs no graphics card — but we have not
+    built and tested it.</p>
+</div>
+
+<!-- 47 -->
+<div class="page">
+  <div class="num">46 · Question</div>
+  <h2>"What is actually new?"</h2>
+
+  <ul>
+    <li>It refuses pictures nobody could grade, before grading them.</li>
+    <li>It works with no eye equipment at all, by measuring the person.</li>
+    <li>It decides referral at a stated, chosen operating point.</li>
+  </ul>
+</div>
+
+<!-- 48 -->
+<div class="page">
+  <div class="num">47 · The disease</div>
+  <h2>What diabetic retinopathy is.</h2>
+  <p class="lead">Sugar damages the small vessels at the back of the eye. They leak, then close, then the
+    eye grows fragile new ones that bleed.</p>
+  <p>Treatment stops it getting worse. It rarely gives back what is lost. That is why early matters.</p>
+</div>
+
+<!-- 49 -->
+<div class="page">
+  <div class="num">48 · A distinction</div>
+
+  <div class="two">
+    <div>
+      <p class="tag">Screening</p>
+      <p>Sorting many people into "look closer" and "not now". Allowed to over-refer.</p>
+    </div>
+    <div>
+      <p class="tag">Diagnosis</p>
+      <p>The closer look, by a doctor. Must be right.</p>
+    </div>
+  </div>
+
+  <p>We do the first. We never claim the second.</p>
+</div>
+
+<!-- 50 -->
+<div class="page">
+  <div class="num">49 · What we do not check</div>
+  <h2>Macular oedema.</h2>
+  <p class="lead">Swelling at the centre of the retina. It can blind someone at any grade.</p>
+  <p>Our images are not labelled for it, so we do not look for it — and the report says so.</p>
+</div>
+
+<!-- 51 -->
+<div class="page">
+  <div class="num">50 · Rules that apply</div>
+
+  <table>
+    <tr><th>Standard</th><th>Covers</th></tr>
+    <tr><td>IEC 62304</td><td>How medical software must be built</td></tr>
+    <tr><td>ISO 14971</td><td>Managing risk in medical devices</td></tr>
+    <tr><td>ISO 27001</td><td>Information security</td></tr>
+    <tr><td>DPDP Act 2023</td><td>India's data protection law</td></tr>
+    <tr><td>CDSCO</td><td>India's medical device regulator</td></tr>
+  </table>
+</div>
+
+<!-- 52 -->
+<div class="page">
+  <div class="num">51 · Where we honestly stand</div>
+  <h2>A prototype, certified against none of them.</h2>
+  <p class="lead">We know which rules would apply and what each one asks for.</p>
+  <p>Consent flows, audit logs and formal risk documents come before real patients. Saying otherwise
+    would be the wrong answer.</p>
+</div>
+
+<!-- 53 -->
+<div class="page">
+  <div class="num">52 · Words we use</div>
+
+  <table>
+    <tr><th>Term</th><th>Meaning</th></tr>
+    <tr><td>Sensitivity</td><td>Of sick people, how many we catch</td></tr>
+    <tr><td>Specificity</td><td>Of healthy people, how many we clear</td></tr>
+    <tr><td>Kappa</td><td>Agreement with human graders, chance removed</td></tr>
+    <tr><td>Grad-CAM</td><td>The heat map showing where it looked</td></tr>
+    <tr><td>ONNX</td><td>Portable format that made the model 16 MB</td></tr>
+  </table>
+</div>
+
+<!-- 54 -->
+<div class="page">
+  <div class="num">53 · More words</div>
+
+  <table>
+    <tr><th>Term</th><th>Meaning</th></tr>
+    <tr><td>DR</td><td>Diabetic retinopathy</td></tr>
+    <tr><td>ICDR</td><td>The international 0–4 grading scale</td></tr>
+    <tr><td>OD / OS</td><td>Right eye / left eye</td></tr>
+    <tr><td>PPG</td><td>Pulse read from skin colour change</td></tr>
+    <tr><td>PLR</td><td>The pupil's reaction to light</td></tr>
+    <tr><td>SaMD</td><td>Software treated as a medical device</td></tr>
+  </table>
+</div>
+
+<!-- 55 -->
+<div class="page">
+  <div class="num">54 · Still to do</div>
+
+  <ul>
+    <li>Let the doctor correct the AI's grade, not just the decision.</li>
+    <li>Compare a scan against the patient's previous ones.</li>
+    <li>Build and test the offline version.</li>
+    <li>Improve the middle grade.</li>
+  </ul>
+</div>
+
+<!-- 56 -->
+<div class="page">
+  <div class="num">55 · Why this should win</div>
+  <h2>Because it is measured, not claimed.</h2>
+  <p class="lead">Every number here came from the running system.</p>
+  <p>Its failures are printed on the product itself, and it was tested on people it had never seen,
+    in a country it was not trained on.</p>
+</div>
+
+<!-- 57 -->
+<div class="page">
+  <div class="rule"></div>
+  <h2>RetiNova</h2>
+  <p class="lead">A screening aid. Not a diagnosis.</p>
+  <p class="note">
+    Not approved by any regulator. No result should be acted on without a doctor.<br />
+    Figures measured on public research datasets; clinical use would require prospective validation.
   </p>
 </div>
-
-<h2>1. The dataset — asked first, almost every time</h2>
-
-<h3>Where the model was trained</h3>
-
-<table class="tight">
-  <tr><th style="width:26%">Source</th><td><strong>HuggingFace — youssefedweqd/Diabetic_Retinopathy_Detection</strong><br />
-    huggingface.co/datasets/youssefedweqd/Diabetic_Retinopathy_Detection</td></tr>
-  <tr><th>Licence</th><td><strong>MIT</strong> — permissive, commercial use allowed</td></tr>
-  <tr><th>Size</th><td class="num">35,126 images — 25,290 train / 2,810 validation / 7,026 test (1.35 GB, parquet)</td></tr>
-  <tr><th>Labels</th><td>0–4 on the ICDR severity scale, one grade per image</td></tr>
-  <tr><th>Balance</th><td class="num">Heavily skewed: 18,583 grade 0 against 509 grade 4 in the training split</td></tr>
-  <tr><th>True origin</th><td><strong>Almost certainly EyePACS</strong> — the Kaggle <em>Diabetic Retinopathy
-    Detection</em> (2015) set, whose training split is exactly 35,126 images with the same 0–4 labels.
-    The re-host states no provenance, so this is inference, not documentation — say so if asked.</td></tr>
-</table>
-
-<h3>Where it was validated — datasets the model never saw</h3>
-
-<table class="tight">
-  <tr><th style="width:22%">Dataset</th><th style="width:24%">Source</th><th style="width:12%">Licence</th><th style="width:10%">Images</th><th>Why this one</th></tr>
-  <tr><td><strong>IDRiD</strong></td><td>amin-nejad/idrid-disease-grading</td><td>CC-BY-4.0</td><td class="num">516</td>
-      <td><strong>Indian population</strong>, Kowa VX-10a camera, collected in Nanded, Maharashtra</td></tr>
-  <tr><td><strong>Messidor-2</strong></td><td>sngsfydy/Messidor2</td><td>not stated</td><td class="num">1,744</td>
-      <td>French population, Topcon TRC NW6 — the standard DR benchmark</td></tr>
-</table>
-
-<div class="short good">
-  <p><strong>The line to use:</strong> "Trained on 35,126 EyePACS-derived images under MIT licence, and
-  validated without retraining on two independent datasets — including 516 Indian images from a
-  different camera, where it reached 95.4% sensitivity."</p>
-</div>
-
-<h2>2. The technology, block by block</h2>
-
-<table class="tight">
-  <tr><th style="width:16%">Block</th><th style="width:26%">Technology</th><th>Why this and not something else</th></tr>
-  <tr><td><strong>Web app</strong></td><td>React 19.2 + Vite 6, react-router 7</td>
-      <td>The camera, the live loop and the report all run in the browser, so no install and any phone works. Vite builds it to static files that cost nothing to host.</td></tr>
-  <tr><td><strong>API / business logic</strong></td><td>Spring Boot 4.1, Java 17</td>
-      <td>Auth, roles, records, the doctor workflow. Java because it is what the team knows and what hospital IT departments already run.</td></tr>
-  <tr><td><strong>AI service</strong></td><td>FastAPI + <strong>ONNX Runtime</strong> + OpenCV</td>
-      <td>Kept separate so the model can be retrained and redeployed without touching the clinical workflow. ONNX, not TensorFlow: 16 MB instead of ~600 MB, 13 ms per image, and it fits in a free container.</td></tr>
-  <tr><td><strong>Database</strong></td><td>MongoDB Atlas</td>
-      <td>A screening is one document — image, grade, probabilities, quality, review — and its shape changed repeatedly during the build. Images live in the record because container disks are wiped on every deploy.</td></tr>
-  <tr><td><strong>Auth</strong></td><td>JWT (jjwt) + BCrypt</td>
-      <td>Stateless tokens, so the three services scale independently. Passwords are hashed, never stored.</td></tr>
-  <tr><td><strong>Live updates</strong></td><td>Server-Sent Events</td>
-      <td>A new screening appears on the doctor's queue in under a second with no refresh. SSE, not WebSockets: the traffic is one-way, so the simpler tool is the right one.</td></tr>
-  <tr><td><strong>Training</strong></td><td>TensorFlow / Keras, EfficientNetB0</td>
-      <td>Training only, never shipped. EfficientNetB0 has 5.3 M parameters — the accuracy of far larger networks at a size that runs on a CPU.</td></tr>
-  <tr><td><strong>Explainability</strong></td><td>Grad-CAM, computed as CAM</td>
-      <td>For a Global-Average-Pooling head, Grad-CAM's gradients equal the final layer's weights, so the heatmap needs one forward pass and no autodiff. Verified: probabilities match to 1e-6, heatmaps correlate at 0.97.</td></tr>
-  <tr><td><strong>Quality gate</strong></td><td>Classical OpenCV</td>
-      <td>Deliberately not a second neural network — every threshold is inspectable, needs no training data, and costs ~1 ms, which is what lets it run on every live frame.</td></tr>
-  <tr><td><strong>Hosting</strong></td><td>Render (3 services) + MongoDB Atlas</td>
-      <td>Free tier throughout. Docker for the two backends, static CDN for the frontend.</td></tr>
-</table>
-
-<h3>The three deployed services</h3>
-
-<table class="tight">
-  <tr><th style="width:20%">Service</th><th style="width:14%">Type</th><th>Responsibility</th></tr>
-  <tr><td><code>retinova</code> / frontend</td><td>static site</td><td>Everything the user sees; camera capture; live loop; printable report</td></tr>
-  <tr><td><code>dr-backend</code></td><td>docker</td><td>Auth, patients, screenings, triage, doctor queue, SSE, image serving</td></tr>
-  <tr><td><code>dr-ai-service</code></td><td>docker</td><td>Quality gate, grading, heatmap, referral decision, the three triage signals</td></tr>
-</table>
-
-<h2 class="pagebreak">3. How it works end to end</h2>
-
-<div class="flow">
-  PATIENT / HEALTH WORKER                        DOCTOR
-  ──────────────────────                        ──────
-   browser camera  or  file upload
-            │
-            ▼  (~1 frame per second, nothing stored)
-   ┌──────────────────────────────┐
-   │ 1. IS THERE AN EYE?  ~15 ms  │──no──► "no eye detected", no score shown
-   │    lit region · coverage     │
-   │    red-dominance · texture   │
-   └──────────┬───────────────────┘
-              ▼ yes
-   ┌──────────────────────────────┐
-   │ 2. IS IT GRADABLE?           │──no──► one instruction: "move closer",
-   │    focus · brightness        │        "too bright"; Save stays disabled
-   │    contrast · glare · centre │
-   └──────────┬───────────────────┘
-              ▼ yes            quality score 0–100 recorded
-   ┌──────────────────────────────┐
-   │ 3. GRADE IT      13 ms       │
-   │    EfficientNetB0 → 5 probs  │
-   │    Grad-CAM heatmap          │
-   └──────────┬───────────────────┘
-              ▼
-   ┌──────────────────────────────┐
-   │ 4. REFER OR NOT              │
-   │    P(grade ≥ 2) vs 0.155     │
-   └──────────┬───────────────────┘
-              ▼  "Save this scan"
-      record stored in MongoDB ─────SSE, &lt;1 s────►  queue sorted by risk
-                                                            │
-                                                            ▼
-                                                   reviews heatmap,
-                                                   writes decision, signs
-              ◄──────── status flips to REVIEWED ──────────┘
-              ▼
-      patient downloads the signed PDF report
-</div>
-
-<h2>4. What it does — the feature list</h2>
-
-<table class="tight">
-  <tr><th style="width:24%">Feature</th><th>What it actually does</th></tr>
-  <tr><td>Retinal grading</td><td>Five ICDR grades with the full probability spread, not just the winner</td></tr>
-  <tr><td><strong>Image quality gate</strong></td><td>Refuses non-eyes in ~15 ms and ungradable eyes with a reason; records a 0–100 score on every screening</td></tr>
-  <tr><td><strong>Live capture guidance</strong></td><td>Target ring plus one instruction at a time; Save disabled until the frame is usable</td></tr>
-  <tr><td><strong>Referral decision</strong></td><td>A threshold on P(grade ≥ 2) chosen for 80% sensitivity, printed with what it costs</td></tr>
-  <tr><td>Explainability</td><td>Grad-CAM heatmap and overlay stored with every record</td></tr>
-  <tr><td><strong>Camera-only triage</strong></td><td>Pulse (PPG), pupil light reflex (PLR), conjunctival pallor → a priority score with no extra hardware</td></tr>
-  <tr><td>Laterality</td><td>Which eye (OD / OS) recorded per screening</td></tr>
-  <tr><td>Doctor workflow</td><td>Live queue, review, decision, remarks, signature; nothing finalises without a human</td></tr>
-  <tr><td>Printable report</td><td>Patient identity, grade, images, meaning, next step, limitations, reviewer — vector PDF via print CSS</td></tr>
-  <tr><td>History</td><td>Every screening and triage kept per patient with images and timestamps</td></tr>
-  <tr><td>Security</td><td>JWT auth, BCrypt passwords, role separation, ownership-checked image URLs</td></tr>
-</table>
-
-<h2>5. Technical questions the panel will ask</h2>
-
-<p class="q">Q1. Why EfficientNetB0 and not ResNet50, VGG16, or a transformer?</p>
-<div class="short"><p>It reaches comparable accuracy with 5.3 million parameters instead of 25–138 million,
-which is what lets the whole service run on a free CPU container in 13 ms.</p></div>
-<p class="detail"><b>In detail:</b> EfficientNet scales depth, width and resolution together rather than one at a
-time, so it sits on a better accuracy-per-parameter curve. A vision transformer would likely beat it
-given ImageNet-21k pretraining and a GPU — we have neither, and a model that cannot be served is not a
-product. The architecture is a swap of one line if that changes.</p>
-
-<p class="q">Q2. Your accuracy is 44%. Isn't that terrible?</p>
-<div class="short"><p>Accuracy is the wrong measure here and we do not use it. The system makes one
-decision — refer or not — and on that it is right 81% of the time on referable cases.</p></div>
-<p class="detail"><b>In detail:</b> 73% of the data is grade 0, so a model that always answered "No DR" would
-score 73% accuracy and be worthless. Screening is judged on sensitivity, specificity and quadratic
-weighted kappa. Ours: <b>kappa 0.425, sensitivity 80.9%, specificity 60.3%</b> on 7,026 held-out
-images — and 95.4% sensitivity on an Indian dataset it had never seen.</p>
-
-<p class="q">Q3. What is quadratic weighted kappa and why use it?</p>
-<div class="short"><p>It measures agreement with human graders after subtracting the agreement you would
-get by chance, and it punishes big mistakes far more than small ones.</p></div>
-<p class="detail"><b>In detail:</b> The grades are ordered, so calling a grade-4 eye "grade 0" is much worse than
-calling it "grade 3". Quadratic weighting penalises by the square of the distance. 1.0 is perfect,
-0 is chance. Two human graders typically agree around 0.80; ours is 0.425 internally and 0.737 on IDRiD.</p>
-
-<p class="q">Q4. Why is your specificity so low? Won't you flood the clinic?</p>
-<div class="short"><p>It is low on purpose. We chose the threshold to catch 4 in 5 referable cases, and
-that choice costs us 4 in 10 healthy people being referred.</p></div>
-<p class="detail"><b>In detail:</b> Sensitivity and specificity trade against each other along one curve. Using the
-model's most likely grade gives 89% specificity but only 50% sensitivity — half the sick people sent home.
-For screening, a missed case costs sight; a false alarm costs an appointment. The threshold is a single
-number in a config file, so a programme that wants the other balance can move it — and the report prints
-whichever pair is in force.</p>
-
-<p class="q">Q5. How do you know the model isn't just memorising this dataset?</p>
-<div class="short"><p>We ran it, unchanged, on two datasets from other countries and other cameras. Sensitivity
-held between 81% and 95% with no retraining.</p></div>
-<p class="detail"><b>In detail:</b> On IDRiD (Indian, Kowa camera): 95.4% sensitivity, 65.3% specificity, kappa
-0.737. On Messidor-2 (French, Topcon): 82.9% and 51.4%, kappa 0.549. The honest caveat from the same
-experiment: per-grade accuracy does <b>not</b> transfer — Moderate recall is 7% on IDRiD while Severe is
-87%, so the model pushes middle grades outward and they land on the referable side. The referral decision
-generalises; the five-grade label does not.</p>
-
-<p class="q">Q6. Explain Grad-CAM. Is it real explainability or decoration?</p>
-<div class="short"><p>It shows which parts of the retina moved the prediction, by weighting the final
-feature maps by how much each contributed to the chosen grade.</p></div>
-<p class="detail"><b>In detail:</b> Our head is Global Average Pooling → Dense, and for that shape the Grad-CAM
-gradient weights are algebraically identical to the Dense weights — so the heatmap is a single forward
-pass, no autodiff, no TensorFlow at serving time. It is genuine attribution, not decoration, but it is
-coarse: it points at a region, not at a lesion. We present it as "where it looked", never as "this is the
-haemorrhage".</p>
-
-<p class="q">Q7. Why ONNX instead of just serving the Keras model?</p>
-<div class="short"><p>The TensorFlow image was around 600 MB and would not fit the free tier; the ONNX
-model is 16 MB and answers in 13 ms.</p></div>
-<p class="detail"><b>In detail:</b> ONNX (Open Neural Network Exchange) is a framework-independent format. We train
-in Keras, export once, and serve with ONNX Runtime. The export script refuses to write anything unless the
-two agree to within 1e-5 on random input; measured agreement is 8.6e-07.</p>
-
-<p class="q">Q8. Why microservices instead of one application?</p>
-<div class="short"><p>The model changes on a different clock from the clinical workflow, and the AI service
-is the only part that needs heavy Python libraries.</p></div>
-<p class="detail"><b>In detail:</b> Retraining and redeploying the model must not risk the auth, records or doctor
-review path. Splitting also lets the AI service scale on its own, and keeps a 600 MB ML dependency tree out
-of the service that holds patient data. The cost is network hops and three cold starts, which is the right
-trade here.</p>
-
-<p class="q">Q9. How is patient data protected?</p>
-<div class="short"><p>JWT authentication, BCrypt-hashed passwords, role separation, and every image URL checks
-that the requester owns that record.</p></div>
-<p class="detail"><b>In detail:</b> Tokens expire; passwords are never stored, only their BCrypt hash; a patient
-cannot open another patient's screening or a doctor-only route. Images are served through an
-ownership-checked endpoint rather than a public path. <b>What is missing, honestly:</b> encryption at rest is
-Atlas's default rather than something we configured, there is no rate limiting, and no audit log of who
-viewed what. Those are required before real patient data, and they are on the list.</p>
-
-<p class="q">Q10. What happens if the AI service goes down?</p>
-<div class="short"><p>The health endpoint reports it, screening is blocked with an explanation instead of a
-failure, and everything already stored stays readable.</p></div>
-<p class="detail"><b>In detail:</b> <code>/api/health</code> reports each of the three services independently. Grading
-is the only feature that hard-depends on the AI service; login, history, reports and doctor review continue.
-On the free tier a sleeping service takes ~50 s to wake, which the UI states plainly rather than hanging.</p>
-
-<p class="q">Q11. Can this run offline, in a village with no internet?</p>
-<div class="short"><p>Not today. The architecture supports it — there is a docker-compose file — but we have
-not built or tested an offline deployment, so we do not claim it.</p></div>
-<p class="detail"><b>In detail:</b> All three services plus MongoDB can run on one laptop on a local network; the
-model is 16 MB and the inference is CPU-only, so there is no technical obstacle. What is missing is a tested
-build, a sync path for when connectivity returns, and a way to update the model. Roughly half a day of work,
-not a redesign.</p>
-
-<p class="q">Q12. How long does one screening take?</p>
-<div class="short"><p>13 ms of model time; about one second end to end locally, and 1–2 seconds through the
-free cloud tier.</p></div>
-<p class="detail"><b>In detail:</b> Rejecting a non-eye takes 11–23 ms because the model never runs — roughly fifty
-times cheaper than grading, which is exactly why that check can run on every live frame. The rest is JPEG
-encoding, network and heatmap rendering.</p>
-
-<p class="q">Q13. Your training data is 73% healthy. How did you handle that?</p>
-<div class="short"><p>Class weights during training, keeping every image of the rare grades, and judging the
-model on sensitivity rather than accuracy.</p></div>
-<p class="detail"><b>In detail:</b> Weights are square-rooted inverse frequency — full inverse weighting makes one
-grade-4 image worth eight grade-0 images and turns the gradient into noise. The training set keeps all of
-grades 1–4 and caps only grade 0. An earlier version capped every class equally, which threw away 1,300
-grade-2 images while doing nothing for grade 4.</p>
-
-<p class="q">Q14. What is the false negative rate, and what happens to those people?</p>
-<div class="short"><p>About 1 in 5 referable cases is missed at our threshold. They are told to attend routine
-annual screening, so they are seen again — later than ideal, not never.</p></div>
-<p class="detail"><b>In detail:</b> This is the number that matters most and we print it on every report. It is why
-the system is positioned as triage rather than diagnosis, why a doctor reviews every case, and why a low
-grade is never phrased as "you are fine". Moving the threshold to 90% sensitivity is one config change and
-costs specificity — a programme-level decision, not ours.</p>
-
-<p class="q">Q15. Why did you not use APTOS, the more famous dataset?</p>
-<div class="short"><p>APTOS requires accepting Kaggle competition terms interactively, which cannot be
-automated. We used an MIT-licensed set of double the size instead.</p></div>
-<p class="detail"><b>In detail:</b> 35,126 images against APTOS's 3,662. We did search for and verify ungated mirrors
-of APTOS, IDRiD, Messidor-2 and DDR, and used IDRiD and Messidor-2 for external validation — which is the
-more valuable role for a second dataset anyway.</p>
-
-<p class="q">Q16. How would you improve it with more time and a GPU?</p>
-<div class="short"><p>An ordinal head, higher input resolution, and lesion-level labels — in that order.</p></div>
-<p class="detail"><b>In detail:</b> (1) The head predicts five independent classes, but the grades are ordered and the
-decision is P(grade ≥ 2); four cumulative binary outputs would supervise that directly. (2) 224×224 makes one
-pixel roughly 50 µm while a microaneurysm is 15–60 µm — the earliest lesions are at the edge of what the
-input can carry; 512×512 needs a GPU. (3) IDRiD ships lesion masks, which would let the heatmap point at a
-haemorrhage instead of a region.</p>
-
-<h2 class="pagebreak">6. Domain and general-knowledge questions</h2>
-
-<p class="q">Q17. What is diabetic retinopathy?</p>
-<div class="short"><p>High blood sugar damages the tiny vessels at the back of the eye. They leak, close off,
-and the eye grows fragile new vessels that bleed.</p></div>
-<p class="detail"><b>In detail:</b> It progresses through microaneurysms (grade 1), haemorrhages and exudates
-(grades 2–3), and finally new vessel growth — proliferative DR (grade 4) — which risks vitreous haemorrhage
-and retinal detachment. It is <b>painless and symptomless until late</b>, which is precisely why screening
-exists: by the time vision blurs, damage is already done.</p>
-
-<p class="q">Q18. How big is the problem in India?</p>
-<div class="short"><p>Roughly 101 million people with diabetes (ICMR-INDIAB, 2023), around one in three of
-whom develop retinopathy — against roughly one ophthalmologist per 100,000 people.</p></div>
-<p class="detail"><b>In detail:</b> Every diabetic is meant to have a dilated eye examination annually. The arithmetic
-does not work: the specialists do not exist in the numbers required, and they are concentrated in cities
-while most patients are not. DR is a leading cause of preventable blindness in working-age adults, and it is
-preventable precisely because early treatment works. The bottleneck is not knowledge — it is <b>who gets
-looked at, in what order</b>.</p>
-
-<p class="q">Q19. What is the treatment, and why does early detection matter so much?</p>
-<div class="short"><p>Laser photocoagulation, anti-VEGF injections, or vitrectomy. Treatment prevents further
-loss but rarely restores vision already lost.</p></div>
-<p class="detail"><b>In detail:</b> That asymmetry is the whole argument for screening. Catching grade 2 and treating
-it protects sight that still exists; catching grade 4 after a bleed means managing damage. This is also why a
-screening tool is tuned for sensitivity — the cost of the two error types is not symmetric.</p>
-
-<p class="q">Q20. Difference between screening and diagnosis?</p>
-<div class="short"><p>Screening sorts a large healthy-looking population into "needs a closer look" and "does
-not". Diagnosis is the closer look, by a clinician.</p></div>
-<p class="detail"><b>In detail:</b> A screening test is allowed to be imprecise in one direction: it should rarely
-miss disease, and may over-refer. That is the standard we designed to. RetiNova performs screening; a doctor
-performs the diagnosis, and every result carries that statement.</p>
-
-<p class="q">Q21. What is diabetic macular oedema, and why do you not detect it?</p>
-<div class="short"><p>Fluid swelling at the macula, the part of the retina responsible for sharp central
-vision. We do not detect it because our labels do not contain it.</p></div>
-<p class="detail"><b>In detail:</b> DME can blind someone at <em>any</em> retinopathy grade, so a "no DR" result does
-not rule it out — and our report says exactly that. Detecting it needs a dataset with macular oedema labels
-such as IDRiD's second task, or ideally OCT imaging, which a fundus camera cannot provide.</p>
-
-<p class="q">Q22. Why can a phone camera not photograph the retina?</p>
-<div class="short"><p>The retina sits ~17 mm behind a 2–8 mm pupil. You must send light in and get the image
-back out through that same small opening without the cornea reflecting the light into the sensor.</p></div>
-<p class="detail"><b>In detail:</b> Fundus cameras solve this with coaxial illumination and a condensing lens. A bare
-phone images the front of the eye and stops. That is why our retinal path needs a lens — from a ₹1,500
-20-dioptre lens to a ₹15 lakh fundus camera — and why the camera-only path measures the person (pulse, pupil
-reflex, pallor) rather than the retina.</p>
-
-<p class="q">Q23. What do OD and OS mean?</p>
-<div class="short"><p><em>Oculus dexter</em> — right eye. <em>Oculus sinister</em> — left eye. (OU = both.)</p></div>
-<p class="detail"><b>In detail:</b> Standard clinical notation, and recorded per screening. Laterality matters because
-the two eyes are graded and treated separately; a report that does not say which eye is clinically
-incomplete.</p>
-
-<h2>7. The SRS — requirements, in one page</h2>
-
-<p>An <strong>SRS (Software Requirements Specification, IEEE 830 / ISO/IEC/IEEE 29148)</strong> states what a
-system must do and how well. The short form:</p>
-
-<h3>Functional requirements</h3>
-<table class="tight">
-  <tr><th style="width:9%">ID</th><th style="width:36%">Requirement</th><th>Status</th></tr>
-  <tr><td>FR-1</td><td>Patients and doctors register and sign in with separate roles</td><td>Done — JWT, BCrypt, role guards</td></tr>
-  <tr><td>FR-2</td><td>Capture a retinal image by camera or upload</td><td>Done — live capture and file upload</td></tr>
-  <tr><td>FR-3</td><td>Reject images that cannot be graded, with a reason</td><td>Done — 9 checks, ~15 ms, 11 tests</td></tr>
-  <tr><td>FR-4</td><td>Grade a retinal image on the 5-point ICDR scale</td><td>Done — EfficientNetB0 via ONNX</td></tr>
-  <tr><td>FR-5</td><td>Show which regions influenced the grade</td><td>Done — Grad-CAM heatmap + overlay</td></tr>
-  <tr><td>FR-6</td><td>Produce a referral decision at a stated operating point</td><td>Done — threshold on P(grade ≥ 2)</td></tr>
-  <tr><td>FR-7</td><td>Route every screening to a doctor for review and sign-off</td><td>Done — live queue over SSE</td></tr>
-  <tr><td>FR-8</td><td>Produce a printable report with identity, grade, images, limitations</td><td>Done — print route + PDF</td></tr>
-  <tr><td>FR-9</td><td>Produce a priority score without any retinal hardware</td><td>Done — PPG, PLR, pallor</td></tr>
-  <tr><td>FR-10</td><td>Keep a per-patient history of screenings and triage</td><td>Done</td></tr>
-  <tr><td>FR-11</td><td>Let a doctor override the AI grade itself</td><td><strong>Not done</strong> — decision and remarks only</td></tr>
-  <tr><td>FR-12</td><td>Compare a screening against the patient's previous ones</td><td><strong>Not done</strong> — data is stored, nothing reads it</td></tr>
-</table>
-
-<h3>Non-functional requirements</h3>
-<table class="tight">
-  <tr><th style="width:9%">ID</th><th style="width:36%">Requirement</th><th>Measured</th></tr>
-  <tr><td>NFR-1</td><td>Grade an image in under 3 seconds</td><td>13 ms model; 1–2 s end to end</td></tr>
-  <tr><td>NFR-2</td><td>Reject a non-eye fast enough for a live viewfinder</td><td>11–23 ms</td></tr>
-  <tr><td>NFR-3</td><td>Catch at least 80% of referable disease</td><td>80.9% internal, 95.4% IDRiD</td></tr>
-  <tr><td>NFR-4</td><td>Work on a mid-range phone browser without installation</td><td>Yes — HTTPS + getUserMedia</td></tr>
-  <tr><td>NFR-5</td><td>No patient sees another patient's data</td><td>Ownership checks on records and images</td></tr>
-  <tr><td>NFR-6</td><td>Run within free-tier resources</td><td>Yes — 16 MB model, CPU only</td></tr>
-  <tr><td>NFR-7</td><td>State its own error rates wherever it states a result</td><td>Yes — on screen and on the PDF</td></tr>
-</table>
-
-<h2 class="pagebreak">8. Standards, regulations and abbreviations</h2>
-
-<p><strong>How deep does a judge go?</strong> Expect them to ask what an abbreviation stands for and why it
-matters — one or two sentences. They will rarely ask for clause numbers. The winning answer to "are you
-compliant?" is <em>not</em> "yes"; it is knowing which standard applies, and being straight that a hackathon
-prototype has not been certified against it.</p>
-
-<h3>Standards that apply to software like this</h3>
-<table class="tight">
-  <tr><th style="width:19%">Standard</th><th style="width:29%">What it is</th><th>Where we stand</th></tr>
-  <tr><td><strong>IEC 62304</strong></td><td>Life cycle for medical device software — how it must be planned, built and maintained</td><td>Not followed formally. Would classify as Class B (non-life-threatening injury possible)</td></tr>
-  <tr><td><strong>ISO 14971</strong></td><td>Risk management for medical devices</td><td>Not formal, but the two main risks — ungradable images and false negatives — are identified and mitigated</td></tr>
-  <tr><td><strong>ISO 13485</strong></td><td>Quality management system for medical device manufacturers</td><td>Organisational, not applicable to a student project</td></tr>
-  <tr><td><strong>ISO/IEC 27001</strong></td><td>Information security management</td><td>Not certified. Auth and access control exist; audit logging and rate limiting do not</td></tr>
-  <tr><td><strong>ISO/IEC/IEEE 29148</strong></td><td>Requirements engineering — the SRS standard (supersedes IEEE 830)</td><td>Section 7 above follows its shape</td></tr>
-  <tr><td><strong>DICOM</strong></td><td>Digital Imaging and Communications in Medicine — the imaging format hospitals use</td><td>Not supported; we accept JPEG/PNG. Required for hospital PACS integration</td></tr>
-  <tr><td><strong>HL7 FHIR</strong></td><td>Fast Healthcare Interoperability Resources — how health records exchange data</td><td>Not implemented. The route to hospital and ABDM integration</td></tr>
-  <tr><td><strong>ABDM / ABHA</strong></td><td>Ayushman Bharat Digital Mission and its health account ID</td><td>Not integrated. The obvious path to national deployment in India</td></tr>
-  <tr><td><strong>DPDP Act 2023</strong></td><td>India's data protection law — consent, purpose limitation, erasure</td><td>Not addressed: no consent flow, no deletion path. Required before real patients</td></tr>
-  <tr><td><strong>CDSCO / MDR 2017</strong></td><td>India's medical device regulator and rules; software as a device is regulated</td><td>Would need registration as SaMD before clinical use</td></tr>
-  <tr><td><strong>WCAG 2.1</strong></td><td>Web accessibility guidelines</td><td>Partially — semantic HTML, keyboard navigation; contrast not audited</td></tr>
-</table>
-
-<h3>Abbreviations, by area</h3>
-
-<table class="tight">
-  <tr><th style="width:14%">Term</th><th style="width:36%">Stands for</th><th>Means</th></tr>
-  <tr><td colspan="3" style="background:#f4f7fa"><strong>Clinical</strong></td></tr>
-  <tr><td>DR</td><td>Diabetic Retinopathy</td><td>The disease being screened for</td></tr>
-  <tr><td>NPDR / PDR</td><td>Non-Proliferative / Proliferative DR</td><td>Grades 1–3 versus grade 4, the split at new-vessel growth</td></tr>
-  <tr><td>DME</td><td>Diabetic Macular Oedema</td><td>Swelling at the macula; separate cause of sight loss, not assessed here</td></tr>
-  <tr><td>VTDR</td><td>Vision-Threatening DR</td><td>Severe NPDR, PDR, or DME</td></tr>
-  <tr><td>ICDR</td><td>International Clinical Diabetic Retinopathy scale</td><td>The 0–4 grading our labels and report use</td></tr>
-  <tr><td>OD / OS / OU</td><td>Oculus Dexter / Sinister / Uterque</td><td>Right eye / left eye / both eyes</td></tr>
-  <tr><td>OCT</td><td>Optical Coherence Tomography</td><td>Cross-sectional retinal scan; the gold standard for DME</td></tr>
-  <tr><td>Anti-VEGF</td><td>Anti-Vascular Endothelial Growth Factor</td><td>Injected drug that suppresses abnormal vessel growth</td></tr>
-  <tr><td colspan="3" style="background:#f4f7fa"><strong>Measurement</strong></td></tr>
-  <tr><td>Sensitivity</td><td>True positive rate</td><td>Of people with disease, the fraction we flag — ours is 80.9%</td></tr>
-  <tr><td>Specificity</td><td>True negative rate</td><td>Of healthy people, the fraction we clear — ours is 60.3%</td></tr>
-  <tr><td>PPV / NPV</td><td>Positive / Negative Predictive Value</td><td>Given a result, the chance it is right — depends on how common the disease is</td></tr>
-  <tr><td>QWK</td><td>Quadratic Weighted Kappa</td><td>Agreement with human graders, chance-corrected, distance-penalised</td></tr>
-  <tr><td>ROC / AUC</td><td>Receiver Operating Characteristic / Area Under Curve</td><td>The whole sensitivity-specificity trade-off in one curve and one number</td></tr>
-  <tr><td colspan="3" style="background:#f4f7fa"><strong>Technical</strong></td></tr>
-  <tr><td>CNN</td><td>Convolutional Neural Network</td><td>The network family used for image recognition</td></tr>
-  <tr><td>GAP</td><td>Global Average Pooling</td><td>Averages each feature map to one number; what makes CAM equal Grad-CAM here</td></tr>
-  <tr><td>Grad-CAM</td><td>Gradient-weighted Class Activation Mapping</td><td>The heatmap technique</td></tr>
-  <tr><td>ONNX</td><td>Open Neural Network Exchange</td><td>Framework-independent model format; how we serve in 16 MB</td></tr>
-  <tr><td>JWT</td><td>JSON Web Token</td><td>Signed token proving who you are, without server-side sessions</td></tr>
-  <tr><td>SSE</td><td>Server-Sent Events</td><td>One-way live push; how the doctor's queue updates instantly</td></tr>
-  <tr><td>REST / API</td><td>Representational State Transfer</td><td>How the three services talk over HTTP</td></tr>
-  <tr><td>CORS</td><td>Cross-Origin Resource Sharing</td><td>Browser rule that lets our frontend call our API</td></tr>
-  <tr><td>PPG</td><td>Photoplethysmography</td><td>Pulse from light absorption changes in skin</td></tr>
-  <tr><td>PLR</td><td>Pupillary Light Reflex</td><td>How fast and how far the pupil constricts to light</td></tr>
-  <tr><td>SaMD</td><td>Software as a Medical Device</td><td>The regulatory category this product would fall into</td></tr>
-  <tr><td>SRS / HLD / LLD</td><td>Software Requirements Spec / High- / Low-Level Design</td><td>The three standard design documents</td></tr>
-  <tr><td>DFD / ERD / UML</td><td>Data Flow / Entity-Relationship Diagram / Unified Modeling Language</td><td>How the design is drawn</td></tr>
-</table>
-
-<h2>9. The three answers to have ready</h2>
-
-<div class="short good">
-  <p><strong>"What is genuinely new here?"</strong> — Three things. It refuses images nobody could grade,
-  before grading them. It works with no retinal hardware at all by measuring the person instead of the
-  retina. And it decides referral at a stated operating point rather than by taking the model's favourite
-  label — which is the difference between catching 65% and 81% of disease.</p>
-</div>
-
-<div class="short warn">
-  <p><strong>"What is the biggest weakness?"</strong> — Moderate (grade 2) recall is 20.5%, and that is
-  exactly the referral boundary. The model separates obviously-healthy from obviously-diseased far better
-  than it handles the middle. We know it, we measure it, and it is why a doctor reviews every case.</p>
-</div>
-
-<div class="short">
-  <p><strong>"Why should this win?"</strong> — Because it is measured rather than claimed. Every number in
-  this document came from the running system, the failure modes are printed on the product itself, and it
-  was validated on data from a different country and a different camera without being retrained to make the
-  numbers look better.</p>
-</div>
-
-<p class="footnote">
-  RetiNova is a screening-support prototype, not a diagnostic device, and is not approved by any regulator.
-  No output should be acted on without clinician review. Performance figures are measured on public research
-  datasets and would require prospective validation on Indian screening populations before clinical
-  deployment. Epidemiological figures are approximate and drawn from published sources (ICMR-INDIAB 2023 for
-  diabetes prevalence).
-</p>
 
 </body>
 </html>
