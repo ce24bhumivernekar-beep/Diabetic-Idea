@@ -67,6 +67,11 @@ public class Screening {
      */
     private Map<String, Object> quality;
 
+    /** Whether a specialist should see this person, and the cut behind it. */
+    private Boolean referable;
+
+    private Map<String, Object> referralBasis;
+
     private String status;
 
     private LocalDateTime createdAt;
@@ -193,6 +198,23 @@ public class Screening {
 
     public void setEye(String eye) {
         this.eye = eye;
+    }
+
+
+    public Boolean getReferable() {
+        return referable;
+    }
+
+    public void setReferable(Boolean referable) {
+        this.referable = referable;
+    }
+
+    public Map<String, Object> getReferralBasis() {
+        return referralBasis;
+    }
+
+    public void setReferralBasis(Map<String, Object> referralBasis) {
+        this.referralBasis = referralBasis;
     }
 
     public Map<String, Object> getQuality() {

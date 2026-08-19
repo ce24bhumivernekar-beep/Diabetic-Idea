@@ -133,6 +133,8 @@ public class ScreeningController {
         screening.setModelTrained(aiResponse.isModelTrained());
         screening.setModelMetrics(aiResponse.getModelMetrics());
         screening.setQuality(aiResponse.getQuality());
+        screening.setReferable(aiResponse.getReferable());
+        screening.setReferralBasis(aiResponse.getReferralBasis());
 
         // AI result is only a suggestion until a doctor signs it off.
         screening.setStatus("PENDING_REVIEW");

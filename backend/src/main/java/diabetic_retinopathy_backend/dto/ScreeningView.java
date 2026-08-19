@@ -45,6 +45,11 @@ public class ScreeningView {
 
     private Map<String, Object> quality;
 
+    /** Whether a specialist should see this person, and the cut behind it. */
+    private Boolean referable;
+
+    private Map<String, Object> referralBasis;
+
     private String status;
 
     private LocalDateTime createdAt;
@@ -76,6 +81,8 @@ public class ScreeningView {
         view.modelTrained = screening.isModelTrained();
         view.modelMetrics = screening.getModelMetrics();
         view.quality = screening.getQuality();
+        view.referable = screening.getReferable();
+        view.referralBasis = screening.getReferralBasis();
         view.status = screening.getStatus();
         view.createdAt = screening.getCreatedAt();
         view.doctorDecision = screening.getDoctorDecision();
@@ -146,6 +153,15 @@ public class ScreeningView {
 
     public String getEye() {
         return eye;
+    }
+
+
+    public Boolean getReferable() {
+        return referable;
+    }
+
+    public Map<String, Object> getReferralBasis() {
+        return referralBasis;
     }
 
     public Map<String, Object> getQuality() {

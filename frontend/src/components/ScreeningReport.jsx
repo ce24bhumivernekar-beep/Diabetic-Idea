@@ -112,6 +112,8 @@ function ScreeningReport({ screening }) {
 
   const quality = screening.quality || null;
 
+  const referral = screening.referralBasis || null;
+
   return (
     <div className="report">
 
@@ -202,6 +204,33 @@ function ScreeningReport({ screening }) {
         </div>
 
       </div>
+
+      {typeof screening.referable === "boolean" && (
+        <div
+          className={
+            "referral-call " +
+            (screening.referable ? "is-refer" : "is-routine")
+          }
+        >
+          <span className="report-eyebrow">screening decision</span>
+
+          <h3>
+            {screening.referable
+              ? "Refer for specialist review"
+              : "No referral indicated"}
+          </h3>
+
+          <p>
+            {referral
+              ? `Decided by a threshold set to catch ${Math.round(
+                  (referral.sensitivity || 0) * 100
+                )}% of referable disease, which correctly clears ${Math.round(
+                  (referral.specificity || 0) * 100
+                )}% of healthy eyes. Some healthy eyes are referred on purpose - missing disease costs more than an extra appointment.`
+              : "Based on the probability of grade 2 or worse."}
+          </p>
+        </div>
+      )}
 
       {grade && (
         <div className="report-meaning">

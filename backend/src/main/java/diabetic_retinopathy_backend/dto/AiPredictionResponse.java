@@ -19,6 +19,11 @@ public class AiPredictionResponse {
     /** Gradability verdict: was there an eye, and was it good enough. */
     private Map<String, Object> quality;
 
+    /** Whether a specialist should see this person, and the cut behind it. */
+    private Boolean referable;
+
+    private Map<String, Object> referralBasis;
+
     /** Base64 JPEG, not a path - see Screening. */
     private String originalImage;
 
@@ -75,6 +80,23 @@ public class AiPredictionResponse {
 
     public void setModelMetrics(Map<String, Object> modelMetrics) {
         this.modelMetrics = modelMetrics;
+    }
+
+
+    public Boolean getReferable() {
+        return referable;
+    }
+
+    public void setReferable(Boolean referable) {
+        this.referable = referable;
+    }
+
+    public Map<String, Object> getReferralBasis() {
+        return referralBasis;
+    }
+
+    public void setReferralBasis(Map<String, Object> referralBasis) {
+        this.referralBasis = referralBasis;
     }
 
     public Map<String, Object> getQuality() {

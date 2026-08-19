@@ -144,5 +144,11 @@
         88
       ]
     ]
+  },
+  "screening": {
+    "referableThreshold": 0.354,
+    "sensitivityAtThreshold": 0.8,
+    "specificityAtThreshold": 0.584,
+    "note": "Referral uses a threshold on P(grade>=2) rather than the most likely grade. Screening asks whether a specialist should see this person, not which of five grades is most probable; the cut is set to the 80% sensitivity a screening programme is expected to reach, and costs specificity accordingly."
   }
 }

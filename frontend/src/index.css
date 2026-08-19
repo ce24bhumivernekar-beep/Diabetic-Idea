@@ -1606,3 +1606,34 @@ a.back-button {
   font-weight: 700;
   letter-spacing: 0.03em;
 }
+
+.referral-call {
+  margin-top: 18px;
+  padding: 18px 22px;
+
+  border-radius: var(--radius);
+  border-left: 6px solid var(--line-strong);
+  background: var(--surface-2);
+}
+
+.referral-call h3 {
+  margin: 4px 0 8px;
+  font-size: 20px;
+}
+
+.referral-call p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.referral-call.is-refer {
+  border-left-color: var(--grade-4);
+  background: rgba(192, 57, 43, 0.09);
+}
+
+.referral-call.is-routine {
+  border-left-color: var(--grade-0);
+  background: rgba(63, 164, 106, 0.09);
+}

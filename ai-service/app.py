@@ -129,6 +129,30 @@ def read_training_report():
 
 MODEL_METRICS = read_training_report()
 
+
+def read_screening_threshold():
+    """
+    The cut that decides referral.
+
+    Taking the most likely of five grades answers the wrong question. A
+    screening programme asks whether this person needs a specialist, which is
+    one threshold on P(grade >= 2) - and where that threshold sits is a
+    clinical choice about how many missed cases are acceptable, not something
+    argmax should decide by accident.
+    """
+
+    if not os.path.exists(REPORT_PATH):
+        return None
+
+    try:
+        with open(REPORT_PATH, "r", encoding="utf-8") as handle:
+            return json.load(handle).get("screening")
+    except (OSError, ValueError):
+        return None
+
+
+SCREENING = read_screening_threshold()
+
 MODEL_IS_TRAINED = MODEL_METRICS is not None
 
 
@@ -240,7 +264,9 @@ def summarise(predictions):
 
     class_id = int(np.argmax(values))
 
-    return {
+    referable_probability = float(values[2:].sum())
+
+    summary = {
         "prediction": CLASS_NAMES[class_id],
         "classId": class_id,
         "confidence": float(values[class_id]),
@@ -248,9 +274,23 @@ def summarise(predictions):
             CLASS_NAMES[index]: float(values[index])
             for index in range(len(CLASS_NAMES))
         },
+        "referableProbability": round(referable_probability, 4),
         "modelTrained": MODEL_IS_TRAINED,
         "modelMetrics": MODEL_METRICS,
     }
+
+    if SCREENING:
+        threshold = SCREENING.get("referableThreshold", 0.5)
+
+        summary["referable"] = bool(referable_probability >= threshold)
+
+        summary["referralBasis"] = {
+            "threshold": threshold,
+            "sensitivity": SCREENING.get("sensitivityAtThreshold"),
+            "specificity": SCREENING.get("specificityAtThreshold"),
+        }
+
+    return summary
 
 
 def colour_heatmap(heatmap, width, height):
