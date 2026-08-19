@@ -179,6 +179,14 @@ function ScreeningReport({ screening }) {
             </p>
           )}
 
+          <p className="report-eye">
+            {screening.eye === "LEFT"
+              ? "Left eye (OS)"
+              : screening.eye === "RIGHT"
+                ? "Right eye (OD)"
+                : "Eye not recorded"}
+          </p>
+
         </div>
 
         <div className="report-confidence">
@@ -210,6 +218,12 @@ function ScreeningReport({ screening }) {
             Reference information from the International Clinical Diabetic
             Retinopathy scale. It is not a diagnosis - the reviewing doctor
             decides.
+          </p>
+
+          <p className="report-disclaimer">
+            <strong>Not assessed:</strong> this model grades retinopathy
+            severity only. It does not look for diabetic macular oedema, which
+            is a separate cause of sight loss and needs its own examination.
           </p>
 
         </div>

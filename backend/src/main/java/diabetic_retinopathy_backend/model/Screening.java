@@ -17,6 +17,13 @@ public class Screening {
     private String patientId;
 
     /**
+     * Which eye. A retinal report that does not say left or right is an
+     * incomplete clinical record - the finding cannot be acted on, compared
+     * with a previous visit, or filed against the correct eye.
+     */
+    private String eye;
+
+    /**
      * The pictures themselves, stored with the record.
      *
      * They used to live on the AI service's local disk, which is recreated on
@@ -178,6 +185,14 @@ public class Screening {
 
     public void setModelMetrics(Map<String, Object> modelMetrics) {
         this.modelMetrics = modelMetrics;
+    }
+
+    public String getEye() {
+        return eye;
+    }
+
+    public void setEye(String eye) {
+        this.eye = eye;
     }
 
     public Map<String, Object> getQuality() {

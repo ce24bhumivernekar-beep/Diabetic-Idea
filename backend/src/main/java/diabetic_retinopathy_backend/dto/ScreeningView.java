@@ -17,6 +17,8 @@ public class ScreeningView {
 
     private String patientId;
 
+    private String eye;
+
     private String patientName;
 
     private Integer patientAge;
@@ -63,6 +65,7 @@ public class ScreeningView {
 
         view.id = screening.getId();
         view.patientId = screening.getPatientId();
+        view.eye = screening.getEye();
         view.originalImagePath = screening.getOriginalImagePath();
         view.heatmapPath = screening.getHeatmapPath();
         view.overlayPath = screening.getOverlayPath();
@@ -139,6 +142,10 @@ public class ScreeningView {
 
     public Map<String, Object> getModelMetrics() {
         return modelMetrics;
+    }
+
+    public String getEye() {
+        return eye;
     }
 
     public Map<String, Object> getQuality() {

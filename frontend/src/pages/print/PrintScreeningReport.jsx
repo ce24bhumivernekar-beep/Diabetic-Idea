@@ -70,8 +70,30 @@ function PrintScreeningReport() {
             </div>
 
             <div>
+              <span>Eye</span>
+              <strong>
+                {screening.eye === "LEFT"
+                  ? "Left (OS)"
+                  : screening.eye === "RIGHT"
+                    ? "Right (OD)"
+                    : "Not recorded"}
+              </strong>
+            </div>
+
+            <div>
               <span>Screened</span>
               <strong>{date ? date.toLocaleString() : "—"}</strong>
+            </div>
+
+            <div>
+              <span>Image quality</span>
+              <strong>
+                {screening.quality
+                  ? screening.quality.gradable
+                    ? `Gradable (${screening.quality.quality}/100)`
+                    : "NOT GRADABLE"
+                  : "Not assessed"}
+              </strong>
             </div>
 
             <div>
@@ -79,6 +101,18 @@ function PrintScreeningReport() {
               <strong>{screening.id}</strong>
             </div>
           </section>
+
+          {screening.quality && !screening.quality.gradable && (
+            <section className="print-ungradable">
+              <h3>Image not gradable</h3>
+              <p>{(screening.quality.reasons || []).join(" ")}</p>
+              <p>
+                The grade below was produced from an image that does not meet
+                the quality needed to read a retina. Repeat the photograph
+                before acting on it.
+              </p>
+            </section>
+          )}
 
           <ScreeningReport screening={screening} />
 

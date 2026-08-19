@@ -55,6 +55,7 @@ public class ScreeningController {
     public Screening analyze(
             @RequestParam("patientId") String patientId,
             @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "eye", defaultValue = "UNSPECIFIED") String eye,
             @RequestAttribute("userId") String userId,
             @RequestAttribute("userRole") String userRole) {
 
@@ -101,6 +102,10 @@ public class ScreeningController {
         Screening screening = new Screening();
 
         screening.setPatientId(patientId);
+
+        screening.setEye(
+                "RIGHT".equals(eye) || "LEFT".equals(eye) ? eye : "UNSPECIFIED"
+        );
 
         screening.setPrediction(
                 aiResponse.getPrediction()

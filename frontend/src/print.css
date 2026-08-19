@@ -204,3 +204,34 @@
     content: none;
   }
 }
+
+.print-ungradable {
+  margin: 16px 0;
+  padding: 14px 16px;
+
+  border: 2px solid #c0392b;
+  border-radius: 8px;
+  background: #fdeeec;
+}
+
+.print-ungradable h3 {
+  margin: 0 0 6px;
+  color: #c0392b;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.print-ungradable p {
+  margin: 0 0 6px;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+@media print {
+  .print-ungradable {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    break-inside: avoid;
+  }
+}

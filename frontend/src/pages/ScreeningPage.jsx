@@ -15,6 +15,7 @@ function ScreeningPage() {
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
   const [waking, setWaking] = useState(false);
+  const [eye, setEye] = useState("RIGHT");
   const [service, setService] = useState(null);
   const [error, setError] = useState("");
 
@@ -94,6 +95,8 @@ function ScreeningPage() {
         patient.id
       );
 
+      formData.append("eye", eye);
+
       formData.append(
         "file",
         file
@@ -161,6 +164,26 @@ function ScreeningPage() {
       )}
 
       <div className="upload-area">
+
+        <fieldset className="eye-select">
+          <legend>Which eye is this?</legend>
+
+          {[
+            ["RIGHT", "Right eye (OD)"],
+            ["LEFT", "Left eye (OS)"],
+          ].map(([value, label]) => (
+            <label key={value} className="eye-option">
+              <input
+                type="radio"
+                name="eye"
+                value={value}
+                checked={eye === value}
+                onChange={() => setEye(value)}
+              />
+              {label}
+            </label>
+          ))}
+        </fieldset>
 
         <CameraCapture
           onCapture={acceptImage}
