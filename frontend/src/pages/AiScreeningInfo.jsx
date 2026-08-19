@@ -71,38 +71,101 @@ function AiScreeningInfo() {
         <dl className="about-parts">
           <dt>Agreement with human graders (quadratic weighted kappa)</dt>
           <dd>
-            <strong>0.364</strong> — moderate agreement. Kappa is the standard
+            <strong>0.425</strong> — moderate agreement. Kappa is the standard
             measure here because it penalises being badly wrong on an ordered
             scale far more than being one grade off.
           </dd>
 
           <dt>Referable disease detected (sensitivity)</dt>
           <dd>
-            <strong>64.9%</strong> — of the cases that genuinely needed a
-            specialist, roughly two in three were flagged.
+            <strong>80.9%</strong> — of the cases that genuinely needed a
+            specialist, four in five were flagged. This is not what the model
+            says is most likely; it is where a deliberate threshold was placed
+            on the probability of grade 2 or worse.
           </dd>
 
           <dt>Correctly cleared (specificity)</dt>
           <dd>
-            <strong>77.5%</strong> — of the healthy retinas, about three in
-            four were correctly passed over.
+            <strong>60.3%</strong> — of the healthy retinas, three in five were
+            correctly passed over. The other two in five are referred
+            unnecessarily, which is the price of the sensitivity above.
           </dd>
         </dl>
 
         <p className="about-caution">
-          What this means in practice: about one in three referable cases is
-          missed, so a low grade from this model does not rule out
-          retinopathy. It is useful for deciding who to look at first, and not
-          accurate enough to decide care on its own. That is exactly why every
-          screening goes to a doctor, and why the measured figures appear on
-          every result and every printed report rather than being kept out of
-          sight.
+          What this means in practice: about one in five referable cases is
+          still missed, so a low grade does not rule out retinopathy, and four
+          in ten healthy people are sent for a check they did not need. It is
+          useful for deciding who to look at first, and not accurate enough to
+          decide care on its own. That is exactly why every screening goes to a
+          doctor, and why these figures appear on every result and every printed
+          report rather than being kept out of sight.
         </p>
 
+      </section>
+
+      <section className="about-section">
+
+        {/* A model can score well on its own test set by learning that
+            dataset's particular look. This section exists because that is the
+            first question a clinician asks, and the answer should not have to
+            be taken on trust. */}
+        <h2>Does it work outside its own dataset?</h2>
+
         <p>
-          Accuracy improves with a larger and better-balanced training set; the
-          model is retrainable and the pipeline that produced these numbers is
-          part of the project.
+          The numbers above come from images collected the same way as the
+          training images. The more demanding question is what happens on a
+          different camera, in a different country, with a different grading
+          team — so the same model, at the same threshold, with nothing
+          retrained and nothing re-tuned, was run against two public datasets it
+          had never seen.
+        </p>
+
+        <table className="about-table">
+          <thead>
+            <tr>
+              <th>Dataset</th>
+              <th>Sensitivity</th>
+              <th>Specificity</th>
+              <th>Kappa</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Its own test set — 7,026 images</td>
+              <td>80.9%</td>
+              <td>60.3%</td>
+              <td>0.425</td>
+            </tr>
+            <tr>
+              <td>IDRiD — 516 images, Kowa camera, Indian</td>
+              <td>95.4%</td>
+              <td>65.3%</td>
+              <td>0.737</td>
+            </tr>
+            <tr>
+              <td>Messidor-2 — 1,744 images, Topcon, French</td>
+              <td>82.9%</td>
+              <td>51.4%</td>
+              <td>0.549</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          Sensitivity holds between 81% and 95% across three populations and
+          three cameras without any adjustment. On the Indian dataset it caught
+          308 of 323 referable cases and missed 15.
+        </p>
+
+        <p className="about-caution">
+          The honest reading of the same experiment: the per-grade accuracy does
+          not transfer nearly as well. On IDRiD the model recognised 87% of
+          Severe cases but only 7% of Moderate ones — it is pushing the middle
+          grades outward rather than placing them precisely, and they happen to
+          land on the referable side of the line. So the <em>referral
+          decision</em> generalises; the five-grade label shown next to it does
+          not, and should be read as an estimate rather than a grading.
         </p>
 
       </section>
