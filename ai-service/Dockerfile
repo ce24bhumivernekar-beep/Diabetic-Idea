@@ -15,7 +15,7 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py signals.py ./
+COPY app.py signals.py quality.py ./
 COPY models/dr_model.onnx models/cam_weights.npz models/training_report.json ./models/
 
 RUN mkdir -p generated
