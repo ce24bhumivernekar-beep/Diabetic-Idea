@@ -1,13 +1,25 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+
+import { homeFor, useAuth } from "../context/auth";
 import "./LandingPage.css";
 
 function LandingPage() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // The two roles are separate products that happen to share a front door.
+  // A signed-in patient was still being shown the way into the doctor portal,
+  // which is an invitation to a screen they cannot open; a signed-in doctor
+  // was being offered "start screening", which is not their job either.
+  const { role } = useAuth();
+
+  const isPatient = role === "PATIENT";
+  const isDoctor = role === "DOCTOR";
+
   const onPatient = () => navigate("/patient/screening");
-  const onDoctor = () => navigate("/doctor/login");
+  const onDoctor = () =>
+    navigate(isDoctor ? "/doctor/dashboard" : "/doctor/login");
 
   const [pointer, setPointer] = useState({
     x: 0,
@@ -115,12 +127,23 @@ function LandingPage() {
 
         <div className="landing-nav-right">
 
-          <button
-            className="landing-nav-doctor"
-            onClick={onDoctor}
-          >
-            DOCTOR PORTAL
-          </button>
+          {!isPatient && (
+            <button
+              className="landing-nav-doctor"
+              onClick={onDoctor}
+            >
+              {isDoctor ? "MY QUEUE" : "DOCTOR PORTAL"}
+            </button>
+          )}
+
+          {isPatient && (
+            <button
+              className="landing-nav-doctor"
+              onClick={() => navigate(homeFor("PATIENT"))}
+            >
+              MY DASHBOARD
+            </button>
+          )}
 
           <button
             className="landing-menu"
@@ -145,8 +168,15 @@ function LandingPage() {
             <Link to="/patient/screening" onClick={() => setMenuOpen(false)}>Screening</Link>
             <Link to="/ai-screening" onClick={() => setMenuOpen(false)}>AI screening info</Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>About</Link>
-            <Link to="/patient/login" onClick={() => setMenuOpen(false)}>Patient sign in</Link>
-            <Link to="/doctor/login" onClick={() => setMenuOpen(false)}>Doctor portal</Link>
+            {!role && (
+              <>
+                <Link to="/patient/login" onClick={() => setMenuOpen(false)}>Patient sign in</Link>
+                <Link to="/doctor/login" onClick={() => setMenuOpen(false)}>Doctor portal</Link>
+              </>
+            )}
+            {role && (
+              <Link to={homeFor(role)} onClick={() => setMenuOpen(false)}>My dashboard</Link>
+            )}
           </div>
         )}
 
@@ -268,18 +298,29 @@ function LandingPage() {
 
             <button
               className="landing-primary"
-              onClick={onPatient}
+              onClick={isDoctor ? onDoctor : onPatient}
             >
-              START SCREENING
+              {isDoctor ? "OPEN REVIEW QUEUE" : "START SCREENING"}
               <span>→</span>
             </button>
 
-            <button
-              className="landing-secondary"
-              onClick={onDoctor}
-            >
-              DOCTOR PORTAL
-            </button>
+            {!isPatient && !isDoctor && (
+              <button
+                className="landing-secondary"
+                onClick={onDoctor}
+              >
+                DOCTOR PORTAL
+              </button>
+            )}
+
+            {(isPatient || isDoctor) && (
+              <button
+                className="landing-secondary"
+                onClick={() => navigate(homeFor(role))}
+              >
+                MY DASHBOARD
+              </button>
+            )}
 
           </div>
 

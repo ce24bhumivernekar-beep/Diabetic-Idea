@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>RetiNova — The Camera, The Real-Time Loop, and How to Get a Fundus Image</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm; }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", Calibri, system-ui, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: #16181d;
+    margin: 0;
+  }
+
+  h1 {
+    font-size: 24pt;
+    line-height: 1.15;
+    margin: 0 0 6px;
+    letter-spacing: -0.5px;
+  }
+
+  h2 {
+    font-size: 14pt;
+    margin: 26px 0 8px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #1a4d7a;
+    color: #1a4d7a;
+    break-after: avoid;
+  }
+
+  h3 {
+    font-size: 11.5pt;
+    margin: 16px 0 5px;
+    color: #22262e;
+    break-after: avoid;
+  }
+
+  p { margin: 0 0 9px; }
+
+  ul, ol { margin: 0 0 10px; padding-left: 20px; }
+  li { margin-bottom: 4px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 14px;
+    font-size: 9.5pt;
+    break-inside: avoid;
+  }
+
+  th {
+    background: #eef3f8;
+    text-align: left;
+    padding: 6px 8px;
+    border: 1px solid #c3d2e0;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 6px 8px;
+    border: 1px solid #d7dee6;
+    vertical-align: top;
+  }
+
+  code {
+    font-family: Consolas, monospace;
+    font-size: 9pt;
+    background: #f1f3f6;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  .cover {
+    border-left: 6px solid #1a4d7a;
+    padding: 0 0 0 16px;
+    margin-bottom: 22px;
+  }
+
+  .sub {
+    font-size: 12pt;
+    color: #4b5563;
+    margin: 4px 0 10px;
+  }
+
+  .meta {
+    font-size: 9pt;
+    color: #6b7280;
+  }
+
+  .callout {
+    background: #f6f9fc;
+    border: 1px solid #c9d8e6;
+    border-left: 5px solid #1a4d7a;
+    padding: 10px 13px;
+    margin: 12px 0;
+    break-inside: avoid;
+  }
+
+  .callout.warn {
+    background: #fdf6f4;
+    border-color: #e5c3b8;
+    border-left-color: #b4441f;
+  }
+
+  .callout.good {
+    background: #f3faf5;
+    border-color: #bfdfca;
+    border-left-color: #2f7d4f;
+  }
+
+  .callout p:last-child { margin-bottom: 0; }
+
+  .flow {
+    font-family: Consolas, monospace;
+    font-size: 8.6pt;
+    line-height: 1.45;
+    white-space: pre;
+    background: #f7f9fb;
+    border: 1px solid #d7dee6;
+    padding: 11px 13px;
+    margin: 10px 0 14px;
+    break-inside: avoid;
+    overflow: hidden;
+  }
+
+  .pagebreak { break-before: page; }
+
+  .kv { font-size: 9.5pt; }
+  .kv td:first-child { width: 34%; font-weight: 600; }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .footnote {
+    font-size: 8.8pt;
+    color: #5b6472;
+    border-top: 1px solid #d7dee6;
+    padding-top: 6px;
+    margin-top: 18px;
+  }
+
+  strong { color: #10131a; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>The Camera, The Real-Time Loop,<br />and How to Get a Fundus Image</h1>
+  <p class="sub">RetiNova — diabetic retinopathy screening platform</p>
+  <p class="meta">
+    Engineering and clinical-context documentation · Smart India Hackathon 2026<br />
+    Every number in this document was measured on the running system, not estimated.
+  </p>
+</div>
+
+<h2>1. The question this document answers</h2>
+
+<p>
+  Point the live camera at a wall, a hand, or a photograph of anything that is not an eye,
+  and a screening tool should say <em>nothing</em>. If it instead returns a grade and a
+  confidence score, that is not a cosmetic bug — it is the single most dangerous failure a
+  screening tool can have, because a confident <em>"No DR"</em> on an image nobody could have
+  graded sends a person away reassured.
+</p>
+
+<p>
+  This document explains four things, in order: what the real-time camera is actually for,
+  what happens when there is no eye in front of it, whether an ordinary phone or laptop
+  camera has enough resolution for any of this to be honest, and exactly what hardware and
+  procedure are needed if you want a true fundus (retinal) image.
+</p>
+
+<h2>2. The camera does two completely different jobs</h2>
+
+<p>
+  Conflating them is the source of most confusion about this project, so they are separated
+  here first.
+</p>
+
+<table>
+  <tr>
+    <th style="width:22%">&nbsp;</th>
+    <th style="width:39%">Job A — Retinal imaging</th>
+    <th style="width:39%">Job B — Camera-only triage</th>
+  </tr>
+  <tr>
+    <td><strong>What it looks at</strong></td>
+    <td>The retina: the light-sensitive layer at the <em>back</em> of the eye.</td>
+    <td>The front of the eye and the face: pupil, iris, sclera, conjunctiva, skin.</td>
+  </tr>
+  <tr>
+    <td><strong>What it finds</strong></td>
+    <td>Microaneurysms, haemorrhages, exudates, new vessels — the actual signs of diabetic
+      retinopathy.</td>
+    <td>Pulse rate and rhythm, pupil light reflex, conjunctival pallor — systemic risk
+      signals, not retinopathy.</td>
+  </tr>
+  <tr>
+    <td><strong>Hardware needed</strong></td>
+    <td><strong>A fundus lens or fundus camera is mandatory.</strong> No phone can do this
+      unaided. Section 6 covers the options.</td>
+    <td><strong>Nothing but the camera already in the phone or laptop.</strong></td>
+  </tr>
+  <tr>
+    <td><strong>Answers</strong></td>
+    <td>"Does this person have referable diabetic retinopathy?"</td>
+    <td>"Of the people waiting, who should be seen first?"</td>
+  </tr>
+  <tr>
+    <td><strong>In the product</strong></td>
+    <td>Screening page → grade, heatmap, referral decision, doctor sign-off.</td>
+    <td>Health-check page → priority score, doctor's triage queue.</td>
+  </tr>
+</table>
+
+<div class="callout warn">
+  <p>
+    <strong>The physics, stated plainly.</strong> The retina sits roughly 17 mm behind the
+    cornea and is viewed through the pupil, an aperture 2–8 mm wide. To photograph it you
+    must put light <em>in</em> through that same small aperture and get an image back
+    <em>out</em> of it without the illumination reflecting off the cornea straight into your
+    sensor. Purpose-built optics solve this with coaxial illumination and a condensing lens.
+    A bare phone camera has neither, so it images the front surface of the eye and stops
+    there. Any product claiming retinal screening from a bare phone camera is either using
+    an attachment it is not telling you about, or it is not doing what it says.
+  </p>
+</div>
+
+<h2>3. Why the analysis runs in real time, and not on a snapshot</h2>
+
+<p>
+  Uploading one photograph and waiting for a verdict is simpler to build. Real-time
+  processing was chosen because four things that matter are impossible without it.
+</p>
+
+<h3>3.1 It refuses a bad frame <em>before</em> it becomes a result</h3>
+
+<p>
+  Real screening programmes reject 10–20% of images as ungradable. If that judgement only
+  happens after the photograph is taken, uploaded, and graded, the person has usually left.
+  Running the check on every frame means the operator is told <em>while the camera is still
+  pointed at the eye</em>, when it costs five seconds to fix instead of a second visit.
+</p>
+
+<h3>3.2 It guides the person holding the camera, who is usually not a clinician</h3>
+
+<p>
+  The intended setting is a camp, a pharmacy, or a rural clinic where the operator is a
+  health worker, not an ophthalmic photographer. The live loop returns a target ring and one
+  plain instruction at a time — <em>move closer</em>, <em>too bright</em>, <em>out of
+  focus</em>, <em>centre the retina</em>, <em>good, hold still</em>. The Save button stays
+  disabled until the frame would actually be gradable, so an unusable image cannot be
+  submitted by accident.
+</p>
+
+<h3>3.3 It turns one attempt into best-of-many</h3>
+
+<p>
+  A single frame is a gamble on blink timing, hand tremor, and a corneal reflection landing
+  in the wrong place. Analysing a stream means the system keeps grading until a frame passes,
+  and the prediction shown on screen is smoothed over the last five results rather than
+  jumping on every frame. The saved image is chosen from a stream, not hoped for.
+</p>
+
+<h3>3.4 Some measurements exist only in time</h3>
+
+<p>
+  This is the part a photograph cannot substitute for at all. Two of the three triage
+  measurements are <strong>temporal signals</strong> — they are not visible in any still
+  image, no matter how good:
+</p>
+
+<ul>
+  <li>
+    <strong>Pulse (PPG).</strong> Each heartbeat pushes blood into the skin and minutely
+    changes how much light it absorbs. The change is far too small to see, but averaged over
+    a region across ~20 seconds of video and band-pass filtered to the plausible heart-rate
+    range, it is a clean waveform. One frame contains zero of this information; a video
+    contains all of it.
+  </li>
+  <li>
+    <strong>Pupil light reflex (PLR).</strong> The measurement <em>is</em> the change: the
+    pupil is measured, a light is presented, and the constriction and its speed are tracked
+    frame by frame. A sluggish or asymmetric reflex is a recognised neurological red flag,
+    and long-standing diabetes is associated with autonomic changes in that reflex.
+  </li>
+</ul>
+
+<p>
+  Only the third — <strong>conjunctival pallor</strong>, a proxy for anaemia — could in
+  principle come from a still photograph, and even there the live loop earns its place by
+  white-balancing against the sclera and using the iris as a physical ruler
+  (≈11.7 mm), so the reading does not depend on the room's lighting or the phone's distance.
+</p>
+
+<h3>3.5 What it costs, measured</h3>
+
+<table class="kv">
+  <tr><td>Frame sent for analysis</td><td>224 × 224 JPEG, quality 0.70 — the size the model consumes anyway, so nothing is wasted uploading pixels that get thrown away</td></tr>
+  <tr><td>Frames in flight</td><td>One. The next frame is grabbed only when the previous result returns, so a slow link lowers the frame rate instead of building a queue of stale frames</td></tr>
+  <tr><td>Refusing a non-eye frame</td><td class="num"><strong>11–23 ms</strong> — the model never runs</td></tr>
+  <tr><td>Grading a valid retinal frame</td><td class="num"><strong>0.6–0.9 s</strong> locally, ≈1.7 s on the free cloud tier</td></tr>
+  <tr><td>Displayed prediction</td><td>Mean of the last 5 results, so it does not flicker</td></tr>
+</table>
+
+<p>
+  The asymmetry in that table is the design. Rejection is roughly <strong>fifty times
+  cheaper</strong> than grading, because the gate is deliberately classical computer vision
+  rather than a second neural network: every number it uses is inspectable, needs no training
+  data, and costs about a millisecond. That is what makes it affordable to run on every
+  single frame.
+</p>
+
+<h2 class="pagebreak">4. What happens when there is no eye in front of the camera</h2>
+
+<p>
+  Before any image reaches the model, four independent tests must all pass. They were chosen
+  because a non-eye fails at least one of them decisively.
+</p>
+
+<table>
+  <tr>
+    <th style="width:20%">Test</th>
+    <th style="width:16%">Threshold</th>
+    <th>Why this catches what it catches</th>
+  </tr>
+  <tr>
+    <td><strong>A lit region exists</strong></td>
+    <td>Largest bright contour found above level 22</td>
+    <td>A black frame, a lens cap, or a switched-off camera has no illuminated region at all.</td>
+  </tr>
+  <tr>
+    <td><strong>It fills the frame</strong></td>
+    <td>≥ 6% coverage</td>
+    <td>A distant eye across a room carries too few pixels of retina to grade, however sharp.</td>
+  </tr>
+  <tr>
+    <td><strong>Red dominance</strong></td>
+    <td>mean(R) − mean(B) ≥ 10</td>
+    <td>A retina is strongly red-dominant — 18 to 110 measured on real fundus images. Walls, skin, paper, screens and grey noise sit near zero. This one test rejects most non-eyes on its own.</td>
+  </tr>
+  <tr>
+    <td><strong>Real texture</strong></td>
+    <td>Laplacian variance ≥ 3.0</td>
+    <td>A thumb over the lens or a flat painted surface is a smooth fill; it can be red and still contain no structure. Every real photograph has texture.</td>
+  </tr>
+</table>
+
+<p>If all four pass, the image is an eye, and a second set of tests asks whether it is a
+  <em>gradable</em> eye:</p>
+
+<table>
+  <tr><th style="width:30%">Quality test</th><th style="width:22%">Accept range</th><th>What the user is told</th></tr>
+  <tr><td>Focus (green channel)</td><td>≥ 12</td><td>"Out of focus — adjust the distance slowly until vessels sharpen."</td></tr>
+  <tr><td>Brightness</td><td>25 – 185</td><td>"Too dark — add light" / "Too bright — reduce the light."</td></tr>
+  <tr><td>Contrast</td><td>≥ 12</td><td>"Low contrast — reduce glare on the lens."</td></tr>
+  <tr><td>Blown-out pixels</td><td>≤ 5%</td><td>Over-exposure; detail in that region is unrecoverable.</td></tr>
+  <tr><td>Centring</td><td>within 35% of centre</td><td>"Centre the retina inside the circle."</td></tr>
+</table>
+
+<h3>4.1 Measured behaviour</h3>
+
+<p>These are actual responses from the running service, not illustrations:</p>
+
+<table>
+  <tr>
+    <th style="width:30%">Pointed at</th>
+    <th style="width:14%">Eye found</th>
+    <th style="width:16%">Quality</th>
+    <th style="width:19%">Grade returned</th>
+    <th>Time</th>
+  </tr>
+  <tr><td>Fundus image, healthy retina</td><td>yes</td><td class="num">97 / 100</td><td>No DR</td><td class="num">0.78 s</td></tr>
+  <tr><td>Fundus image, treated retinopathy</td><td>yes</td><td class="num">90 / 100</td><td>Proliferative</td><td class="num">0.93 s</td></tr>
+  <tr><td>Plain grey wall</td><td><strong>no</strong></td><td class="num">0</td><td><strong>none — refused</strong></td><td class="num">0.023 s</td></tr>
+  <tr><td>Random noise</td><td><strong>no</strong></td><td class="num">0</td><td><strong>none — refused</strong></td><td class="num">0.013 s</td></tr>
+  <tr><td>Hand over the lens</td><td><strong>no</strong></td><td class="num">0</td><td><strong>none — refused</strong></td><td class="num">0.018 s</td></tr>
+</table>
+
+<p>
+  A refused frame returns no grade, no confidence and no probability spread — there is
+  nothing on screen for a person to misread as a result. It returns one sentence instead:
+  <em>"No eye detected — line the lens up with the eye and hold it steady."</em>
+</p>
+
+<div class="callout warn">
+  <p>
+    <strong>If you have seen a score on a non-eye image, this is why.</strong> The gate
+    described above is verified by an automated test suite (11 checks: three real fundus
+    images accepted, and blurred, dark, over-exposed, noise, flat-fill and off-centre frames
+    all refused). Any deployment that predates it will still grade a wall, because the old
+    build had no gate at all — it sent whatever it was given straight to the model, and a
+    softmax over five classes always sums to one, so <em>something</em> always comes back
+    looking like an answer. The presence or absence of this gate is the difference between
+    the two behaviours, not a change in the model.
+  </p>
+</div>
+
+<h2>5. Is an ordinary camera's resolution enough?</h2>
+
+<p>
+  The honest answer has two halves, and the second half is the one that gets left out of most
+  pitches.
+</p>
+
+<h3>5.1 Sensor resolution is not the binding constraint</h3>
+
+<p>
+  The model consumes <strong>224 × 224 pixels</strong>. A 1080p video frame is downsampled to
+  that before it is analysed, and a 12-megapixel still photograph is downsampled far harder.
+  Every mainstream phone from the last decade already delivers more pixels than the pipeline
+  keeps. Buying a higher-megapixel phone changes nothing about the grade.
+</p>
+
+<p>
+  What actually limits image quality, in order of severity: <strong>optics</strong> (can the
+  light path reach the retina at all — see Section 2), <strong>illumination</strong> (coaxial
+  and diffuse, versus an off-axis torch that produces glare), <strong>focus</strong>, and
+  <strong>pupil size</strong>. All four are hardware and technique. None is megapixels.
+</p>
+
+<h3>5.2 What that resolution does cost — stated plainly</h3>
+
+<p>
+  A microaneurysm, the earliest sign of diabetic retinopathy, is roughly
+  <strong>15–60 µm</strong> across. A standard 45° fundus field spans about
+  <strong>10–12 mm</strong> of retina. Compressed into 224 pixels, a single pixel covers
+  roughly <strong>50 µm</strong> — the same order of magnitude as the entire lesion.
+</p>
+
+<p>
+  This is not a detail to hide; it is visible directly in the measured results. On 7,026
+  held-out images the model separates obviously-diseased from obviously-healthy retinas
+  reasonably well, and performs <em>worst</em> on grade 1 (microaneurysms only) — exactly the
+  grade whose defining lesion is at the edge of the resolution it is given. The system is
+  therefore positioned as what the numbers support: a tool for <strong>prioritising who a
+  doctor sees first</strong>, with every result reviewed by a clinician before it becomes
+  advice.
+</p>
+
+<h3>5.3 What is measured</h3>
+
+<table class="kv">
+  <tr><td>Evaluation set</td><td>7,026 held-out images, never seen in training</td></tr>
+  <tr><td>Agreement with human graders</td><td class="num">quadratic weighted kappa 0.364</td></tr>
+  <tr><td>Referral decision</td><td>a threshold on P(grade ≥ 2), not the most likely class</td></tr>
+  <tr><td>At the chosen operating point</td><td class="num"><strong>80% sensitivity, 58% specificity</strong></td></tr>
+  <tr><td>What that trade means</td><td>4 in 5 people with referable disease are caught; about 4 in 10 healthy eyes are referred anyway. Deliberate: a missed case costs sight, an extra appointment costs an hour</td></tr>
+  <tr><td>Not assessed at all</td><td>Diabetic macular oedema — a separate cause of sight loss needing its own examination</td></tr>
+</table>
+
+<div class="callout">
+  <p>
+    <strong>Why report the weaker-sounding number.</strong> Taking the most likely of five
+    grades gives a better-looking specificity (77%) but catches only 65% of referable
+    disease — one in three people who needed a specialist would be told they were fine. A
+    screening programme is judged on sensitivity first. Choosing the threshold deliberately
+    moves it to 80%, and the report says on its face what that costs.
+  </p>
+</div>
+
+<h2 class="pagebreak">6. Getting a real fundus image: what is actually required</h2>
+
+<p>
+  For the detailed retinal assessment — the grade, the heatmap, the referral decision — an
+  image of the retina must reach the platform. There are four routes, and the platform
+  accepts an image from any of them.
+</p>
+
+<h3>Route 1 — Existing image from any source (supported today, zero cost)</h3>
+
+<p>
+  If a retinal photograph already exists — from a hospital visit, a camp, a teleophthalmology
+  service, or a colleague's fundus camera — upload it on the screening page. JPEG or PNG.
+  The quality gate assesses it exactly as it assesses a live frame, so an image too poor to
+  grade is refused rather than quietly graded.
+</p>
+
+<h3>Route 2 — Smartphone + a 20 D condensing lens (₹1,500 – ₹4,000)</h3>
+
+<p>
+  The classic low-cost method, well documented in the ophthalmology literature. A 20-dioptre
+  indirect ophthalmoscopy lens plus a 3D-printed or clip-on holder that fixes the lens at the
+  right distance from the phone.
+</p>
+
+<ol>
+  <li><strong>Dilate the pupil.</strong> Tropicamide 0.5–1% drops, 15–20 minutes.
+    <em>This is a prescription medicine and requires a qualified clinician</em> — it is
+    contraindicated in narrow-angle glaucoma and impairs vision for several hours.</li>
+  <li><strong>Darken the room.</strong> A dilated pupil in a dark room is the whole trick;
+    the aperture is the constraint.</li>
+  <li><strong>Set up the light.</strong> Phone torch on, at its lowest usable level, offset
+    from the lens axis to keep the corneal reflection out of the image.</li>
+  <li><strong>Position.</strong> Phone roughly 30 cm from the eye; 20 D lens about 5 cm from
+    the eye, between phone and patient.</li>
+  <li><strong>Focus and frame.</strong> Tap to focus on the retinal image formed by the lens,
+    not on the lens surface. Move the lens in small increments until the optic disc and the
+    macula are both in the field.</li>
+  <li><strong>Record video, not stills.</strong> Then let the live gate pick the gradable
+    frame — this is precisely the problem the real-time loop was built for.</li>
+</ol>
+
+<p>
+  Expect a learning curve of tens of attempts, a narrower field than a real fundus camera,
+  and a meaningful ungradable rate. It is the cheapest route that genuinely works.
+</p>
+
+<h3>Route 3 — Purpose-built smartphone fundus adapter (₹15,000 – ₹1,50,000)</h3>
+
+<p>
+  Commercial clip-on units — D-EYE, Volk iNview, oDocs visoScope and similar — package the
+  optics, the light path and the phone alignment into one device. Substantially higher
+  success rate than Route 2, several of them usable without dilation, and portable enough for
+  door-to-door screening. This is the realistic sweet spot for a deployed community
+  programme.
+</p>
+
+<h3>Route 4 — Dedicated non-mydriatic fundus camera (₹3,00,000 – ₹15,00,000)</h3>
+
+<p>
+  Remidio Fundus-on-Phone, Forus 3nethra, Zeiss Visuscout, Topcon and equivalents: 45°
+  field, infrared alignment, no dilation needed, consistent illumination, and the image
+  quality the published DR-screening results are actually based on. This is what a district
+  hospital or an established screening programme buys.
+</p>
+
+<table>
+  <tr>
+    <th style="width:24%">Route</th><th style="width:16%">Cost</th>
+    <th style="width:16%">Dilation</th><th style="width:20%">Gradable-image rate</th>
+    <th>Best fit</th>
+  </tr>
+  <tr><td>Existing image</td><td>—</td><td>—</td><td>as supplied</td><td>Anyone with a prior photograph</td></tr>
+  <tr><td>Phone + 20 D lens</td><td>₹1.5k – 4k</td><td>usually required</td><td>low, technique-dependent</td><td>Students, proof of concept, tight budgets</td></tr>
+  <tr><td>Clip-on adapter</td><td>₹15k – 1.5L</td><td>often not needed</td><td>moderate to good</td><td>Community and camp screening</td></tr>
+  <tr><td>Fundus camera</td><td>₹3L – 15L</td><td>not needed</td><td>high</td><td>Hospitals, formal programmes</td></tr>
+</table>
+
+<div class="callout good">
+  <p>
+    <strong>The design consequence.</strong> RetiNova does not require any one of these. The
+    camera-only triage path (Job B) runs on hardware every patient already carries, and gives
+    a doctor a defensible ordering of who to see first. The retinal path (Job A) turns on the
+    moment any of Routes 1–4 supplies an image. The two are independent, so the platform is
+    useful before a single rupee is spent on optics, and better with each step up.
+  </p>
+</div>
+
+<h2>7. How it fits together</h2>
+
+<div class="flow">
+CAMERA-ONLY PATH  (no attachment)          RETINAL PATH  (needs a fundus lens)
+──────────────────────────────────         ──────────────────────────────────
+  phone / laptop camera                      fundus lens, adapter or camera
+          │                                             │
+          ▼                                             ▼
+  ~20 s of video                             live frames  ·  or an upload
+          │                                             │
+          ▼                                             ▼
+  ┌───────────────────┐                      ┌───────────────────────────┐
+  │ pulse   (PPG)     │                      │ EYE PRESENT?   11–23 ms   │
+  │ pupil   (PLR)     │                      │ red · texture · coverage  │
+  │ pallor  (sclera)  │                      └─────────┬─────────────────┘
+  └─────────┬─────────┘                        refuse ◄┘ ► pass
+            │                                             │
+            ▼                                             ▼
+   priority score + reasons                    ┌───────────────────────────┐
+            │                                  │ GRADABLE?  focus, light,  │
+            │                                  │ contrast, centring        │
+            │                                  └─────────┬─────────────────┘
+            │                                    guide ◄─┘ ► pass
+            │                                             │
+            ▼                                             ▼
+   ┌────────────────────┐                        grade 0–4  ·  heatmap
+   │  DOCTOR'S QUEUE    │◄──────────────────────  referral decision
+   │  ordered by risk   │                         (threshold on P ≥ grade 2)
+   └─────────┬──────────┘                                 │
+             │                                            ▼
+             └──────────────► doctor reviews ────► signed report (PDF)
+</div>
+
+<h2>8. Summary</h2>
+
+<ul>
+  <li><strong>Real time is not a demo feature.</strong> It is what rejects unusable frames
+    while the eye is still in front of the camera, what guides a non-specialist operator, and
+    what makes pulse and pupil-reflex measurable at all — none of which a snapshot can do.</li>
+  <li><strong>A non-eye returns nothing.</strong> Four cheap tests refuse it in about 15 ms,
+    before the model runs. Silence is the correct output, and it is the safety property that
+    matters most.</li>
+  <li><strong>Resolution is not the limit; optics are.</strong> The model sees 224 × 224
+    pixels regardless of the sensor. The real limits are the light path and the pupil — and
+    the cost of that resolution is visible and reported, not hidden.</li>
+  <li><strong>A fundus image needs a lens, at any budget from ₹1,500 to ₹15 lakh.</strong>
+    The platform accepts an image from all four routes, and works usefully before any of them
+    is bought.</li>
+  <li><strong>Every result is reviewed by a doctor.</strong> The AI orders the queue; the
+    clinician decides.</li>
+</ul>
+
+<p class="footnote">
+  RetiNova is a screening-support prototype. It is not a diagnostic device, it is not
+  regulator-approved, and no output should be acted on without clinician review. Model
+  performance figures are measured on a public research dataset and would need prospective
+  validation on Indian screening populations before any clinical deployment. Dilating drops
+  are prescription medicines and must be administered by a qualified clinician.
+</p>
+
+</body>
+</html>
