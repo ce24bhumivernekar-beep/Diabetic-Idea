@@ -57,3 +57,6 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+
+# Blueprint sync trigger: the frontend service is created under the name
+# retinova so its hostname matches the product.
