@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import BackLink from "../components/BackLink";
+import LoadingState from "../components/LoadingState";
 import { API_URL, apiError } from "../config";
 import { useAuth } from "../context/auth";
 import useLiveEvents from "../hooks/useLiveEvents";
@@ -11,6 +12,7 @@ function PatientDashboard() {
 
   const [screenings, setScreenings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [waking, setWaking] = useState(false);
   const [error, setError] = useState("");
   const [flash, setFlash] = useState("");
 
@@ -22,6 +24,13 @@ function PatientDashboard() {
 
   useEffect(() => {
     let cancelled = false;
+
+    // Past this point the server is probably asleep rather than slow.
+    const slowTimer = setTimeout(() => {
+      if (!cancelled) {
+        setWaking(true);
+      }
+    }, 20000);
 
     const loadHistory = async () => {
       try {
@@ -72,8 +81,11 @@ function PatientDashboard() {
           );
         }
       } finally {
+        clearTimeout(slowTimer);
+
         if (!cancelled) {
           setLoading(false);
+          setWaking(false);
         }
       }
     };
@@ -82,6 +94,7 @@ function PatientDashboard() {
 
     return () => {
       cancelled = true;
+      clearTimeout(slowTimer);
     };
   }, [patient.id, reloadToken]);
 
@@ -171,9 +184,7 @@ function PatientDashboard() {
         </h2>
 
         {loading && (
-          <p>
-            Loading screening history...
-          </p>
+          <LoadingState label="Loading your screenings" waking={waking} onRetry={reload} />
         )}
 
         {error && (

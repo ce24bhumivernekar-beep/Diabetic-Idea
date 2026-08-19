@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import BackLink from "../components/BackLink";
+import LoadingState from "../components/LoadingState";
 import CameraCapture from "../components/CameraCapture";
 import { API_URL, apiError } from "../config";
 import { useAuth } from "../context/auth";
@@ -13,6 +14,8 @@ function ScreeningPage() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
+  const [waking, setWaking] = useState(false);
+  const [service, setService] = useState(null);
   const [error, setError] = useState("");
 
   // Accepts an image from the file picker, the live camera or the phone
@@ -31,6 +34,29 @@ function ScreeningPage() {
     acceptImage(event.target.files[0]);
   };
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const check = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/health`);
+        const health = await response.json();
+
+        if (!cancelled) {
+          setService(health);
+        }
+      } catch {
+        // A failed health check is not worth blocking the page for.
+      }
+    };
+
+    check();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Release the object URL when it is replaced or the page closes.
   useEffect(() => {
     return () => {
@@ -48,6 +74,8 @@ function ScreeningPage() {
 
     setLoading(true);
     setError("");
+
+    const slowTimer = setTimeout(() => setWaking(true), 20000);
 
     try {
       const token =
@@ -105,7 +133,9 @@ function ScreeningPage() {
         "Could not analyze the image."
       );
     } finally {
+      clearTimeout(slowTimer);
       setLoading(false);
+      setWaking(false);
     }
   };
 
@@ -121,6 +151,14 @@ function ScreeningPage() {
       <p className="subtitle">
         Upload a retinal fundus image for AI-assisted screening
       </p>
+
+      {service && service.aiService !== "UP" && (
+        <p className="report-warning">
+          <strong>The analysis service is still waking up.</strong> Free
+          hosting sleeps after a while. You can set up your capture now - if
+          the first analysis fails, wait a few seconds and try again.
+        </p>
+      )}
 
       <div className="upload-area">
 
@@ -163,6 +201,10 @@ function ScreeningPage() {
             ? "Analyzing..."
             : "Analyse this image"}
         </button>
+
+        {loading && (
+          <LoadingState label="Analysing your image" waking={waking} />
+        )}
 
         {error && (
           <p className="error">

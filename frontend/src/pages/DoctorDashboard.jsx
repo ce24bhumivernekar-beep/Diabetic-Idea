@@ -2,12 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import BackLink from "../components/BackLink";
+import LoadingState from "../components/LoadingState";
 import { API_URL, apiError } from "../config";
 import useLiveEvents from "../hooks/useLiveEvents";
 
 function DoctorDashboard() {
   const [screenings, setScreenings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [waking, setWaking] = useState(false);
   const [error, setError] = useState("");
   const [flash, setFlash] = useState("");
 
@@ -21,6 +23,13 @@ function DoctorDashboard() {
 
   useEffect(() => {
     let cancelled = false;
+
+    // Past this point the server is probably asleep rather than slow.
+    const slowTimer = setTimeout(() => {
+      if (!cancelled) {
+        setWaking(true);
+      }
+    }, 20000);
 
     const loadScreenings = async () => {
       try {
@@ -71,8 +80,11 @@ function DoctorDashboard() {
           );
         }
       } finally {
+        clearTimeout(slowTimer);
+
         if (!cancelled) {
           setLoading(false);
+          setWaking(false);
         }
       }
     };
@@ -81,6 +93,7 @@ function DoctorDashboard() {
 
     return () => {
       cancelled = true;
+      clearTimeout(slowTimer);
     };
   }, [reloadToken]);
 
@@ -173,7 +186,7 @@ function DoctorDashboard() {
       )}
 
       {loading && (
-        <p>Loading screenings...</p>
+        <LoadingState label="Loading the queue" waking={waking} onRetry={reload} />
       )}
 
       {error && (
