@@ -148,10 +148,23 @@ function ScreeningReport({ screening }) {
             ? metrics.testImages.toLocaleString()
             : "held-out"}{" "}
           unseen images: agreement with graders (kappa){" "}
-          {formatNumber(metrics.quadraticWeightedKappa)}, and it catches{" "}
-          {formatPercent(metrics.referableSensitivity)} of referable disease
-          at {formatPercent(metrics.referableSpecificity)} specificity. Useful
-          for prioritising, not accurate enough to decide care on its own.
+          {formatNumber(metrics.quadraticWeightedKappa)}, and at the referral
+          threshold this report uses it catches{" "}
+          {/* The argmax pair describes a decision this report does not make.
+              Quote the operating point that actually decides referral. */}
+          {formatPercent(
+            metrics.screening
+              ? metrics.screening.sensitivityAtThreshold
+              : metrics.referableSensitivity
+          )}{" "}
+          of referable disease at{" "}
+          {formatPercent(
+            metrics.screening
+              ? metrics.screening.specificityAtThreshold
+              : metrics.referableSpecificity
+          )}{" "}
+          specificity. Useful for prioritising, not accurate enough to decide
+          care on its own.
         </p>
       )}
 
@@ -181,12 +194,16 @@ function ScreeningReport({ screening }) {
             </p>
           )}
 
-          <p className="report-eye">
+          <p
+            className={
+              screening.eye ? "report-eye" : "report-eye is-missing"
+            }
+          >
             {screening.eye === "LEFT"
               ? "Left eye (OS)"
               : screening.eye === "RIGHT"
                 ? "Right eye (OD)"
-                : "Eye not recorded"}
+                : "Left or right eye not recorded for this screening"}
           </p>
 
         </div>

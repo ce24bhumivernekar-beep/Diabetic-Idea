@@ -1,6 +1,11 @@
 /* ============================================================
    Print layout
    ------------------------------------------------------------
+   Every rule here is scoped under .print-page. Vite bundles all
+   CSS into one stylesheet, so an unscoped `.report-disclaimer`
+   in this file styled the dark app's captions too - white boxes
+   with pale text, unreadable, on a page nobody was printing.
+   ------------------------------------------------------------
    The app is dark; paper is white. Because index.css funnels
    every colour through :root tokens, redefining a handful of
    them here converts the whole report - no per-component
@@ -73,7 +78,7 @@
   font-size: 15px;
 }
 
-.report-disclaimer {
+.print-page .report-disclaimer {
   margin-top: 26px;
   padding: 16px 18px;
 
@@ -82,20 +87,20 @@
   background: #fff;
 }
 
-.report-disclaimer h3 {
+.print-page .report-disclaimer h3 {
   margin: 0 0 8px;
   font-size: 15px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
-.report-disclaimer p {
+.print-page .report-disclaimer p {
   margin: 0 0 8px;
   font-size: 13.5px;
   line-height: 1.6;
 }
 
-.report-unreviewed {
+.print-page .report-unreviewed {
   margin: 6px 0 0;
   font-weight: 700;
   color: #c0392b;
@@ -105,7 +110,7 @@
   margin-top: 30px;
 }
 
-.signature-line {
+.print-page .signature-line {
   display: flex;
   gap: 40px;
   margin-top: 26px;

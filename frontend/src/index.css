@@ -1644,3 +1644,13 @@ a.back-button {
   border-left: 3px solid var(--line-strong);
   font-size: 13.5px;
 }
+
+/* A screening from before laterality was captured. Stating it plainly, in a
+   muted tone - the previous wording ("Eye not recorded") in the accent colour
+   read as "no eye was detected in the image", which is a different and far
+   more alarming claim. */
+.report-eye.is-missing {
+  color: var(--text-faint);
+  font-weight: 500;
+  font-style: italic;
+}
