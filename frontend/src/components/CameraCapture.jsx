@@ -6,17 +6,11 @@ import LiveReadout from "./LiveReadout";
 /**
  * Camera capture for the screening page.
  *
- * Two paths, because the browser forces the choice:
- *
- *   live   - getUserMedia preview with a shutter button. Only allowed in a
- *            secure context, so localhost or HTTPS. On a phone served over
- *            plain http://192.168.x.x the browser blocks it outright.
- *   native - <input capture="environment"> hands off to the phone camera app
- *            and returns the photo. Works over plain HTTP, so this is the
- *            path that carries a real phone on the local network.
- *
- * The component picks the live path when the browser allows it and falls back
- * to native otherwise; the user can also switch by hand.
+ * One path: a getUserMedia preview with a shutter button, and a live reading
+ * while it runs. Browsers only allow this in a secure context, which the
+ * deployed site is; over plain http the component says so rather than
+ * pretending the camera is available. An existing photo can still be uploaded
+ * from the screening page itself.
  */
 
 function canUseLiveCamera() {
@@ -30,10 +24,6 @@ function canUseLiveCamera() {
 
 function CameraCapture({ onCapture, disabled }) {
   const liveSupported = canUseLiveCamera();
-
-  const [mode, setMode] = useState(
-    liveSupported ? "live" : "native"
-  );
 
   const [streaming, setStreaming] = useState(false);
   const [facing, setFacing] = useState("environment");
@@ -112,15 +102,15 @@ function CameraCapture({ onCapture, disabled }) {
 
       if (name === "NotAllowedError") {
         setError(
-          "Camera permission was denied. Allow it in the browser address bar, or use the phone camera option."
+          "Camera permission was denied. Allow it from the icon in the browser address bar, then start the camera again."
         );
       } else if (name === "NotFoundError") {
         setError(
-          "No camera found on this device. Use the phone camera or file upload option."
+          "No camera found on this device. You can upload an existing photo instead."
         );
       } else {
         setError(
-          "Could not start the camera. Use the phone camera or file upload option."
+          "Could not start the camera. You can upload an existing photo instead."
         );
       }
 
@@ -130,8 +120,8 @@ function CameraCapture({ onCapture, disabled }) {
     }
   }, [facing, stopCamera, live]);
 
-  // Switching cameras and switching modes are user actions, so they are
-  // handled here rather than in an effect that reacts to state.
+  // Flipping between the front and rear camera is a user action, so it is
+  // handled here rather than in an effect reacting to state.
   const switchCamera = async () => {
     const next =
       facing === "environment" ? "user" : "environment";
@@ -140,14 +130,6 @@ function CameraCapture({ onCapture, disabled }) {
 
     if (streaming) {
       await startCamera(next);
-    }
-  };
-
-  const selectMode = (next) => {
-    setMode(next);
-
-    if (next !== "live") {
-      stopCamera();
     }
   };
 
@@ -199,14 +181,6 @@ function CameraCapture({ onCapture, disabled }) {
     stopCamera();
   };
 
-  const handleNativeFile = (event) => {
-    const file = event.target.files && event.target.files[0];
-
-    if (file) {
-      onCapture(file);
-    }
-  };
-
   // ---------------------------------------------------------
   // RENDER
   // ---------------------------------------------------------
@@ -214,44 +188,13 @@ function CameraCapture({ onCapture, disabled }) {
   return (
     <div className="capture">
 
-      <div className="capture-modes">
-
-        <button
-          type="button"
-          className={
-            mode === "live"
-              ? "capture-tab is-active"
-              : "capture-tab"
-          }
-          onClick={() => selectMode("live")}
-          disabled={disabled}
-        >
-          Live camera
-        </button>
-
-        <button
-          type="button"
-          className={
-            mode === "native"
-              ? "capture-tab is-active"
-              : "capture-tab"
-          }
-          onClick={() => selectMode("native")}
-          disabled={disabled}
-        >
-          Phone camera
-        </button>
-
-      </div>
-
-      {mode === "live" && (
-        <div className="capture-live">
+      <div className="capture-live">
 
           {!liveSupported ? (
             <p className="capture-note">
-              This browser will not open the camera in the page because the
-              site is not on HTTPS. Use <strong>Phone camera</strong>, which
-              works over a plain local network address.
+              This browser will not open the camera because the page is not on
+              HTTPS. Open the site over https, or upload an existing photo
+              below.
             </p>
           ) : (
             <>
@@ -343,33 +286,7 @@ function CameraCapture({ onCapture, disabled }) {
             </>
           )}
 
-        </div>
-      )}
-
-      {mode === "native" && (
-        <div className="capture-native">
-
-          <p className="capture-note">
-            Opens the camera app on the phone and brings the photo straight
-            back here.
-          </p>
-
-          <label className="capture-native-button">
-
-            Open phone camera
-
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleNativeFile}
-              disabled={disabled}
-            />
-
-          </label>
-
-        </div>
-      )}
+      </div>
 
       {error && (
         <p className="error">
@@ -377,7 +294,7 @@ function CameraCapture({ onCapture, disabled }) {
         </p>
       )}
 
-      {mode === "live" && streaming && (
+      {streaming && (
         <p className="capture-note capture-live-note">
           The reading above updates continuously and is not stored.
           <strong> Save this scan</strong> records the current frame for a
