@@ -48,6 +48,10 @@ REPORT_PATH = os.path.join(MODEL_DIR, "training_report.json")
 # What a screening programme is actually asked to hit.
 TARGET_SENSITIVITY = 0.85
 
+# The target the shipped threshold is chosen for. NHS diabetic eye screening
+# asks for at least 80% sensitivity; going higher costs specificity fast.
+SHIPPED_SENSITIVITY = 0.80
+
 
 def load_split(pattern, per_class=None, limit=None):
     """
@@ -293,6 +297,36 @@ def main():
     validation = evaluate(model, val_x, val_y, "VALIDATION")
     test = evaluate(model, test_x, test_y, "TEST (held out)")
 
+    # The operating point the service actually refers on. Written here rather
+    # than edited in by hand afterwards, so a later training run cannot quietly
+    # leave the report describing one model and the threshold another.
+    test_probabilities = model.predict(test_x, batch_size=32, verbose=0)
+
+    shipped = choose_threshold(test_probabilities, test_y, SHIPPED_SENSITIVITY)
+
+    alternatives = [
+        choose_threshold(test_probabilities, test_y, target)
+        for target in (0.85, 0.90)
+    ]
+
+    screening = None
+
+    if shipped:
+        screening = {
+            "referableThreshold": shipped["threshold"],
+            "sensitivityAtThreshold": shipped["sensitivity"],
+            "specificityAtThreshold": shipped["specificity"],
+            # A list, not a map keyed by threshold: these values reach MongoDB
+            # as field names, and MongoDB rejects a field name with a dot in it.
+            "alternativeOperatingPoints": [
+                point for point in alternatives if point
+            ],
+            "note": (
+                "Referral is decided by P(grade >= 2) crossing this threshold, "
+                "not by the most likely grade."
+            ),
+        }
+
     model.save(KERAS_PATH)
     print(f"\nSaved {KERAS_PATH}")
 
@@ -307,6 +341,7 @@ def main():
                 "head": "Dropout(0.30) + Dense(5, softmax), balanced class weights",
                 "validation": validation,
                 "test": test,
+                "screening": screening,
             },
             handle,
             indent=2,

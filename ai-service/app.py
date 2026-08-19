@@ -126,6 +126,11 @@ def read_training_report():
         "referableSpecificity": test.get("referableSpecificity"),
         # The operating point actually used to refer, which is the pair of
         # numbers a report should quote - not the argmax pair above.
+        #
+        # Keys here become MongoDB field names when the backend stores the
+        # record, and MongoDB rejects a field name containing a dot - which is
+        # why the alternative operating points are a list of objects rather
+        # than a map keyed by threshold.
         "screening": report.get("screening"),
     }
 

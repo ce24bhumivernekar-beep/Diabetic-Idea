@@ -75,16 +75,18 @@
     "referableThreshold": 0.155,
     "sensitivityAtThreshold": 0.809,
     "specificityAtThreshold": 0.603,
-    "alternativeOperatingPoints": {
-      "0.125": {
+    "alternativeOperatingPoints": [
+      {
+        "threshold": 0.125,
         "sensitivity": 0.852,
         "specificity": 0.525
       },
-      "0.085": {
+      {
+        "threshold": 0.085,
         "sensitivity": 0.907,
         "specificity": 0.395
       }
-    },
+    ],
     "note": "Referral is decided by P(grade >= 2) crossing this threshold, not by the most likely grade. Argmax would give 49.7% sensitivity at 89.1% specificity - better-looking, but it would miss half the referable disease. Measured on 7,026 held-out images."
   }
 }
