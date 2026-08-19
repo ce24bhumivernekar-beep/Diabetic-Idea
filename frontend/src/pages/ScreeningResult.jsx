@@ -1,23 +1,44 @@
+import { Link, useParams } from "react-router-dom";
+
+import BackLink from "../components/BackLink";
 import ScreeningReport from "../components/ScreeningReport";
+import useScreening from "../hooks/useScreening";
 
-function ScreeningResult({ screening, onBack }) {
+function ScreeningResult() {
+  const { id } = useParams();
+  const { screening, loading, error } = useScreening(id);
+
   return (
-    <div className="container">
+    <div className="container screening-result">
 
-      <button
-        className="back-button"
-        onClick={onBack}
-      >
-        ← Dashboard
-      </button>
+      <BackLink to="/patient/dashboard" label="Dashboard" />
 
-      <h1>Screening Result</h1>
+      <h1>Screening result</h1>
 
       <p className="subtitle">
         AI-assisted grading with an explainability heatmap
       </p>
 
-      <ScreeningReport screening={screening} />
+      {loading && <p className="state-note">Loading this screening...</p>}
+
+      {error && <p className="error">{error}</p>}
+
+      {screening && (
+        <>
+          <div className="page-actions">
+            <Link
+              className="nav-button"
+              to={`/print/screenings/${screening.id}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Download report
+            </Link>
+          </div>
+
+          <ScreeningReport screening={screening} />
+        </>
+      )}
 
     </div>
   );

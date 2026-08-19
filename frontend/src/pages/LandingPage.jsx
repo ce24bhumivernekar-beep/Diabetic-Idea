@@ -1,7 +1,14 @@
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import "./LandingPage.css";
 
-function LandingPage({ onPatient, onDoctor }) {
+function LandingPage() {
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const onPatient = () => navigate("/patient/screening");
+  const onDoctor = () => navigate("/doctor/login");
+
   const [pointer, setPointer] = useState({
     x: 0,
     y: 0,
@@ -82,27 +89,27 @@ function LandingPage({ onPatient, onDoctor }) {
 
       <header className="landing-nav">
 
-        {/* Empty left area - DR.VISION removed */}
-
-        <div className="landing-brand-space" />
+        <Link className="landing-brand" to="/">
+          RetiNova
+        </Link>
 
         <nav className="landing-navigation">
 
-          <button className="landing-nav-item active">
+          <Link className="landing-nav-item active" to="/">
             HOME
-          </button>
+          </Link>
 
-          <button className="landing-nav-item">
+          <Link className="landing-nav-item" to="/patient/screening">
             SCREENING
-          </button>
+          </Link>
 
-          <button className="landing-nav-item">
+          <Link className="landing-nav-item" to="/about#ai-analysis">
             AI ANALYSIS
-          </button>
+          </Link>
 
-          <button className="landing-nav-item">
+          <Link className="landing-nav-item" to="/about">
             ABOUT
-          </button>
+          </Link>
 
         </nav>
 
@@ -117,10 +124,9 @@ function LandingPage({ onPatient, onDoctor }) {
 
           <button
             className="landing-menu"
-            onClick={() => {
-              const event = new Event("landing-menu");
-              window.dispatchEvent(event);
-            }}
+            aria-expanded={menuOpen}
+            aria-controls="landing-mobile-menu"
+            onClick={() => setMenuOpen((open) => !open)}
           >
             MENU
 
@@ -132,6 +138,16 @@ function LandingPage({ onPatient, onDoctor }) {
           </button>
 
         </div>
+
+        {menuOpen && (
+          <div className="landing-mobile-menu" id="landing-mobile-menu">
+            <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
+            <Link to="/patient/screening" onClick={() => setMenuOpen(false)}>Screening</Link>
+            <Link to="/about" onClick={() => setMenuOpen(false)}>About</Link>
+            <Link to="/patient/login" onClick={() => setMenuOpen(false)}>Patient sign in</Link>
+            <Link to="/doctor/login" onClick={() => setMenuOpen(false)}>Doctor portal</Link>
+          </div>
+        )}
 
       </header>
 

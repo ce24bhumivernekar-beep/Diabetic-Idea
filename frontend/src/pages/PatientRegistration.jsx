@@ -1,7 +1,13 @@
 import { useState } from "react";
-import { API_URL, apiError } from "../config";
+import { Link, useNavigate } from "react-router-dom";
 
-function PatientRegistration({ onPatientCreated }) {
+import { API_URL, apiError } from "../config";
+import { useAuth } from "../context/auth";
+
+function PatientRegistration() {
+  const { signInPatient } = useAuth();
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     age: "",
@@ -122,8 +128,8 @@ function PatientRegistration({ onPatientCreated }) {
       // -----------------------------------------------------
       // 4. Continue to patient dashboard
       // -----------------------------------------------------
-
-      onPatientCreated(patient);
+      signInPatient(patient);
+      navigate("/patient/dashboard", { replace: true });
 
     } catch (error) {
       console.error(
@@ -241,6 +247,12 @@ function PatientRegistration({ onPatientCreated }) {
         )}
 
       </form>
+
+      <div className="form-links">
+        <Link className="back-button" to="/patient/login">
+          ← Back to patient sign in
+        </Link>
+      </div>
 
     </div>
   );

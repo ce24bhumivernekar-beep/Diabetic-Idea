@@ -1,26 +1,30 @@
 import { useState } from "react";
-import { API_URL, apiError } from "../config";
+import { Link, useParams } from "react-router-dom";
+
+import BackLink from "../components/BackLink";
 import ScreeningReport from "../components/ScreeningReport";
+import { API_URL, apiError } from "../config";
+import useScreening from "../hooks/useScreening";
 
-function DoctorReview({
-  screening,
-  onBack,
-}) {
-  const [decision, setDecision] = useState(
-    screening.doctorDecision || ""
-  );
+function DoctorReview() {
+  const { id } = useParams();
+  const { screening, loading: fetching, error: fetchError } = useScreening(id);
 
-  const [remarks, setRemarks] = useState(
-    screening.doctorRemarks || ""
-  );
+  // Only what the doctor has typed lives in state. Everything else is read
+  // from the record, so nothing has to be copied across when it arrives.
+  const [draft, setDraft] = useState({});
+  const [saved, setSaved] = useState(null);
 
-  const [doctorName, setDoctorName] = useState(
-    screening.reviewedBy || "Dr. Sharma"
-  );
+  const current = saved || screening;
 
-  // The saved screening. Replaced by the server copy after a review is
-  // submitted, so the summary and the report below never disagree.
-  const [current, setCurrent] = useState(screening);
+  const decision = draft.decision ?? current?.doctorDecision ?? "";
+  const remarks = draft.remarks ?? current?.doctorRemarks ?? "";
+  const doctorName = draft.doctorName ?? current?.reviewedBy ?? "Dr. Sharma";
+
+  const setDecision = (value) => setDraft((d) => ({ ...d, decision: value }));
+  const setRemarks = (value) => setDraft((d) => ({ ...d, remarks: value }));
+  const setDoctorName = (value) =>
+    setDraft((d) => ({ ...d, doctorName: value }));
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -97,7 +101,7 @@ function DoctorReview({
         updatedScreening.reviewedBy || doctorName
       );
 
-      setCurrent(updatedScreening);
+      setSaved(updatedScreening);
 
     } catch (error) {
       console.error(
@@ -114,34 +118,47 @@ function DoctorReview({
     }
   };
 
+  if (fetching) {
+    return (
+      <div className="container doctor-review">
+        <BackLink to="/doctor/dashboard" label="Review queue" />
+        <p className="state-note">Loading this screening...</p>
+      </div>
+    );
+  }
+
+  if (fetchError || !current) {
+    return (
+      <div className="container doctor-review">
+        <BackLink to="/doctor/dashboard" label="Review queue" />
+        <p className="error">{fetchError || "Screening not found."}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container doctor-review">
 
-      <button
-        className="back-button"
-        onClick={onBack}
-      >
-        ← Dashboard
-      </button>
+<BackLink to="/doctor/dashboard" label="Review queue" />
 
-      <h1>Doctor Review</h1>
+      <h1>Review screening</h1>
 
       <div className="review-summary">
 
         <h2>
-          {screening.patientName || "Patient"}
-          {screening.patientAge
-            ? ` · ${screening.patientAge}`
+          {current.patientName || "Patient"}
+          {current.patientAge
+            ? ` · ${current.patientAge}`
             : ""}
-          {screening.patientGender
-            ? ` · ${screening.patientGender}`
+          {current.patientGender
+            ? ` · ${current.patientGender}`
             : ""}
         </h2>
 
         <p>
           Patient ID:{" "}
           <strong>
-            {screening.patientId}
+            {current.patientId}
           </strong>
         </p>
 
@@ -217,9 +234,24 @@ function DoctorReview({
         </button>
 
         {message && (
-          <p className="success">
-            {message}
-          </p>
+          <>
+            <p className="success">{message}</p>
+
+            <div className="page-actions">
+              <Link className="nav-button" to="/doctor/dashboard">
+                Back to the review queue
+              </Link>
+
+              <Link
+                className="nav-button"
+                to={`/print/screenings/${current.id}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Download report
+              </Link>
+            </div>
+          </>
         )}
 
         {error && (

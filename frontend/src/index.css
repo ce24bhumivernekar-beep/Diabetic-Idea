@@ -7,6 +7,8 @@
    ============================================================ */
 
 :root {
+  color-scheme: dark;
+
   --bg: #101019;
   --surface: #17171f;
   --surface-2: #1e1e29;
@@ -1180,4 +1182,264 @@ select option {
   .app-role {
     display: none;
   }
+}
+
+/* ============================================================
+   Gaps found by auditing every className against this file
+   ============================================================ */
+
+/* Chrome paints autofilled inputs white with its own dark text - the single
+   most visible way the dark theme used to break. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-2) inset;
+  box-shadow: 0 0 0 1000px var(--surface-2) inset;
+  caret-color: var(--text);
+  transition: background-color 100000s ease-in-out 0s;
+}
+
+.doctor-dashboard,
+.doctor-review,
+.screening-result,
+.about-page {
+  /* modifiers on .container - they exist to be targeted, not to restyle */
+  position: relative;
+}
+
+.prob-name {
+  color: inherit;
+}
+
+.report-headline-main {
+  min-width: 0;
+}
+
+.capture-live {
+  margin-top: 4px;
+}
+
+/* ---------------- breadcrumbs ---------------- */
+
+.breadcrumbs {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 14px 22px 0;
+}
+
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+.breadcrumbs a {
+  color: var(--text-dim);
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.breadcrumbs [aria-current="page"] {
+  color: var(--text);
+}
+
+.breadcrumb-sep {
+  margin-left: 8px;
+  color: var(--line-strong);
+}
+
+/* ---------------- links that act as buttons ---------------- */
+
+.nav-button,
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+a.nav-button,
+a.back-button {
+  text-decoration: none;
+}
+
+.action-button {
+  padding: 12px 22px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.action-button:hover {
+  background: var(--accent-hover);
+}
+
+.nav-button.is-current {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.back-link {
+  display: inline-flex;
+  margin-bottom: 18px;
+}
+
+.page-actions,
+.form-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-expanded {
+  flex-basis: 100%;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+/* ---------------- loading and empty states ---------------- */
+
+.state-note {
+  margin: 18px 0;
+  padding: 16px 18px;
+
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+
+  color: var(--text-dim);
+  font-size: 14.5px;
+}
+
+.state-note a {
+  color: var(--accent);
+}
+
+/* ---------------- triage additions ---------------- */
+
+.triage-step-button {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.queue-count {
+  margin-left: 10px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  color: var(--text-dim);
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.screening-card.priority-urgent,
+.doctor-card.priority-urgent { border-left-color: var(--grade-4); }
+.screening-card.priority-high,
+.doctor-card.priority-high { border-left-color: var(--grade-3); }
+.screening-card.priority-moderate,
+.doctor-card.priority-moderate { border-left-color: var(--grade-2); }
+.screening-card.priority-routine,
+.doctor-card.priority-routine { border-left-color: var(--grade-0); }
+
+/* ---------------- about page ---------------- */
+
+.about-section {
+  margin: 28px 0;
+  padding: 22px 24px;
+
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.about-section h2 {
+  margin-top: 0;
+}
+
+.about-section p {
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.about-caution {
+  padding: 14px 16px;
+  border-left: 4px solid var(--warn);
+  border-radius: 8px;
+  background: rgba(217, 163, 36, 0.08);
+  color: #e6cf9a !important;
+}
+
+/* ---------------- landing additions ---------------- */
+
+.landing-brand {
+  min-width: 250px;
+  color: var(--text);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.landing-mobile-menu {
+  position: absolute;
+  top: 88px;
+  right: 20px;
+  z-index: 40;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  padding: 10px;
+  min-width: 220px;
+
+  background: var(--surface-2);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.landing-mobile-menu a {
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.landing-mobile-menu a:hover {
+  background: var(--surface-3);
+  color: var(--text);
 }

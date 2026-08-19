@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+import BackLink from "../components/BackLink";
 import { API_URL, apiError } from "../config";
+import { useAuth } from "../context/auth";
 import useLiveEvents from "../hooks/useLiveEvents";
 
-function PatientDashboard({
-  patient,
-  onStartScreening,
-  onStartTriage,
-  onViewResult,
-}) {
+function PatientDashboard() {
+  const { patient } = useAuth();
+
   const [screenings, setScreenings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -115,6 +116,8 @@ function PatientDashboard({
   return (
     <div className="container dashboard">
 
+      <BackLink to="/" label="Home" />
+
       <h1>Patient Dashboard</h1>
 
       <div className="patient-info">
@@ -130,13 +133,17 @@ function PatientDashboard({
 
         <div className="dashboard-actions">
 
-          <button onClick={onStartScreening}>
+          <Link className="action-button" to="/patient/screening">
             Live retinal screening (camera)
-          </button>
+          </Link>
 
-          <button onClick={onStartTriage}>
+          <Link className="action-button" to="/patient/triage">
             Camera health check (pulse, pupil, eyelid)
-          </button>
+          </Link>
+
+          <Link className="nav-button" to="/patient/triage/history">
+            Health check history
+          </Link>
 
         </div>
 
@@ -218,13 +225,12 @@ function PatientDashboard({
 
               </div>
 
-              <button
-                onClick={() =>
-                  onViewResult(screening)
-                }
+              <Link
+                className="nav-button"
+                to={`/patient/screenings/${screening.id}`}
               >
                 View full report
-              </button>
+              </Link>
 
             </div>
           ))}

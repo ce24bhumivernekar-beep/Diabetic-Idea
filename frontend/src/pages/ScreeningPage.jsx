@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
-import { API_URL, apiError } from "../config";
-import CameraCapture from "../components/CameraCapture";
-import ScreeningReport from "../components/ScreeningReport";
+import { useNavigate } from "react-router-dom";
 
-function ScreeningPage({
-  patient,
-  onBack,
-}) {
+import BackLink from "../components/BackLink";
+import CameraCapture from "../components/CameraCapture";
+import { API_URL, apiError } from "../config";
+import { useAuth } from "../context/auth";
+
+function ScreeningPage() {
+  const { patient } = useAuth();
+  const navigate = useNavigate();
+
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
-  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -22,7 +24,6 @@ function ScreeningPage({
 
     setFile(selectedFile);
     setError("");
-    setResult(null);
     setPreview(URL.createObjectURL(selectedFile));
   };
 
@@ -47,7 +48,6 @@ function ScreeningPage({
 
     setLoading(true);
     setError("");
-    setResult(null);
 
     try {
       const token =
@@ -92,7 +92,7 @@ function ScreeningPage({
       const screening =
         JSON.parse(responseText);
 
-      setResult(screening);
+      navigate(`/patient/screenings/${screening.id}`, { replace: true });
 
     } catch (error) {
       console.error(
@@ -112,12 +112,7 @@ function ScreeningPage({
   return (
     <div className="container">
 
-      <button
-        className="back-button"
-        onClick={onBack}
-      >
-        ← Dashboard
-      </button>
+<BackLink to="/patient/dashboard" label="Dashboard" />
 
       <h1>
         Diabetic Retinopathy Screening
@@ -177,15 +172,7 @@ function ScreeningPage({
 
       </div>
 
-      {result && (
-        <div className="screening-result">
 
-          <h2>Screening Result</h2>
-
-          <ScreeningReport screening={result} />
-
-        </div>
-      )}
 
     </div>
   );

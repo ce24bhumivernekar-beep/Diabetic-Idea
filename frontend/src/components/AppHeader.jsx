@@ -1,22 +1,33 @@
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
+import { homeFor, useAuth } from "../context/auth";
+
 /**
- * The bar that sits on every screen except the landing page.
+ * The bar on every screen, landing page included.
  *
- * It exists because the app had no way back: each page carried its own
- * ad-hoc "Back" button, there was no route home, and signing out was only
- * reachable from a dashboard.
+ * It exists because the app had no way back: each page carried its own ad-hoc
+ * back button, nothing routed home, and signing out was only reachable from a
+ * dashboard - so a signed-in user who reached the landing page was stuck.
  */
-function AppHeader({ role, onHome, onDashboard, onLogout }) {
+function AppHeader() {
+  const { role, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  const onAuthPage = /\/(login|register)$/.test(pathname);
+
+  const leave = () => {
+    signOut();
+    navigate("/", { replace: true });
+  };
+
   return (
     <header className="app-header">
 
-      <button
-        className="app-brand"
-        onClick={onHome}
-        title="Home"
-      >
+      <Link className="app-brand" to="/" title="Home">
         <span className="app-brand-mark">◎</span>
-        Retinal Screening
-      </button>
+        RetiNova
+      </Link>
 
       <span className="app-header-spacer" />
 
@@ -27,23 +38,41 @@ function AppHeader({ role, onHome, onDashboard, onLogout }) {
       )}
 
       <nav>
-        <button className="nav-button" onClick={onHome}>
+        <Link
+          className={
+            pathname === "/" ? "nav-button is-current" : "nav-button"
+          }
+          to="/"
+        >
           Home
-        </button>
+        </Link>
 
-        {onDashboard && (
-          <button className="nav-button" onClick={onDashboard}>
+        <Link className="nav-button" to="/about">
+          About
+        </Link>
+
+        {role && (
+          <Link className="nav-button" to={homeFor(role)}>
             Dashboard
-          </button>
+          </Link>
         )}
 
-        {onLogout && (
+        {role && (
           <button
+            type="button"
             className="nav-button is-danger"
-            onClick={onLogout}
+            onClick={leave}
           >
             Sign out
           </button>
+        )}
+
+        {/* Hidden on the auth pages themselves: a header "Sign in" next to a
+            "Sign in" submit button is two different actions with one name. */}
+        {!role && !onAuthPage && (
+          <Link className="nav-button" to="/patient/login">
+            Sign in
+          </Link>
         )}
       </nav>
 

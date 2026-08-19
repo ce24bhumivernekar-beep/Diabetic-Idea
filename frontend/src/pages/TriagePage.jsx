@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+import BackLink from "../components/BackLink";
 import { API_URL, apiError, authHeaders } from "../config";
+import { useAuth } from "../context/auth";
 
 /**
  * Camera-only screening.
@@ -49,7 +52,10 @@ async function readResult(response, fallback) {
   return JSON.parse(text);
 }
 
-function TriagePage({ patient, onBack }) {
+function TriagePage() {
+  const { patient } = useAuth();
+  const navigate = useNavigate();
+
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
@@ -57,7 +63,6 @@ function TriagePage({ patient, onBack }) {
   const [ppg, setPpg] = useState(null);
   const [plr, setPlr] = useState(null);
   const [pallor, setPallor] = useState(null);
-  const [assessment, setAssessment] = useState(null);
 
   const [progress, setProgress] = useState(0);
   const [torchOn, setTorchOn] = useState(false);
@@ -444,7 +449,7 @@ function TriagePage({ patient, onBack }) {
         "Could not record the assessment."
       );
 
-      setAssessment(result);
+      navigate(`/patient/triage/${result.id}`);
     } catch (submitError) {
       setError(submitError.message || "Could not record the assessment.");
     } finally {
@@ -465,72 +470,6 @@ function TriagePage({ patient, onBack }) {
   // RESULT
   // ---------------------------------------------------------
 
-  if (assessment) {
-    return (
-      <div className="container">
-
-        <button className="back-button" onClick={onBack}>
-          ← Dashboard
-        </button>
-
-        <h1>Screening priority</h1>
-
-        <div
-          className={
-            "triage-result priority-" +
-            assessment.priority.toLowerCase()
-          }
-        >
-
-          <span className="report-eyebrow">recommended priority</span>
-
-          <h2>{assessment.priority}</h2>
-
-          <p className="triage-within">
-            Retinal exam within{" "}
-            <strong>{assessment.recommendedWithin}</strong>
-          </p>
-
-          <p className="triage-score">
-            Risk score {assessment.score} / 100
-          </p>
-
-        </div>
-
-        <div className="report-section">
-
-          <h3>What went into it</h3>
-
-          <ul className="triage-reasons">
-            {assessment.reasons.map((reason) => (
-              <li key={reason}>{reason}</li>
-            ))}
-          </ul>
-
-          {assessment.measurementsSkipped.length > 0 && (
-            <>
-              <h3>Not counted</h3>
-
-              <ul className="triage-reasons is-muted">
-                {assessment.measurementsSkipped.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </>
-          )}
-
-        </div>
-
-        <p className="capture-hint">
-          This is a queue position, not a diagnosis. It says how soon someone
-          should look at your retina - it cannot tell whether you have
-          retinopathy, because a phone camera alone cannot see the retina.
-        </p>
-
-      </div>
-    );
-  }
-
   // ---------------------------------------------------------
   // STEPS
   // ---------------------------------------------------------
@@ -542,9 +481,7 @@ function TriagePage({ patient, onBack }) {
 
       {screenFlash && <div className="screen-flash" />}
 
-      <button className="back-button" onClick={onBack}>
-        ← Dashboard
-      </button>
+      <BackLink to="/patient/dashboard" label="Dashboard" />
 
       <h1>Camera screening</h1>
 
@@ -564,7 +501,20 @@ function TriagePage({ patient, onBack }) {
                   : ""
             }
           >
-            {item.title}
+            {index <= step ? (
+              <button
+                type="button"
+                className="triage-step-button"
+                onClick={() => {
+                  stopCamera();
+                  setStep(index);
+                }}
+              >
+                {item.title}
+              </button>
+            ) : (
+              item.title
+            )}
           </li>
         ))}
       </ol>

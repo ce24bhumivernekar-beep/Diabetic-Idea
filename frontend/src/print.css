@@ -1,0 +1,206 @@
+/* ============================================================
+   Print layout
+   ------------------------------------------------------------
+   The app is dark; paper is white. Because index.css funnels
+   every colour through :root tokens, redefining a handful of
+   them here converts the whole report - no per-component
+   overrides needed.
+   ============================================================ */
+
+.print-page {
+  background: #fff;
+  color: #111;
+  min-height: 100vh;
+}
+
+.print-report {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 26px 60px;
+}
+
+.print-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding-bottom: 14px;
+  border-bottom: 2px solid #111;
+}
+
+.print-header h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+}
+
+.print-kicker {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.print-generated {
+  margin: 0;
+  font-size: 12px;
+  color: #555;
+  white-space: nowrap;
+}
+
+.print-patient {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px 22px;
+
+  margin: 18px 0 10px;
+  padding: 14px 16px;
+
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  background: #f7f7f9;
+}
+
+.print-patient span {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.print-patient strong {
+  font-size: 15px;
+}
+
+.report-disclaimer {
+  margin-top: 26px;
+  padding: 16px 18px;
+
+  border: 2px solid #111;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.report-disclaimer h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.report-disclaimer p {
+  margin: 0 0 8px;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.report-unreviewed {
+  margin: 6px 0 0;
+  font-weight: 700;
+  color: #c0392b;
+}
+
+.print-signature {
+  margin-top: 30px;
+}
+
+.signature-line {
+  display: flex;
+  gap: 40px;
+  margin-top: 26px;
+}
+
+.signature-line span {
+  flex: 1;
+  border-top: 1px solid #333;
+  padding-top: 6px;
+  font-size: 12px;
+  color: #555;
+}
+
+/* ============================================================
+   The print pass itself
+   ============================================================ */
+
+@page {
+  size: A4;
+  margin: 14mm;
+}
+
+@media print {
+
+  /* One block re-themes the entire report. */
+  :root {
+    --bg: #fff;
+    --surface: #fff;
+    --surface-2: #fff;
+    --surface-3: #eee;
+    --line: #ccc;
+    --line-strong: #999;
+    --text: #111;
+    --text-dim: #333;
+    --text-faint: #555;
+  }
+
+  body,
+  .app,
+  .print-page {
+    background: #fff !important;
+  }
+
+  /* Nothing that belongs to the application belongs on paper. */
+  .app-header,
+  .breadcrumbs,
+  .back-button,
+  .back-link,
+  .page-actions,
+  .nav-button,
+  .live-bar,
+  .print-actions {
+    display: none !important;
+  }
+
+  /* Bars and grade colours are the data, and browsers drop backgrounds
+     by default - without this the report prints as empty outlines. */
+  .prob-fill,
+  .prob-track,
+  .report-headline,
+  .review-box,
+  .triage-result,
+  .print-patient,
+  .report-unreviewed {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Keep a row, a figure or a section from being cut in half. */
+  .report-section,
+  .image-panel,
+  .prob-row,
+  .review-box,
+  .report-disclaimer,
+  .print-patient,
+  .triage-result {
+    break-inside: avoid;
+  }
+
+  .images {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* The on-screen frame is a fixed 240px box, which letterboxes on paper. */
+  .image-frame {
+    height: auto;
+    background: #fff;
+    border: 1px solid #bbb;
+  }
+
+  .image-frame img {
+    max-height: 62mm;
+  }
+
+  a[href]::after {
+    content: none;
+  }
+}

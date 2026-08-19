@@ -1,24 +1,30 @@
 import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
 import { API_URL, apiError } from "../config";
+import { useAuth } from "../context/auth";
 
-function PatientLogin({
-  onLoginSuccess,
-  onRegister,
-  onBack,
-}) {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-
+function PatientLogin() {
+  const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const { signInPatient } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  /**
+   * Where to land after signing in. A guard that bounced someone here stores
+   * the page they wanted in location.state; a plain link from the landing page
+   * carries no router state, so ?next= is honoured too.
+   */
+  const destination =
+    location.state?.from?.pathname ||
+    new URLSearchParams(location.search).get("next") ||
+    "/patient/dashboard";
+
   const handleChange = (event) => {
-    setForm({
-      ...form,
-      [event.target.name]: event.target.value,
-    });
+    setForm({ ...form, [event.target.name]: event.target.value });
   };
 
   const loginPatient = async (event) => {
@@ -28,95 +34,53 @@ function PatientLogin({
     setError("");
 
     try {
-      const loginResponse = await fetch(
-        `${API_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: form.email.trim(),
-            password: form.password,
-          }),
-        }
-      );
+      const loginResponse = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
 
       const loginText = await loginResponse.text();
 
       if (!loginResponse.ok) {
-        throw new Error(apiError(loginText, "Login failed."));
+        throw new Error(apiError(loginText, "Sign in failed."));
       }
 
       const user = JSON.parse(loginText);
 
       if (user.role !== "PATIENT") {
-        throw new Error(
-          "This account is not registered as a patient."
-        );
+        throw new Error("This account is registered as a doctor.");
       }
 
       if (!user.token) {
-        throw new Error(
-          "Login succeeded but no authentication token was received."
-        );
+        throw new Error("Signed in but no authentication token was returned.");
       }
 
-      localStorage.setItem(
-        "authToken",
-        user.token
-      );
-
-      localStorage.setItem(
-        "userRole",
-        user.role
-      );
-
-      localStorage.setItem(
-        "userId",
-        user.id
-      );
-
-      localStorage.setItem(
-        "userEmail",
-        user.email
-      );
-
-      const token =
-        localStorage.getItem("authToken");
+      localStorage.setItem("authToken", user.token);
+      localStorage.setItem("userRole", user.role);
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("userEmail", user.email);
 
       const patientResponse = await fetch(
         `${API_URL}/api/patients/user/${user.id}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${user.token}` } }
       );
 
-      const patientText =
-        await patientResponse.text();
+      const patientText = await patientResponse.text();
 
       if (!patientResponse.ok) {
         throw new Error(apiError(patientText, "Patient profile not found."));
       }
 
-      const patient =
-        JSON.parse(patientText);
+      signInPatient(JSON.parse(patientText));
 
-      onLoginSuccess(patient);
-
-    } catch (error) {
-      console.error(
-        "Patient login error:",
-        error
-      );
-
-      setError(
-        error.message ||
-        "Could not login."
-      );
+      navigate(destination, { replace: true });
+    } catch (signInError) {
+      console.error("Patient sign in error:", signInError);
+      setError(signInError.message || "Could not sign in.");
     } finally {
       setLoading(false);
     }
@@ -131,10 +95,7 @@ function PatientLogin({
         Sign in to run a screening and see your results.
       </p>
 
-      <form
-        onSubmit={loginPatient}
-        className="patient-form"
-      >
+      <form onSubmit={loginPatient} className="patient-form">
 
         <input
           type="email"
@@ -154,36 +115,23 @@ function PatientLogin({
           required
         />
 
-        <button
-          type="submit"
-          disabled={loading}
-        >
-          {loading
-            ? "Signing in..."
-            : "Sign in"}
+        <button type="submit" disabled={loading}>
+          {loading ? "Signing in..." : "Sign in"}
         </button>
 
-        {error && (
-          <p className="error">
-            {error}
-          </p>
-        )}
+        {error && <p className="error">{error}</p>}
 
       </form>
 
-      <button
-        className="back-button"
-        onClick={onRegister}
-      >
-        Create a patient account
-      </button>
+      <div className="form-links">
+        <Link className="back-button" to="/patient/register">
+          Create a patient account
+        </Link>
 
-      <button
-        className="back-button"
-        onClick={onBack}
-      >
-        ← Back
-      </button>
+        <Link className="back-button" to="/">
+          ← Home
+        </Link>
+      </div>
 
     </div>
   );

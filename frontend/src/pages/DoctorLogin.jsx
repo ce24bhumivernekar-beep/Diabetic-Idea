@@ -1,24 +1,25 @@
 import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
 import { API_URL, apiError } from "../config";
+import { useAuth } from "../context/auth";
 
-function DoctorLogin({
-  onLoginSuccess,
-  onRegister,
-  onBack,
-}) {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-
+function DoctorLogin() {
+  const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const { signInDoctor } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const destination =
+    location.state?.from?.pathname ||
+    new URLSearchParams(location.search).get("next") ||
+    "/doctor/dashboard";
+
   const handleChange = (event) => {
-    setForm({
-      ...form,
-      [event.target.name]: event.target.value,
-    });
+    setForm({ ...form, [event.target.name]: event.target.value });
   };
 
   const loginDoctor = async (event) => {
@@ -28,72 +29,43 @@ function DoctorLogin({
     setError("");
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: form.email.trim(),
-            password: form.password,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
 
-      const responseText = await response.text();
+      const text = await response.text();
 
       if (!response.ok) {
-        throw new Error(apiError(responseText, "Login failed."));
+        throw new Error(apiError(text, "Sign in failed."));
       }
 
-      const doctor = JSON.parse(responseText);
+      const user = JSON.parse(text);
 
-      if (doctor.role !== "DOCTOR") {
-        throw new Error(
-          "This account is not registered as a doctor."
-        );
+      if (user.role !== "DOCTOR") {
+        throw new Error("This account is registered as a patient.");
       }
 
-      if (!doctor.token) {
-        throw new Error(
-          "Login succeeded but no authentication token was received."
-        );
+      if (!user.token) {
+        throw new Error("Signed in but no authentication token was returned.");
       }
 
-      localStorage.setItem(
-        "authToken",
-        doctor.token
-      );
+      localStorage.setItem("authToken", user.token);
+      localStorage.setItem("userRole", user.role);
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("userEmail", user.email);
 
-      localStorage.setItem(
-        "userRole",
-        doctor.role
-      );
+      // A doctor has no patient profile to fetch - the account is the identity.
+      signInDoctor(user);
 
-      localStorage.setItem(
-        "userId",
-        doctor.id
-      );
-
-      localStorage.setItem(
-        "userEmail",
-        doctor.email
-      );
-
-      onLoginSuccess(doctor);
-
-    } catch (error) {
-      console.error(
-        "Doctor login error:",
-        error
-      );
-
-      setError(
-        error.message ||
-        "Could not login."
-      );
+      navigate(destination, { replace: true });
+    } catch (signInError) {
+      console.error("Doctor sign in error:", signInError);
+      setError(signInError.message || "Could not sign in.");
     } finally {
       setLoading(false);
     }
@@ -104,19 +76,14 @@ function DoctorLogin({
 
       <h1>Doctor sign in</h1>
 
-      <p className="subtitle">
-        Sign in to review patient screenings.
-      </p>
+      <p className="subtitle">Sign in to review patient screenings.</p>
 
-      <form
-        onSubmit={loginDoctor}
-        className="patient-form"
-      >
+      <form onSubmit={loginDoctor} className="patient-form">
 
         <input
           type="email"
           name="email"
-          placeholder="Doctor Email"
+          placeholder="Email"
           value={form.email}
           onChange={handleChange}
           required
@@ -131,36 +98,23 @@ function DoctorLogin({
           required
         />
 
-        <button
-          type="submit"
-          disabled={loading}
-        >
-          {loading
-            ? "Signing in..."
-            : "Sign in"}
+        <button type="submit" disabled={loading}>
+          {loading ? "Signing in..." : "Sign in"}
         </button>
 
-        {error && (
-          <p className="error">
-            {error}
-          </p>
-        )}
+        {error && <p className="error">{error}</p>}
 
       </form>
 
-      <button
-        className="back-button"
-        onClick={onRegister}
-      >
-        Create a doctor account
-      </button>
+      <div className="form-links">
+        <Link className="back-button" to="/doctor/register">
+          Create a doctor account
+        </Link>
 
-      <button
-        className="back-button"
-        onClick={onBack}
-      >
-        ← Back
-      </button>
+        <Link className="back-button" to="/">
+          ← Home
+        </Link>
+      </div>
 
     </div>
   );

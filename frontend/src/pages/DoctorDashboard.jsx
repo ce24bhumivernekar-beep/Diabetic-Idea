@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+import BackLink from "../components/BackLink";
 import { API_URL, apiError } from "../config";
 import useLiveEvents from "../hooks/useLiveEvents";
 
-function DoctorDashboard({ onReview }) {
+function DoctorDashboard() {
   const [screenings, setScreenings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -123,11 +126,19 @@ function DoctorDashboard({ onReview }) {
   return (
     <div className="container doctor-dashboard">
 
+      <BackLink to="/" label="Home" />
+
       <h1>Doctor Dashboard</h1>
 
       <p className="subtitle">
         Screenings arrive here the moment a patient submits one
       </p>
+
+      <div className="dashboard-actions">
+        <Link className="action-button" to="/doctor/triage">
+          Camera triage queue
+        </Link>
+      </div>
 
       <div className="live-bar">
 
@@ -235,13 +246,12 @@ function DoctorDashboard({ onReview }) {
 
                     </div>
 
-                    <button
-                      onClick={() =>
-                        onReview(screening)
-                      }
+                    <Link
+                      className="nav-button"
+                      to={`/doctor/screenings/${screening.id}`}
                     >
                       Review
-                    </button>
+                    </Link>
 
                   </div>
                 )
@@ -310,13 +320,12 @@ function DoctorDashboard({ onReview }) {
 
                     </div>
 
-                    <button
-                      onClick={() =>
-                        onReview(screening)
-                      }
+                    <Link
+                      className="nav-button"
+                      to={`/doctor/screenings/${screening.id}`}
                     >
                       View
-                    </button>
+                    </Link>
 
                   </div>
                 )
