@@ -1,4 +1,4 @@
-import { generatedImageUrl } from "../config";
+import { screeningImageUrl } from "../config";
 
 /**
  * The full read-out of one screening: grade, what it means, the probability
@@ -58,17 +58,17 @@ const GRADES = [
 
 const IMAGE_PANELS = [
   {
-    key: "originalImagePath",
+    kind: "original",
     title: "Uploaded image",
     caption: "The fundus photograph as received.",
   },
   {
-    key: "heatmapPath",
+    kind: "heatmap",
     title: "Grad-CAM heatmap",
     caption: "Red marks the regions that most influenced the grade.",
   },
   {
-    key: "overlayPath",
+    kind: "overlay",
     title: "Heatmap overlay",
     caption: "The heatmap blended over the retina.",
   },
@@ -258,12 +258,12 @@ function ScreeningReport({ screening }) {
         <div className="images">
 
           {IMAGE_PANELS.map((panel) => {
-            const source = generatedImageUrl(screening[panel.key]);
+            const source = screeningImageUrl(screening.id, panel.kind);
 
             return (
               <figure
                 className="image-panel"
-                key={panel.key}
+                key={panel.kind}
               >
 
                 <h4>{panel.title}</h4>

@@ -3,6 +3,8 @@ package diabetic_retinopathy_backend.model;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,6 +15,24 @@ public class Screening {
     private String id;
 
     private String patientId;
+
+    /**
+     * The pictures themselves, stored with the record.
+     *
+     * They used to live on the AI service's local disk, which is recreated on
+     * every restart - so any screening older than the running container lost
+     * its images while this document went on pointing at them. Marked
+     * JsonIgnore so a list of screenings does not carry megabytes of base64;
+     * they are fetched one at a time from /api/screenings/{id}/image/{kind}.
+     */
+    @JsonIgnore
+    private byte[] originalImage;
+
+    @JsonIgnore
+    private byte[] heatmapImage;
+
+    @JsonIgnore
+    private byte[] overlayImage;
 
     private String originalImagePath;
 
@@ -63,6 +83,30 @@ public class Screening {
 
     public void setPatientId(String patientId) {
         this.patientId = patientId;
+    }
+
+    public byte[] getOriginalImage() {
+        return originalImage;
+    }
+
+    public void setOriginalImage(byte[] originalImage) {
+        this.originalImage = originalImage;
+    }
+
+    public byte[] getHeatmapImage() {
+        return heatmapImage;
+    }
+
+    public void setHeatmapImage(byte[] heatmapImage) {
+        this.heatmapImage = heatmapImage;
+    }
+
+    public byte[] getOverlayImage() {
+        return overlayImage;
+    }
+
+    public void setOverlayImage(byte[] overlayImage) {
+        this.overlayImage = overlayImage;
     }
 
     public String getOriginalImagePath() {

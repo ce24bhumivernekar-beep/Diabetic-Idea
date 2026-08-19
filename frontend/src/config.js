@@ -36,14 +36,26 @@ export function getFileName(path) {
   return String(path).split(/[\\/]/).pop();
 }
 
-export function generatedImageUrl(path) {
-  const fileName = getFileName(path);
-
-  if (!fileName) {
+/**
+ * Where a screening's pictures come from.
+ *
+ * They are served by the API from the record itself, not from the AI
+ * service's disk - that filesystem is recreated on every restart, so older
+ * screenings used to show broken images. An <img> cannot send an
+ * Authorization header, so the token rides in the query string, which the API
+ * allows for this route only.
+ */
+export function screeningImageUrl(screeningId, kind) {
+  if (!screeningId) {
     return "";
   }
 
-  return `${AI_URL}/generated/${fileName}`;
+  const token = authToken();
+
+  return (
+    `${API_URL}/api/screenings/${screeningId}/image/${kind}` +
+    (token ? `?token=${encodeURIComponent(token)}` : "")
+  );
 }
 
 export function authToken() {

@@ -16,6 +16,7 @@ public class AiPredictionResponse {
 
     private Map<String, Object> modelMetrics;
 
+    /** Base64 JPEG, not a path - see Screening. */
     private String originalImage;
 
     private String heatmap;

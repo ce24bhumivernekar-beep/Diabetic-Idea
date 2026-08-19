@@ -1,9 +1,14 @@
 package diabetic_retinopathy_backend.controller;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -97,18 +102,6 @@ public class ScreeningController {
 
         screening.setPatientId(patientId);
 
-        screening.setOriginalImagePath(
-                aiResponse.getOriginalImage()
-        );
-
-        screening.setHeatmapPath(
-                aiResponse.getHeatmap()
-        );
-
-        screening.setOverlayPath(
-                aiResponse.getOverlay()
-        );
-
         screening.setPrediction(
                 aiResponse.getPrediction()
         );
@@ -124,6 +117,12 @@ public class ScreeningController {
         screening.setProbabilities(
                 aiResponse.getProbabilities()
         );
+
+        // The AI service returns the pictures inline; store them, because its
+        // own filesystem does not survive a restart.
+        screening.setOriginalImage(decode(aiResponse.getOriginalImage()));
+        screening.setHeatmapImage(decode(aiResponse.getHeatmap()));
+        screening.setOverlayImage(decode(aiResponse.getOverlay()));
 
         // Carry the honesty flag: placeholder weights must be visible in the UI.
         screening.setModelTrained(aiResponse.isModelTrained());
@@ -178,6 +177,79 @@ public class ScreeningController {
         }
 
         return aiServiceClient.predictLive(file, heatmap);
+    }
+
+    /**
+     * One image from one screening.
+     *
+     * A browser cannot put an Authorization header on an <img> tag, so this
+     * route also accepts the token as a query parameter - the same allowance
+     * the event stream already has, and nowhere else.
+     */
+    @GetMapping("/{id}/image/{kind}")
+    public ResponseEntity<byte[]> image(
+            @PathVariable String id,
+            @PathVariable String kind,
+            @RequestAttribute("userId") String userId,
+            @RequestAttribute("userRole") String userRole) {
+
+        Screening screening = screeningRepository
+                .findById(id)
+                .orElseThrow(
+                        () -> ApiException.notFound("Screening not found.")
+                );
+
+        // Doctors may see any screening; a patient only their own.
+        if (!"DOCTOR".equals(userRole)) {
+
+            Patient patient = patientRepository
+                    .findById(screening.getPatientId())
+                    .orElseThrow(
+                            () -> ApiException.notFound("Patient not found.")
+                    );
+
+            if (!userId.equals(patient.getUserId())) {
+                throw ApiException.forbidden(
+                        "You are not authorized to view this image."
+                );
+            }
+        }
+
+        byte[] data = switch (kind) {
+            case "original" -> screening.getOriginalImage();
+            case "heatmap" -> screening.getHeatmapImage();
+            case "overlay" -> screening.getOverlayImage();
+            default -> throw ApiException.badRequest(
+                    "Unknown image: " + kind
+            );
+        };
+
+        if (data == null || data.length == 0) {
+            throw ApiException.notFound(
+                    "This screening was taken before images were stored with "
+                            + "the record, so its pictures are no longer available."
+            );
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .cacheControl(
+                        CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate()
+                )
+                .body(data);
+    }
+
+    private byte[] decode(String base64) {
+
+        if (base64 == null || base64.isBlank()) {
+            return null;
+        }
+
+        try {
+            return Base64.getDecoder().decode(base64);
+        } catch (IllegalArgumentException error) {
+            return null;
+        }
     }
 
     @GetMapping("/patient/{patientId}")

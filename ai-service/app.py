@@ -29,7 +29,6 @@ import base64
 import json
 import os
 import time
-import uuid
 
 import cv2
 import numpy as np
@@ -74,7 +73,11 @@ ALLOWED_ORIGINS = os.getenv(
 
 # Saved images are capped on the long edge: a 12MP phone photo would otherwise
 # cost far more in PNG encoding than in inference.
-MAX_SAVED_EDGE = int(os.getenv("MAX_SAVED_EDGE", "1024"))
+MAX_SAVED_EDGE = int(os.getenv("MAX_SAVED_EDGE", "900"))
+
+# Small enough that three per screening sit inside a free database tier, large
+# enough to read a retina.
+JPEG_QUALITY = int(os.getenv("JPEG_QUALITY", "82"))
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -405,41 +408,35 @@ async def predict(
         0
     )
 
-    image_id = str(uuid.uuid4())
+    def encode(image):
+        """
+        The images travel back in the response instead of being written to
+        disk. A container filesystem does not survive a restart, so every
+        screening older than the current instance used to lose its pictures
+        while the database went on pointing at them.
 
-    names = {
-        "original": f"{image_id}_original.png",
-        "heatmap": f"{image_id}_heatmap.png",
-        "overlay": f"{image_id}_overlay.png",
-    }
+        JPEG rather than PNG: these are photographs, and three of them per
+        screening have to fit comfortably in a free database tier.
+        """
 
-    cv2.imwrite(
-        os.path.join(OUTPUT_DIR, names["original"]),
-        original_image
-    )
+        ok, buffer = cv2.imencode(
+            ".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY]
+        )
 
-    cv2.imwrite(
-        os.path.join(OUTPUT_DIR, names["heatmap"]),
-        colored_heatmap
-    )
+        if not ok:
+            return None
 
-    cv2.imwrite(
-        os.path.join(OUTPUT_DIR, names["overlay"]),
-        overlay
-    )
-
-    render_ms = (time.perf_counter() - render_started) * 1000
+        return base64.b64encode(buffer.tobytes()).decode("ascii")
 
     result = summarise(predictions)
 
-    # Forward slashes always, so the same value builds a URL on any host.
     result.update({
-        "originalImage": f"{OUTPUT_DIR}/{names['original']}",
-        "heatmap": f"{OUTPUT_DIR}/{names['heatmap']}",
-        "overlay": f"{OUTPUT_DIR}/{names['overlay']}",
+        "originalImage": encode(original_image),
+        "heatmap": encode(colored_heatmap),
+        "overlay": encode(overlay),
         "timings": {
             "inferenceMs": round(inference_ms, 1),
-            "renderMs": round(render_ms, 1),
+            "renderMs": round((time.perf_counter() - render_started) * 1000, 1),
             "totalMs": round((time.perf_counter() - started) * 1000, 1),
         },
     })

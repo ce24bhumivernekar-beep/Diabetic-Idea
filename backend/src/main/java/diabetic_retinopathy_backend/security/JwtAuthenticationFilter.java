@@ -156,7 +156,13 @@ public class JwtAuthenticationFilter
             return authHeader.substring(7);
         }
 
-        if (isPrefix(request.getRequestURI(), "/api/events")) {
+        // An <img> tag cannot carry an Authorization header, so screening
+        // images may present the token in the query string, as the event
+        // stream does. Deliberately limited to these two paths.
+        String uri = request.getRequestURI();
+
+        if (isPrefix(uri, "/api/events")
+                || (uri.startsWith("/api/screenings/") && uri.contains("/image/"))) {
 
             String queryToken =
                     request.getParameter("token");
