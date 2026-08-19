@@ -1497,3 +1497,75 @@ a.back-button {
   margin-top: 20px;
   color: var(--accent);
 }
+
+/* ============================================================
+   Live camera framing guide
+   ============================================================ */
+
+.camera-target {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 68%;
+  aspect-ratio: 1;
+
+  border: 2px dashed rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+
+  pointer-events: none;
+  transition: border-color 0.25s ease;
+}
+
+.camera-target.is-searching { border-color: rgba(255, 255, 255, 0.35); }
+.camera-target.is-adjusting { border-color: var(--warn); }
+.camera-target.is-ready {
+  border-color: var(--ok);
+  border-style: solid;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.18);
+}
+
+.camera-guidance {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.62);
+
+  text-align: center;
+  pointer-events: none;
+}
+
+.camera-guidance p {
+  margin: 0;
+  color: #fff;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.camera-guidance.is-ready p { color: #9fe3bd; }
+.camera-guidance.is-adjusting p { color: #f0d79a; }
+.camera-guidance.is-searching p { color: #f3b4ae; }
+
+.camera-quality {
+  display: block;
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.report-warning.is-critical {
+  border-left-color: var(--danger);
+  background: rgba(192, 57, 43, 0.12);
+  color: #f3b4ae;
+}
+
+.report-quality {
+  margin: 0 0 18px;
+  color: var(--text-faint);
+  font-size: 13px;
+}

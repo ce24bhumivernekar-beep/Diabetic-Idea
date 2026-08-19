@@ -53,6 +53,13 @@ public class Screening {
 
     private Map<String, Object> modelMetrics;
 
+    /**
+     * Whether the image was gradable, and why not when it was not. A grade
+     * from an ungradable photograph is the most dangerous output this system
+     * can produce, so the verdict travels with the record and onto the report.
+     */
+    private Map<String, Object> quality;
+
     private String status;
 
     private LocalDateTime createdAt;
@@ -171,6 +178,14 @@ public class Screening {
 
     public void setModelMetrics(Map<String, Object> modelMetrics) {
         this.modelMetrics = modelMetrics;
+    }
+
+    public Map<String, Object> getQuality() {
+        return quality;
+    }
+
+    public void setQuality(Map<String, Object> quality) {
+        this.quality = quality;
     }
 
     public boolean isModelTrained() {

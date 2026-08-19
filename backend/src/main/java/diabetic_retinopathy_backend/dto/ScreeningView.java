@@ -41,6 +41,8 @@ public class ScreeningView {
 
     private Map<String, Object> modelMetrics;
 
+    private Map<String, Object> quality;
+
     private String status;
 
     private LocalDateTime createdAt;
@@ -70,6 +72,7 @@ public class ScreeningView {
         view.probabilities = screening.getProbabilities();
         view.modelTrained = screening.isModelTrained();
         view.modelMetrics = screening.getModelMetrics();
+        view.quality = screening.getQuality();
         view.status = screening.getStatus();
         view.createdAt = screening.getCreatedAt();
         view.doctorDecision = screening.getDoctorDecision();
@@ -136,6 +139,10 @@ public class ScreeningView {
 
     public Map<String, Object> getModelMetrics() {
         return modelMetrics;
+    }
+
+    public Map<String, Object> getQuality() {
+        return quality;
     }
 
     public boolean isModelTrained() {

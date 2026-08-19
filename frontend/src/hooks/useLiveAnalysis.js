@@ -68,6 +68,7 @@ export function useLiveAnalysis(videoRef, { withHeatmap = false } = {}) {
   const [latencyMs, setLatencyMs] = useState(0);
   const [frames, setFrames] = useState(0);
   const [error, setError] = useState("");
+  const [quality, setQuality] = useState(null);
 
   const runningRef = useRef(false);
   const canvasRef = useRef(null);
@@ -161,6 +162,25 @@ export function useLiveAnalysis(videoRef, { withHeatmap = false } = {}) {
             break;
           }
 
+          // No retina in the frame: show the framing guidance and hold the
+          // last grade rather than averaging in a reading of a wall.
+          if (result.ok === false) {
+            setQuality(result.quality || null);
+            setFrames((count) => count + 1);
+            setLatencyMs(Math.round(performance.now() - startedAt));
+            setError("");
+
+            const gap = MIN_GAP_MS - (performance.now() - startedAt);
+
+            if (gap > 0) {
+              await new Promise((resolve) => setTimeout(resolve, gap));
+            }
+
+            continue;
+          }
+
+          setQuality(result.quality || null);
+
           if (result.heatmapInline) {
             heatmapRef.current = result.heatmapInline;
           }
@@ -224,12 +244,14 @@ export function useLiveAnalysis(videoRef, { withHeatmap = false } = {}) {
     samplesRef.current = [];
     heatmapRef.current = "";
     setReading(null);
+    setQuality(null);
     setFrames(0);
   }, []);
 
   return {
     running,
     reading,
+    quality,
     fps,
     latencyMs,
     frames,

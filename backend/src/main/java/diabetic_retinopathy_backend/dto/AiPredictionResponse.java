@@ -16,6 +16,9 @@ public class AiPredictionResponse {
 
     private Map<String, Object> modelMetrics;
 
+    /** Gradability verdict: was there an eye, and was it good enough. */
+    private Map<String, Object> quality;
+
     /** Base64 JPEG, not a path - see Screening. */
     private String originalImage;
 
@@ -72,6 +75,14 @@ public class AiPredictionResponse {
 
     public void setModelMetrics(Map<String, Object> modelMetrics) {
         this.modelMetrics = modelMetrics;
+    }
+
+    public Map<String, Object> getQuality() {
+        return quality;
+    }
+
+    public void setQuality(Map<String, Object> quality) {
+        this.quality = quality;
     }
 
     public String getOriginalImage() {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import useLiveAnalysis from "../hooks/useLiveAnalysis";
+import CameraGuide from "./CameraGuide";
 import LiveReadout from "./LiveReadout";
 
 /**
@@ -217,6 +218,8 @@ function CameraCapture({ onCapture, disabled }) {
                     camera off
                   </span>
                 )}
+
+                {streaming && <CameraGuide quality={live.quality} />}
               </div>
 
               {streaming && (
@@ -244,7 +247,15 @@ function CameraCapture({ onCapture, disabled }) {
                     <button
                       type="button"
                       onClick={captureFrame}
-                      disabled={disabled}
+                      disabled={
+                        disabled ||
+                        (live.quality ? !live.quality.gradable : false)
+                      }
+                      title={
+                        live.quality && !live.quality.gradable
+                          ? live.quality.guidance
+                          : "Record this frame for a doctor to review"
+                      }
                     >
                       Save this scan
                     </button>

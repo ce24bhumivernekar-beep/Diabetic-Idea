@@ -37,6 +37,7 @@ from fastapi import Body, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
+from quality import assess as assess_quality
 from signals import analyze_pallor, analyze_plr, analyze_ppg
 
 # ============================================================
@@ -325,6 +326,21 @@ async def predict_live(
 
     image = decode_image(await file.read())
 
+    quality = assess_quality(image)
+
+    # Nothing to grade if there is no retina in the frame. Returning a
+    # confident grade for a picture of a wall or a thumb is exactly the
+    # failure this gate exists to prevent, and on the live view it is also
+    # what tells the patient how to move.
+    if not quality["eyeDetected"]:
+        return {
+            "ok": False,
+            "quality": quality,
+            "timings": {
+                "totalMs": round((time.perf_counter() - started) * 1000, 1)
+            },
+        }
+
     model_input = to_model_input(image)
 
     decoded_ms = (time.perf_counter() - started) * 1000
@@ -341,6 +357,9 @@ async def predict_live(
     inference_ms = (time.perf_counter() - inference_started) * 1000
 
     result = summarise(predictions)
+
+    result["ok"] = True
+    result["quality"] = quality
 
     if cam is not None:
 
@@ -383,6 +402,11 @@ async def predict(
     original_image = limit_size(
         decode_image(await file.read())
     )
+
+    # Judge the photograph before grading it. The verdict is stored with the
+    # screening either way - a grade nobody could have made from this image
+    # must not reach a report looking authoritative.
+    quality = assess_quality(original_image)
 
     model_input = to_model_input(original_image)
 
@@ -430,6 +454,8 @@ async def predict(
 
     result = summarise(predictions)
 
+    result["quality"] = quality
+
     result.update({
         "originalImage": encode(original_image),
         "heatmap": encode(colored_heatmap),
@@ -449,6 +475,15 @@ async def predict(
 # None of these look at the retina. They measure what a bare phone camera can
 # actually see, to decide who needs a retinal exam first.
 # ============================================================
+
+
+@app.post("/quality")
+async def image_quality(file: UploadFile = File(...)):
+    """Is there an eye here, and is it good enough to grade?"""
+
+    check_content_type(file)
+
+    return assess_quality(decode_image(await file.read()))
 
 
 @app.post("/triage/ppg")

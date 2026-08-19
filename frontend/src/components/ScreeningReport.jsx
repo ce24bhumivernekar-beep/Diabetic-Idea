@@ -110,8 +110,25 @@ function ScreeningReport({ screening }) {
 
   const metrics = screening.modelMetrics || null;
 
+  const quality = screening.quality || null;
+
   return (
     <div className="report">
+
+      {quality && quality.gradable === false && (
+        <p className="report-warning is-critical">
+          <strong>Image quality: not gradable.</strong>{" "}
+          {(quality.reasons || []).join(" ")} A grade from an image this
+          quality cannot be relied on - repeat the photograph before acting on
+          anything below.
+        </p>
+      )}
+
+      {quality && quality.gradable && (
+        <p className="report-quality">
+          Image quality {quality.quality}/100 - gradable.
+        </p>
+      )}
 
       {screening.modelTrained === false && (
         <p className="report-warning">

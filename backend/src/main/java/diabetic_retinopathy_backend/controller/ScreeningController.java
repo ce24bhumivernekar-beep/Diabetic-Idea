@@ -127,6 +127,7 @@ public class ScreeningController {
         // Carry the honesty flag: placeholder weights must be visible in the UI.
         screening.setModelTrained(aiResponse.isModelTrained());
         screening.setModelMetrics(aiResponse.getModelMetrics());
+        screening.setQuality(aiResponse.getQuality());
 
         // AI result is only a suggestion until a doctor signs it off.
         screening.setStatus("PENDING_REVIEW");
