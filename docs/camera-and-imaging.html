@@ -445,6 +445,62 @@
   The software organises. Neither replaces the other, and neither replaces the doctor.
 </p>
 
+<h2><span class="q">Appendix</span>Where the data came from</h2>
+
+<p>
+  The first question anyone technical asks. All of it is public, and all of it is linked.
+</p>
+
+<h3>What the model learned from</h3>
+
+<table class="kv">
+  <tr><td>Dataset</td><td><strong>youssefedweqd/Diabetic_Retinopathy_Detection</strong> on HuggingFace<br />
+    <span style="font-size:9pt;color:#4b5563">huggingface.co/datasets/youssefedweqd/Diabetic_Retinopathy_Detection</span></td></tr>
+  <tr><td>Licence</td><td><strong>MIT</strong> - free to use, including commercially</td></tr>
+  <tr><td>Size</td><td class="num">35,126 retinal photographs: 25,290 to train on, 2,810 to tune with,
+    7,026 locked away for testing</td></tr>
+  <tr><td>Labels</td><td>Each image already carried a grade from 0 to 4, assigned by human graders on the
+    international scale that clinicians use</td></tr>
+  <tr><td>Where it really comes from</td><td>Almost certainly <strong>EyePACS</strong> - the images behind
+    the 2015 Kaggle diabetic retinopathy competition, whose training set is exactly 35,126 images with the
+    same labels. The person who re-uploaded it did not say so, so this is a strong inference rather than a
+    documented fact, and it is stated that way on purpose</td></tr>
+  <tr><td>The catch</td><td class="num">18,583 of the training images are healthy eyes and only 509 are the
+    most severe grade. Real screening data looks like this, and it is why the model is judged on
+    sensitivity rather than accuracy</td></tr>
+</table>
+
+<h3>What it was tested against - images it had never seen</h3>
+
+<p>
+  Testing a model on data collected the same way as its training data flatters it. So the finished model,
+  unchanged, was run against two entirely separate public datasets from other countries and other cameras.
+</p>
+
+<table>
+  <tr><th style="width:26%">Dataset</th><th style="width:14%">Licence</th><th style="width:12%">Images</th><th>Why this one</th></tr>
+  <tr>
+    <td><strong>IDRiD</strong><br /><span style="font-size:9pt">amin-nejad/idrid-disease-grading</span></td>
+    <td>CC-BY-4.0</td><td class="num">516</td>
+    <td><strong>Indian patients</strong>, photographed on a Kowa camera in Nanded, Maharashtra. The closest
+      public data to the population this project is built for</td>
+  </tr>
+  <tr>
+    <td><strong>Messidor-2</strong><br /><span style="font-size:9pt">sngsfydy/Messidor2</span></td>
+    <td>not stated</td><td class="num">1,744</td>
+    <td>French patients, Topcon camera. The dataset most published DR papers benchmark against</td>
+  </tr>
+</table>
+
+<div class="answer good">
+  <p class="lead">Nothing was retrained and no setting was adjusted before those tests.</p>
+  <p>
+    On the Indian dataset the model caught <strong>308 of 323</strong> cases that needed a specialist -
+    95.4% - and on the French one, 82.9%. That is the evidence that it learned what a diseased retina looks
+    like, rather than what one particular camera looks like.
+  </p>
+</div>
+
 <p class="footnote">
   RetiNova is a screening-support prototype. It is not a diagnostic device, it is not
   regulator-approved, and no output should be acted on without clinician review. The
