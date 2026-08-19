@@ -205,10 +205,11 @@
 <h3>Result 1 — A grade for a retinal image, when one is available</h3>
 <table class="kv">
   <tr><td>Tested on</td><td class="num">7,026 retinal images the model had never seen</td></tr>
-  <tr><td>Agreement with human graders</td><td class="num">kappa 0.364 (moderate; humans agree with each other around 0.80)</td></tr>
-  <tr><td>Catches referable disease</td><td class="num"><strong>80 out of every 100 cases</strong></td></tr>
-  <tr><td>Correctly clears healthy eyes</td><td class="num"><strong>58 out of every 100</strong></td></tr>
+  <tr><td>Agreement with human graders</td><td class="num">kappa 0.425 (moderate; two human graders agree with each other around 0.80)</td></tr>
+  <tr><td>Catches referable disease</td><td class="num"><strong>81 out of every 100 cases</strong></td></tr>
+  <tr><td>Correctly clears healthy eyes</td><td class="num"><strong>60 out of every 100</strong></td></tr>
   <tr><td>Meaning</td><td>1 in 5 real cases is still missed, and 4 in 10 healthy people get sent for a check they did not need. Deliberately tuned that way: an unnecessary appointment costs an hour, a missed case costs eyesight</td></tr>
+  <tr><td>Why not tune it the other way</td><td>Letting the model pick its single most likely grade would look better on paper - 89 healthy eyes in 100 correctly cleared - while catching only 50 of every 100 real cases. Half the people who needed a specialist would be told they were fine</td></tr>
   <tr><td>Does not look for</td><td>Diabetic macular oedema — a separate cause of blindness needing its own examination. The report says so on its face</td></tr>
 </table>
 
@@ -216,15 +217,16 @@
 <p>Measured responses from the live service:</p>
 <table>
   <tr><th style="width:32%">Camera pointed at</th><th style="width:20%">Quality score</th><th style="width:26%">Grade given</th><th>Time taken</th></tr>
-  <tr><td>Healthy retina</td><td class="num">97 / 100</td><td>No DR</td><td class="num">0.78 s</td></tr>
-  <tr><td>Retina with treated disease</td><td class="num">90 / 100</td><td>Proliferative</td><td class="num">0.93 s</td></tr>
-  <tr><td>A plain wall</td><td class="num">0</td><td><strong>none — refused</strong></td><td class="num">0.02 s</td></tr>
-  <tr><td>A hand over the lens</td><td class="num">0</td><td><strong>none — refused</strong></td><td class="num">0.02 s</td></tr>
-  <tr><td>Random noise</td><td class="num">0</td><td><strong>none — refused</strong></td><td class="num">0.01 s</td></tr>
+  <tr><td>Healthy retina</td><td class="num">97 / 100</td><td>graded</td><td class="num">0.80 s</td></tr>
+  <tr><td>Retina with treated disease</td><td class="num">90 / 100</td><td>graded, referred</td><td class="num">0.93 s</td></tr>
+  <tr><td>A plain wall</td><td class="num">0</td><td><strong>none — refused</strong></td><td class="num">0.023 s</td></tr>
+  <tr><td>A hand over the lens</td><td class="num">0</td><td><strong>none — refused</strong></td><td class="num">0.018 s</td></tr>
+  <tr><td>Random noise</td><td class="num">0</td><td><strong>none — refused</strong></td><td class="num">0.013 s</td></tr>
 </table>
 <p>
-  Refusing is <strong>fifty times faster</strong> than grading, which is exactly why it can run
-  on every single frame. Eleven automated tests hold this behaviour in place: three real
+  Refusing is <strong>fifty times faster</strong> than grading — those are server timings; over
+  the internet add roughly a third of a second of travel either way. That gap is exactly why the
+  check can afford to run on every single frame. Eleven automated tests hold this behaviour in place: three real
   retinal images must be accepted, and blurred, dark, over-exposed, flat, noisy and off-centre
   frames must all be refused.
 </p>
@@ -243,7 +245,9 @@
   doctor's screen within a second, with no page refresh → the doctor writes a decision →
   the patient sees it and downloads a signed PDF report. Seventeen automated checks run this
   entire sequence against the live site, including generating the PDF and verifying it
-  contains the patient's name, the grade and the disclaimer.
+  contains the patient's name, the grade and the disclaimer. A further 22 checks walk every
+  page, link and button, and 7 confirm a signed-in patient is never shown a doctor's door.
+  All of them pass against the deployed site, not a local copy.
 </p>
 
 <h2><span class="q">Question 5</span>Are we actually helping doctors and patients? How?</h2>
