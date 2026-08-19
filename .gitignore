@@ -42,3 +42,5 @@ ai-service/venv-serve/
 
 # Backup of records removed during data hygiene - contains patient rows
 ai-service/data/deleted-records-backup.json
+ai-service/data/external/
+ai-service/data/cache/
