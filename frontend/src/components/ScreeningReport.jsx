@@ -220,6 +220,19 @@ function ScreeningReport({ screening }) {
               : "No referral indicated"}
           </h3>
 
+          {screening.referable && screening.classId < 2 && (
+            <p className="referral-note">
+              The most likely single grade above is below the referral line, but
+              the model still puts{" "}
+              {typeof screening.referableProbability === "number"
+                ? `${(screening.referableProbability * 100).toFixed(0)}%`
+                : "enough"}{" "}
+              of its confidence on grade 2 or worse. A screening tool acts on
+              that total, not on the single winning label - which is exactly the
+              case argmax would have let through.
+            </p>
+          )}
+
           <p>
             {referral
               ? `Decided by a threshold set to catch ${Math.round(

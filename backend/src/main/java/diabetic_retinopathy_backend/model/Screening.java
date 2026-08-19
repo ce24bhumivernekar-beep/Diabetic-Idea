@@ -70,6 +70,9 @@ public class Screening {
     /** Whether a specialist should see this person, and the cut behind it. */
     private Boolean referable;
 
+    /** P(grade >= 2) - the number the referral threshold is applied to. */
+    private Double referableProbability;
+
     private Map<String, Object> referralBasis;
 
     private String status;
@@ -200,6 +203,14 @@ public class Screening {
         this.eye = eye;
     }
 
+
+    public Double getReferableProbability() {
+        return referableProbability;
+    }
+
+    public void setReferableProbability(Double referableProbability) {
+        this.referableProbability = referableProbability;
+    }
 
     public Boolean getReferable() {
         return referable;

@@ -124,6 +124,9 @@ def read_training_report():
         "quadraticWeightedKappa": test.get("quadraticWeightedKappa"),
         "referableSensitivity": test.get("referableSensitivity"),
         "referableSpecificity": test.get("referableSpecificity"),
+        # The operating point actually used to refer, which is the pair of
+        # numbers a report should quote - not the argmax pair above.
+        "screening": report.get("screening"),
     }
 
 

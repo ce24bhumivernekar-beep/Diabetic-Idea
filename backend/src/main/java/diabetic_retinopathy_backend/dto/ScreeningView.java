@@ -48,6 +48,9 @@ public class ScreeningView {
     /** Whether a specialist should see this person, and the cut behind it. */
     private Boolean referable;
 
+    /** P(grade >= 2) - the number the referral threshold is applied to. */
+    private Double referableProbability;
+
     private Map<String, Object> referralBasis;
 
     private String status;
@@ -82,6 +85,7 @@ public class ScreeningView {
         view.modelMetrics = screening.getModelMetrics();
         view.quality = screening.getQuality();
         view.referable = screening.getReferable();
+        view.referableProbability = screening.getReferableProbability();
         view.referralBasis = screening.getReferralBasis();
         view.status = screening.getStatus();
         view.createdAt = screening.getCreatedAt();
@@ -155,6 +159,14 @@ public class ScreeningView {
         return eye;
     }
 
+
+    public Double getReferableProbability() {
+        return referableProbability;
+    }
+
+    public void setReferableProbability(Double referableProbability) {
+        this.referableProbability = referableProbability;
+    }
 
     public Boolean getReferable() {
         return referable;

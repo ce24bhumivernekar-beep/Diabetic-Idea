@@ -1637,3 +1637,10 @@ a.back-button {
   border-left-color: var(--grade-0);
   background: rgba(63, 164, 106, 0.09);
 }
+
+.referral-note {
+  margin: 0 0 8px;
+  padding-left: 12px;
+  border-left: 3px solid var(--line-strong);
+  font-size: 13.5px;
+}

@@ -134,6 +134,7 @@ public class ScreeningController {
         screening.setModelMetrics(aiResponse.getModelMetrics());
         screening.setQuality(aiResponse.getQuality());
         screening.setReferable(aiResponse.getReferable());
+        screening.setReferableProbability(aiResponse.getReferableProbability());
         screening.setReferralBasis(aiResponse.getReferralBasis());
 
         // AI result is only a suggestion until a doctor signs it off.

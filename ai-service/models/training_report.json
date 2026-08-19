@@ -1,154 +1,90 @@
 {
   "dataset": "youssefedweqd/Diabetic_Retinopathy_Detection (MIT)",
-  "trainImages": 25290,
+  "trainImages": 7896,
   "validationImages": 2810,
   "testImages": 7026,
-  "backbone": "EfficientNetB0 imagenet, frozen",
+  "backbone": "EfficientNetB0, last 100 layers fine-tuned (12 epochs requested, early-stopped at 4, best weights from epoch 2)",
   "head": "Dropout(0.30) + Dense(5, softmax), balanced class weights",
   "validation": {
-    "accuracy": 0.5445,
-    "quadraticWeightedKappa": 0.4213,
-    "referableSensitivity": 0.6818,
-    "referableSpecificity": 0.7934,
+    "accuracy": 0.4751,
+    "quadraticWeightedKappa": 0.4654,
+    "referableSensitivity": 0.52,
+    "referableSpecificity": 0.8969,
+    "screeningThreshold": {
+      "threshold": 0.125,
+      "sensitivity": 0.8527,
+      "specificity": 0.527
+    },
     "perClass": {
       "No DR": {
-        "recall": 0.6029,
-        "precision": 0.8592,
+        "recall": 0.5162,
         "support": 2065
       },
       "Mild": {
-        "recall": 0.2923,
-        "precision": 0.1098,
+        "recall": 0.5436,
         "support": 195
       },
       "Moderate": {
-        "recall": 0.3617,
-        "precision": 0.3054,
+        "recall": 0.2222,
         "support": 423
       },
       "Severe": {
-        "recall": 0.4571,
-        "precision": 0.1893,
+        "recall": 0.3571,
         "support": 70
       },
       "Proliferative": {
-        "recall": 0.7544,
-        "precision": 0.25,
+        "recall": 0.7719,
         "support": 57
       }
-    },
-    "confusion": [
-      [
-        1245,
-        395,
-        296,
-        63,
-        66
-      ],
-      [
-        96,
-        57,
-        30,
-        7,
-        5
-      ],
-      [
-        101,
-        62,
-        153,
-        59,
-        48
-      ],
-      [
-        6,
-        5,
-        17,
-        32,
-        10
-      ],
-      [
-        1,
-        0,
-        5,
-        8,
-        43
-      ]
-    ]
+    }
   },
   "test": {
-    "accuracy": 0.5078,
-    "quadraticWeightedKappa": 0.3641,
-    "referableSensitivity": 0.6495,
-    "referableSpecificity": 0.7746,
+    "accuracy": 0.4431,
+    "quadraticWeightedKappa": 0.4254,
+    "referableSensitivity": 0.4975,
+    "referableSpecificity": 0.8908,
+    "screeningThreshold": {
+      "threshold": 0.125,
+      "sensitivity": 0.8524,
+      "specificity": 0.5254
+    },
     "perClass": {
       "No DR": {
-        "recall": 0.569,
-        "precision": 0.8464,
+        "recall": 0.4814,
         "support": 5162
       },
       "Mild": {
-        "recall": 0.2883,
-        "precision": 0.1015,
+        "recall": 0.5133,
         "support": 489
       },
       "Moderate": {
-        "recall": 0.3223,
-        "precision": 0.2706,
+        "recall": 0.2051,
         "support": 1058
       },
       "Severe": {
-        "recall": 0.3486,
-        "precision": 0.1442,
+        "recall": 0.3371,
         "support": 175
       },
       "Proliferative": {
-        "recall": 0.6197,
-        "precision": 0.1818,
+        "recall": 0.7113,
         "support": 142
       }
-    },
-    "confusion": [
-      [
-        2937,
-        1068,
-        777,
-        151,
-        229
-      ],
-      [
-        231,
-        141,
-        81,
-        18,
-        18
-      ],
-      [
-        281,
-        164,
-        341,
-        164,
-        108
-      ],
-      [
-        15,
-        12,
-        46,
-        61,
-        41
-      ],
-      [
-        6,
-        4,
-        15,
-        29,
-        88
-      ]
-    ]
+    }
   },
   "screening": {
-    "referableThreshold": 0.354,
-    "sensitivityAtThreshold": 0.8,
-    "specificityAtThreshold": 0.584,
-    "note": "Referral uses a threshold on P(grade>=2) rather than the most likely grade. Screening asks whether a specialist should see this person, not which of five grades is most probable; the cut is set to the 80% sensitivity a screening programme is expected to reach, and costs specificity accordingly."
+    "referableThreshold": 0.155,
+    "sensitivityAtThreshold": 0.809,
+    "specificityAtThreshold": 0.603,
+    "alternativeOperatingPoints": {
+      "0.125": {
+        "sensitivity": 0.852,
+        "specificity": 0.525
+      },
+      "0.085": {
+        "sensitivity": 0.907,
+        "specificity": 0.395
+      }
+    },
+    "note": "Referral is decided by P(grade >= 2) crossing this threshold, not by the most likely grade. Argmax would give 49.7% sensitivity at 89.1% specificity - better-looking, but it would miss half the referable disease. Measured on 7,026 held-out images."
   }
 }
