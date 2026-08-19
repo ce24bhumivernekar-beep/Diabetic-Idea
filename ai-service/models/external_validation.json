@@ -56,28 +56,17 @@
       "4": 35
     },
     "quadraticWeightedKappa": 0.5487,
-    "atShippedThreshold": {
-      "threshold": 0.155,
-      "sensitivity": 0.829,
-      "specificity": 0.514,
-      "confusion": {
-        "tp": 379,
-        "fn": 78,
-        "tn": 661,
-        "fp": 626
-      }
-    },
     "perClass": {
       "No DR": {
-        "recall": 0.844,
+        "recall": 0.8437,
         "support": 1017
       },
       "Mild": {
-        "recall": 0.104,
+        "recall": 0.1037,
         "support": 270
       },
       "Moderate": {
-        "recall": 0.21,
+        "recall": 0.2104,
         "support": 347
       },
       "Severe": {
@@ -87,6 +76,17 @@
       "Proliferative": {
         "recall": 0.4,
         "support": 35
+      }
+    },
+    "atShippedThreshold": {
+      "threshold": 0.155,
+      "sensitivity": 0.8293,
+      "specificity": 0.5136,
+      "confusion": {
+        "tp": 379,
+        "fn": 78,
+        "tn": 661,
+        "fp": 626
       }
     }
   }

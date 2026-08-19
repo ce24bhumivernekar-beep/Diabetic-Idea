@@ -44,3 +44,6 @@ ai-service/venv-serve/
 ai-service/data/deleted-records-backup.json
 ai-service/data/external/
 ai-service/data/cache/
+
+# Ad-hoc backups taken while swapping models around
+ai-service/models/*.bak
