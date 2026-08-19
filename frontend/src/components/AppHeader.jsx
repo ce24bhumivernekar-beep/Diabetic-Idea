@@ -47,6 +47,10 @@ function AppHeader() {
           Home
         </Link>
 
+        <Link className="nav-button" to="/ai-screening">
+          AI info
+        </Link>
+
         <Link className="nav-button" to="/about">
           About
         </Link>

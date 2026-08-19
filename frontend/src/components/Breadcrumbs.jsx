@@ -9,6 +9,7 @@ import { Link, useLocation } from "react-router-dom";
 
 const TRAILS = [
   { match: /^\/about$/, trail: [["Home", "/"], ["About", null]] },
+  { match: /^\/ai-screening$/, trail: [["Home", "/"], ["AI Screening Info", null]] },
 
   { match: /^\/patient\/login$/, trail: [["Home", "/"], ["Patient sign in", null]] },
   { match: /^\/patient\/register$/, trail: [["Home", "/"], ["Patient sign in", "/patient/login"], ["Create account", null]] },

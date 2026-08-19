@@ -103,7 +103,7 @@ function LandingPage() {
             SCREENING
           </Link>
 
-          <Link className="landing-nav-item" to="/about#ai-analysis">
+          <Link className="landing-nav-item" to="/ai-screening">
             AI ANALYSIS
           </Link>
 
@@ -143,6 +143,7 @@ function LandingPage() {
           <div className="landing-mobile-menu" id="landing-mobile-menu">
             <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
             <Link to="/patient/screening" onClick={() => setMenuOpen(false)}>Screening</Link>
+            <Link to="/ai-screening" onClick={() => setMenuOpen(false)}>AI screening info</Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>About</Link>
             <Link to="/patient/login" onClick={() => setMenuOpen(false)}>Patient sign in</Link>
             <Link to="/doctor/login" onClick={() => setMenuOpen(false)}>Doctor portal</Link>

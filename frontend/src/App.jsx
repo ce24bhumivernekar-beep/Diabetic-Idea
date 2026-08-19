@@ -7,6 +7,7 @@ import RequireRole from "./routes/RequireRole";
 
 import LandingPage from "./pages/LandingPage";
 import AboutPage from "./pages/AboutPage";
+import AiScreeningInfo from "./pages/AiScreeningInfo";
 import NotFound from "./pages/NotFound";
 
 import PatientLogin from "./pages/PatientLogin";
@@ -43,6 +44,7 @@ function App() {
 
         <Route index element={<LandingPage />} />
         <Route path="about" element={<AboutPage />} />
+        <Route path="ai-screening" element={<AiScreeningInfo />} />
 
         {/* Signed out only */}
         <Route element={<RedirectIfAuthed />}>
