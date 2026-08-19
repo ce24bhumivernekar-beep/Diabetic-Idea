@@ -1443,3 +1443,20 @@ a.back-button {
   background: var(--surface-3);
   color: var(--text);
 }
+
+/* Nav items became links when they were given destinations; they should still
+   read as navigation, not as body-copy hyperlinks. */
+.landing-nav-item,
+.landing-brand,
+.app-brand,
+.landing-nav-doctor,
+.landing-primary,
+.landing-secondary,
+.strip-button {
+  text-decoration: none;
+}
+
+.landing-nav-item {
+  display: inline-flex;
+  align-items: center;
+}

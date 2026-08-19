@@ -258,7 +258,7 @@ function LandingPage() {
           </div>
 
           <p className="landing-description">
-            DR.VISION combines artificial intelligence
+            RetiNova combines artificial intelligence
             and retinal imaging to support faster,
             clearer diabetic retinopathy screening.
           </p>
