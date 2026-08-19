@@ -39,6 +39,7 @@ CLASS_NAMES = ["No DR", "Mild", "Moderate", "Severe", "Proliferative"]
 MODEL_DIR = "models"
 ONNX_PATH = os.path.join(MODEL_DIR, "dr_model.onnx")
 REPORT_PATH = os.path.join(MODEL_DIR, "training_report.json")
+EXTERNAL_PATH = os.path.join(MODEL_DIR, "external_validation.json")
 
 DATASETS = {
     "messidor2": {
@@ -273,15 +274,59 @@ def main():
 
     print("\n  PER CLASS")
 
+    per_class = {}
+
     for index, name in enumerate(CLASS_NAMES):
         mask = labels == index
         support = int(mask.sum())
 
         if support:
             recall = float((predicted[mask] == index).mean())
+            per_class[name] = {"recall": round(recall, 4), "support": support}
             print(f"    {index} {name:<14} recall {recall * 100:5.1f}%  n={support}")
 
-    print()
+    # ---------------------------------------------------------------
+    # Keep the result. An external number is the one claim about this
+    # model that cannot be re-derived from what is in the repo.
+    # ---------------------------------------------------------------
+
+    entry = {
+        "description": dataset["description"],
+        "images": int(len(labels)),
+        "gradeCounts": {str(i): int(counts[i]) for i in range(NUM_CLASSES)},
+        "quadraticWeightedKappa": round(
+            quadratic_weighted_kappa(labels, predicted), 4
+        ),
+        "perClass": per_class,
+    }
+
+    if (labels >= 2).sum() and (labels < 2).sum():
+        sensitivity, specificity, matrix = sensitivity_specificity(
+            referable_probability, labels, threshold
+        )
+
+        entry["atShippedThreshold"] = {
+            "threshold": threshold,
+            "sensitivity": round(sensitivity, 4),
+            "specificity": round(specificity, 4),
+            "confusion": matrix,
+        }
+
+    existing = {}
+
+    if os.path.exists(EXTERNAL_PATH):
+        try:
+            with open(EXTERNAL_PATH, "r", encoding="utf-8") as handle:
+                existing = json.load(handle)
+        except ValueError:
+            existing = {}
+
+    existing[arguments.dataset] = entry
+
+    with open(EXTERNAL_PATH, "w", encoding="utf-8") as handle:
+        json.dump(existing, handle, indent=2)
+
+    print(f"\n  saved to {EXTERNAL_PATH}\n")
 
 
 if __name__ == "__main__":
