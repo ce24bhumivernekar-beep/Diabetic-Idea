@@ -41,7 +41,7 @@ services:
         value: -XX:MaxRAMPercentage=70 -XX:+UseSerialGC
 
   - type: web
-    name: dr-frontend
+    name: retinova
     runtime: static
     buildCommand: cd frontend && npm ci && npm run build
     staticPublishPath: ./frontend/dist
