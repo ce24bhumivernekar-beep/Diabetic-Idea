@@ -35,6 +35,11 @@ public class AiServiceClient {
     private final RestClient liveClient;
     private final String baseUrl;
 
+    /** How many times to retry a cold AI service before giving up. */
+    private static final int WAKE_ATTEMPTS = 3;
+
+    private static final Duration WAKE_RETRY_DELAY = Duration.ofSeconds(5);
+
     public AiServiceClient(
             @Value("${ai.service.base-url}") String baseUrl,
             @Value("${ai.service.timeout-seconds}") int timeoutSeconds) {
@@ -257,34 +262,70 @@ public class AiServiceClient {
 
         body.add("file", asResource(file));
 
-        try {
+        ResourceAccessException lastFailure = null;
 
-            return restClient.post()
-                    .uri("/predict")
-                    .contentType(
-                            MediaType.MULTIPART_FORM_DATA
-                    )
-                    .body(body)
-                    .retrieve()
-                    .body(AiPredictionResponse.class);
+        // A free-tier container sleeps after about fifteen minutes and takes
+        // twenty to fifty seconds to wake. The first request after that wakes
+        // it and then fails, which the user experiences as "screening is
+        // broken" when the service is merely cold. Retrying turns that into a
+        // slow success instead of a failure.
+        for (int attempt = 1; attempt <= WAKE_ATTEMPTS; attempt++) {
 
-        } catch (RestClientResponseException error) {
+            try {
 
-            // The AI service answered with 4xx / 5xx - pass its reason on.
-            throw new AiServiceException(
-                    "AI service rejected the image: "
-                            + error.getResponseBodyAsString(),
-                    error
-            );
+                return restClient.post()
+                        .uri("/predict")
+                        .contentType(
+                                MediaType.MULTIPART_FORM_DATA
+                        )
+                        .body(body)
+                        .retrieve()
+                        .body(AiPredictionResponse.class);
 
-        } catch (ResourceAccessException error) {
+            } catch (RestClientResponseException error) {
 
-            throw new AiServiceException(
-                    "AI service is not running at "
-                            + baseUrl
-                            + ". Start it with: uvicorn app:app --port 8000",
-                    error
-            );
+                // A 4xx is our fault and will not improve on a retry; a 502 or
+                // 503 from the platform means the container is still starting.
+                if (!error.getStatusCode().is5xxServerError()
+                        || attempt == WAKE_ATTEMPTS) {
+
+                    throw new AiServiceException(
+                            "AI service rejected the image: "
+                                    + error.getResponseBodyAsString(),
+                            error
+                    );
+                }
+
+                log.info(
+                        "AI service returned {} on attempt {} - still waking",
+                        error.getStatusCode(),
+                        attempt
+                );
+
+            } catch (ResourceAccessException error) {
+
+                lastFailure = error;
+
+                log.info(
+                        "AI service unreachable on attempt {} of {} - waiting",
+                        attempt,
+                        WAKE_ATTEMPTS
+                );
+            }
+
+            try {
+                Thread.sleep(WAKE_RETRY_DELAY.toMillis());
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                break;
+            }
         }
+
+        throw new AiServiceException(
+                "The analysis service did not answer in time. On free hosting "
+                        + "it sleeps when idle and takes up to a minute to "
+                        + "start - please try again.",
+                lastFailure
+        );
     }
 }

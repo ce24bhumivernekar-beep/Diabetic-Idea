@@ -1654,3 +1654,18 @@ a.back-button {
   font-weight: 500;
   font-style: italic;
 }
+
+/* A button that reads as a link - used inside a warning where a full button
+   would shout louder than the sentence around it. */
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.link-button:hover { opacity: 0.8; }

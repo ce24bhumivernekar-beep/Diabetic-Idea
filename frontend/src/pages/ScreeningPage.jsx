@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import BackLink from "../components/BackLink";
 import LoadingState from "../components/LoadingState";
 import CameraCapture from "../components/CameraCapture";
+import useServiceHealth from "../hooks/useServiceHealth";
 import { API_URL, apiError } from "../config";
 import { useAuth } from "../context/auth";
 
@@ -16,7 +17,7 @@ function ScreeningPage() {
   const [loading, setLoading] = useState(false);
   const [waking, setWaking] = useState(false);
   const [eye, setEye] = useState("RIGHT");
-  const [service, setService] = useState(null);
+  const service = useServiceHealth();
   const [error, setError] = useState("");
 
   // Accepts an image from the file picker, the live camera or the phone
@@ -34,29 +35,6 @@ function ScreeningPage() {
   const handleFileChange = (event) => {
     acceptImage(event.target.files[0]);
   };
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const check = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/health`);
-        const health = await response.json();
-
-        if (!cancelled) {
-          setService(health);
-        }
-      } catch {
-        // A failed health check is not worth blocking the page for.
-      }
-    };
-
-    check();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   // Release the object URL when it is replaced or the page closes.
   useEffect(() => {
@@ -155,11 +133,33 @@ function ScreeningPage() {
         Upload a retinal fundus image for AI-assisted screening
       </p>
 
-      {service && service.aiService !== "UP" && (
+      {service.waking && (
         <p className="report-warning">
-          <strong>The analysis service is still waking up.</strong> Free
-          hosting sleeps after a while. You can set up your capture now - if
-          the first analysis fails, wait a few seconds and try again.
+          <strong>Starting the analysis service - {service.secondsWaited}s.</strong>{" "}
+          Free hosting puts it to sleep when nobody is using it, and waking it
+          takes up to a minute. Set up your capture now; this message will
+          disappear on its own once it is ready.
+        </p>
+      )}
+
+      {service.gaveUp && (
+        <p className="report-warning is-critical">
+          <strong>The analysis service is not responding.</strong> It has been
+          asked for two minutes with no answer, so this is no longer a slow
+          start.{" "}
+          <button
+            type="button"
+            className="link-button"
+            onClick={service.retry}
+          >
+            Try again
+          </button>
+        </p>
+      )}
+
+      {service.ready && (
+        <p className="report-quality">
+          Analysis service ready.
         </p>
       )}
 
